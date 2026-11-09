@@ -50,7 +50,15 @@
   window.dash = dash;
   let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(emit, 150); });
 
+  let limites = [];
+  function aplicarLimites(rows) {
+    const m = rows.find((r) => r && r.id === 'metas'); if (!m || !limites.length) return rows;
+    const data = m.data.map((x) => { const l = limites.find((y) => y.nivel === x.nivel && y.chave === x.chave); return l ? { ...x, valor_meta: +l.valor_meta } : x; });
+    for (const l of limites) if (!data.some((x) => x.nivel === l.nivel && x.chave === l.chave)) data.push({ id: l.nivel + ':' + l.chave, nivel: l.nivel, chave: l.chave, valor_meta: +l.valor_meta, tipo: 'teto', mae_pai: null, nota: 'ajustado no app' });
+    return rows.map((r) => (r === m ? { ...m, data } : r));
+  }
   function setDados(rows) {
+    rows = aplicarLimites(rows);
     for (const id of DATASETS) store.set(id, { status: 'missing', data: [] });
     for (const r of rows) store.set(r.id, { status: 'ok', data: r.data });
     dataVer += 1; memo.clear();
@@ -78,9 +86,10 @@
           const r = await fetch('seed/' + id + '.json'); if (!r.ok) return null;
           return { id, data: await r.json() };
         }));
+        try { limites = JSON.parse(localStorage.getItem('oikos-lim') || '[]'); } catch (e) { limites = []; }
         setDados(rows.filter(Boolean));
         $('sv-upd').textContent = 'Modo demonstração (dados locais)';
-        $('sv-who').textContent = 'Família Vital';
+        $('sv-who').textContent = 'Família Sanches Vital';
         return;
       }
       const { data: hh, error: e1 } = await sb.from('households').select('id, nome').limit(1);
@@ -90,6 +99,7 @@
       $('sv-who').textContent = household.nome;
       const { data, error } = await sb.from('datasets').select('id, data, updated_at').eq('household_id', household.id);
       if (error) throw error;
+      try { const lr = await sb.from('limites').select('nivel, chave, valor_meta').eq('household_id', household.id); limites = lr.data || []; } catch (e) { limites = []; }
       setDados(data);
       const ult = data.map((d) => d.updated_at).sort().pop();
       $('sv-upd').textContent = ult ? 'Dados atualizados em ' + new Date(ult).toLocaleDateString('pt-BR') : '';
@@ -111,6 +121,36 @@
       const { error } = await sb.from('notas').insert({ household_id: household.id, foto_path: nome, qr_texto: qr || null, chave });
       if (error) throw error;
       return { ok: true, chave };
+    },
+    async salvarLimites(lista) {
+      if (demo) {
+        let l = []; try { l = JSON.parse(localStorage.getItem('oikos-lim') || '[]'); } catch (e) { /* vazio */ }
+        for (const x of lista) { const i = l.findIndex((y) => y.nivel === x.nivel && y.chave === x.chave); if (i >= 0) l[i] = x; else l.push(x); }
+        try { localStorage.setItem('oikos-lim', JSON.stringify(l)); } catch (e) { /* ignora */ }
+      } else {
+        const { error } = await sb.from('limites').upsert(lista.map((x) => ({ household_id: household.id, nivel: x.nivel, chave: x.chave, valor_meta: x.valor_meta, atualizado_em: new Date().toISOString() })));
+        if (error) throw error;
+      }
+      await carregar();
+    },
+    objetivos: {
+      _ls() { try { return JSON.parse(localStorage.getItem('oikos-obj') || '[]'); } catch (e) { return []; } },
+      _sv(l) { try { localStorage.setItem('oikos-obj', JSON.stringify(l)); } catch (e) { /* ignora */ } },
+      async listar() {
+        if (demo) { let l = this._ls(); if (!l.length) { l = [{ id: 'd1', pessoa: 'familia', categoria: 'reserva', titulo: 'Reserva de emergência (3 meses)', valor_alvo: 15000, valor_guardado: 1303.67, prazo: '2027-12-01' }]; this._sv(l); } return l; }
+        const { data, error } = await sb.from('objetivos').select('*').eq('household_id', household.id).order('criado_em');
+        if (error) throw error; return data;
+      },
+      async salvar(o) {
+        if (demo) { const l = this._ls(); if (o.id) { const i = l.findIndex((x) => x.id === o.id); l[i] = { ...l[i], ...o }; } else l.push({ ...o, id: 'd' + Date.now() }); this._sv(l); return; }
+        const row = { pessoa: o.pessoa, categoria: o.categoria, titulo: o.titulo, valor_alvo: o.valor_alvo, valor_guardado: o.valor_guardado || 0, prazo: o.prazo || null, atualizado_em: new Date().toISOString() };
+        const r = o.id ? await sb.from('objetivos').update(row).eq('id', o.id) : await sb.from('objetivos').insert({ ...row, household_id: household.id });
+        if (r.error) throw r.error;
+      },
+      async apagar(id) {
+        if (demo) { this._sv(this._ls().filter((x) => x.id !== id)); return; }
+        const { error } = await sb.from('objetivos').delete().eq('id', id); if (error) throw error;
+      },
     },
     async listarNotas() {
       if (demo) return [];

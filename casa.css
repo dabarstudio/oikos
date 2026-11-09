@@ -37,3 +37,18 @@ body.cs-on .fv-head, body.cs-on .fv-bar, body.cs-on .fv-page { display: none !im
 .cs-legend i { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
 .cs-legend i.ok { background: var(--color-ok); } .cs-legend i.warn { background: var(--color-warn); } .cs-legend i.bad { background: var(--color-bad); }
 .cs-legend u { width: 2px; height: 14px; background: var(--color-fg); opacity: .55; display: inline-block; }
+.cs-lim { font: inherit; padding: 15px; border-radius: 16px; border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); font-size: 16px; font-weight: 600; }
+.cs-lsheet { position: fixed; inset: 0; z-index: 60; pointer-events: none; }
+.cs-lscrim { position: absolute; inset: 0; background: rgba(0,0,0,.35); opacity: 0; transition: opacity .2s; }
+.cs-lpanel { position: absolute; left: 0; right: 0; bottom: 0; max-height: 90vh; overflow-y: auto; background: var(--color-panel); border-radius: 22px 22px 0 0; padding: 10px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+  transform: translateY(105%); transition: transform .25s var(--cds-ease-out); max-width: 620px; margin: 0 auto; }
+body.cs-lopen .cs-lsheet { pointer-events: auto; } body.cs-lopen .cs-lscrim { opacity: 1; } body.cs-lopen .cs-lpanel { transform: none; }
+.cs-lpanel .ob-grab { display: block; width: 40px; height: 5px; border-radius: 3px; background: var(--color-border-line); margin: 0 auto 12px; }
+.cs-lq { font-size: 21px; font-weight: 700; margin: 4px 0 4px; } .cs-lsub { margin: 0 0 12px; color: var(--color-fg-muted); font-size: 14.5px; }
+.cs-lrow { display: grid; grid-template-columns: 34px minmax(0, 1fr) 44px 92px 44px; gap: 8px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--color-border-line); }
+.cs-lrow.tot { background: color-mix(in srgb, var(--sv-green) 7%, transparent); border-radius: 12px; padding: 10px 8px; margin-bottom: 6px; border: 0; }
+.cs-lem { font-size: 24px; } .cs-lnm { font-size: 15.5px; font-weight: 600; }
+.cs-lrow button { font: inherit; height: 44px; border-radius: 12px; border: 1px solid var(--color-border-line); background: var(--color-bg); color: var(--color-fg); font-size: 22px; font-weight: 700; }
+.cs-lrow input { font: inherit; height: 44px; width: 100%; text-align: center; border-radius: 12px; border: 1px solid var(--color-border-line); background: var(--color-bg); color: var(--color-fg); font-size: 17px !important; font-weight: 700; }
+.cs-lsave { font: inherit; width: 100%; padding: 16px; margin-top: 14px; border-radius: 14px; border: 0; background: var(--sv-green); color: #fff; font-size: 17px; font-weight: 700; }
+.cs-lcancel { font: inherit; width: 100%; padding: 14px; margin-top: 8px; border-radius: 14px; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg); font-size: 16px; }

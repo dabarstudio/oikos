@@ -3,6 +3,7 @@
   const I = {
     casa: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
     visao: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+    objetivos: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>',
     metas: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',
     mercado: '<path d="M3 4h2l2.4 11h10.2L20 8H6.2"/><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/>',
     lanc: '<path d="M4 6h16M4 12h16M4 18h10"/>',
@@ -14,13 +15,13 @@
     sair: '<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>',
   };
   const svg = (k) => '<svg viewBox="0 0 24 24" aria-hidden="true">' + I[k] + '</svg>';
-  const NOMES = { casa: 'Início', visao: 'Resumo do ano', metas: 'Metas', mercado: 'Mercado', lanc: 'Gastos', contas: 'Contas', fixos: 'Gastos fixos', patrimonio: 'Patrimônio', plano: 'Plano de aportes' };
-  const MAIS = [['visao', 'Números do ano e gráficos'], ['contas', 'Entradas e saídas por conta, mês a mês'], ['fixos', 'Contas que se repetem todo mês'], ['patrimonio', 'O que a família tem e deve'], ['plano', 'Para onde vai a sobra do mês']];
+  const NOMES = { casa: 'Início', objetivos: 'Objetivos', visao: 'Resumo do ano', metas: 'Metas', mercado: 'Mercado', lanc: 'Gastos', contas: 'Contas', fixos: 'Gastos fixos', patrimonio: 'Patrimônio', plano: 'Plano de aportes' };
+  const MAIS = [['metas', 'Limites de gasto de cada categoria'], ['visao', 'Números do ano e gráficos'], ['contas', 'Entradas e saídas por conta, mês a mês'], ['fixos', 'Contas que se repetem todo mês'], ['patrimonio', 'O que a família tem e deve'], ['plano', 'Para onde vai a sobra do mês']];
 
   function montar() {
     if (document.querySelector('.ob-nav') || !document.getElementById('tab-visao')) return;
     const nav = document.createElement('nav'); nav.className = 'ob-nav'; nav.setAttribute('aria-label', 'Navegação');
-    nav.innerHTML = ['casa', 'metas', 'mercado', 'lanc'].map((k) => `<button type="button" data-go="${k}">${svg(k)}<span>${NOMES[k]}</span></button>`).join('')
+    nav.innerHTML = ['casa', 'objetivos', 'lanc', 'mercado'].map((k) => `<button type="button" data-go="${k}">${svg(k)}<span>${NOMES[k]}</span></button>`).join('')
       + `<button type="button" data-mais>${svg('mais')}<span>Mais</span></button>`;
     const scrim = document.createElement('div'); scrim.className = 'ob-scrim';
     const sheet = document.createElement('div'); sheet.className = 'ob-sheet'; sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-label', 'Mais seções');
@@ -29,7 +30,7 @@
     document.body.append(nav, scrim, sheet);
 
     const fechar = () => document.body.classList.remove('ob-open');
-    const ir = (k) => { fechar(); if (k === 'casa') { window.OIKOS_CASA && window.OIKOS_CASA.show(); sync(); return; } window.OIKOS_CASA && window.OIKOS_CASA.hide(); const b = document.getElementById('tab-' + k); if (b) b.click(); window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' }); };
+    const ir = (k) => { fechar(); if (k === 'casa') { window.OIKOS_OBJ && window.OIKOS_OBJ.hide(); window.OIKOS_CASA && window.OIKOS_CASA.show(); sync(); return; } if (k === 'objetivos') { window.OIKOS_OBJ && window.OIKOS_OBJ.show(); sync(); return; } window.OIKOS_CASA && window.OIKOS_CASA.hide(); window.OIKOS_OBJ && window.OIKOS_OBJ.hide(); const b = document.getElementById('tab-' + k); if (b) b.click(); window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' }); };
     document.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => ir(b.dataset.go)));
     nav.querySelector('[data-mais]').addEventListener('click', () => document.body.classList.toggle('ob-open'));
     scrim.addEventListener('click', fechar);
@@ -43,7 +44,7 @@
 
     const sync = () => {
       const ativa = document.querySelector('.fv-tab[aria-selected="true"]');
-      const k = document.body.classList.contains('cs-on') ? 'casa' : (ativa ? ativa.dataset.tab : 'visao');
+      const k = document.body.classList.contains('og-on') ? 'objetivos' : document.body.classList.contains('cs-on') ? 'casa' : (ativa ? ativa.dataset.tab : 'visao');
       document.body.dataset.tab = k;
       t.textContent = NOMES[k] || '';
       nav.querySelectorAll('button').forEach((b) => b.removeAttribute('aria-current'));
