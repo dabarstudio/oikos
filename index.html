@@ -18,13 +18,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="app.css?v=5">
-<link rel="stylesheet" href="mobile.css?v=4">
+<link rel="stylesheet" href="mobile.css?v=6">
+<link rel="stylesheet" href="casa.css?v=1">
 <script src="vendor/d3.min.js"></script>
 <script src="vendor/supabase.js"></script>
 <script src="config.js"></script>
 <script src="app.js?v=4"></script>
-<script src="mobile.js?v=3"></script>
+<script src="mobile.js?v=4"></script>
 <script src="mobile-contas.js?v=1"></script>
+<script src="casa.js?v=2"></script>
 </head>
 <body>
 <section class="sv-login" id="sv-login" hidden>
@@ -33,7 +35,7 @@
     <svg class="sv-pulse" viewBox="0 0 300 34" aria-hidden="true"><path d="M0 20 H95 L108 20 L118 4 L130 32 L140 12 L148 20 H300"/></svg>
     <h1>A economia da sua casa</h1>
     <p>Entre com o e-mail e a senha cadastrados.</p>
-    <div class="sv-field"><label for="sv-email">E-mail</label><input class="sv-in" id="sv-email" type="email" autocomplete="username" required></div>
+    <div class="sv-field"><label for="sv-email">E-mail</label><input class="sv-in" id="sv-email" type="email" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="username" required></div>
     <div class="sv-field"><label for="sv-senha">Senha</label><input class="sv-in" id="sv-senha" type="password" autocomplete="current-password" required></div>
     <button class="sv-btn primary" id="sv-entrar" type="submit">Entrar</button>
     <button class="sv-btn" id="sv-esqueci" type="button">Esqueci a senha</button>

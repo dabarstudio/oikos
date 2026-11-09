@@ -1,0 +1,39 @@
+/* Oikos — tela "Casa" (Início simples) */
+.cs { display: none; }
+body.cs-on .cs { display: grid; gap: 14px; }
+body.cs-on .fv-head, body.cs-on .fv-bar, body.cs-on .fv-page { display: none !important; }
+.cs-hello { margin: 4px 2px 0; font-size: 17px; color: var(--color-fg-muted); }
+.cs-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 20px; padding: 20px; }
+.cs-hero { display: grid; gap: 8px; border-width: 2px; }
+.cs-hero.ok { border-color: color-mix(in srgb, var(--color-ok) 45%, transparent); }
+.cs-hero.warn { border-color: color-mix(in srgb, var(--color-warn) 55%, transparent); }
+.cs-hero.bad { border-color: color-mix(in srgb, var(--color-bad) 55%, transparent); }
+.cs-lbl { font-size: 16px; color: var(--color-fg-muted); font-weight: 600; }
+.cs-big { font-family: var(--font-anthropic-serif); font-size: 46px; line-height: 1.05; font-weight: 600; letter-spacing: -.02em; }
+.cs-hero.ok .cs-big { color: var(--color-ok); } .cs-hero.warn .cs-big { color: var(--color-warn); } .cs-hero.bad .cs-big { color: var(--color-bad); }
+.cs-sub { font-size: 14px; color: var(--color-fg-muted); }
+.cs-msg { margin: 6px 0 0; font-size: 16px; line-height: 1.4; display: flex; gap: 8px; align-items: flex-start; }
+.cs-bar { position: relative; display: block; height: 10px; border-radius: 6px; background: color-mix(in srgb, var(--color-fg) 9%, transparent); }
+.cs-bar.big { height: 14px; border-radius: 8px; margin: 4px 0; }
+.cs-bar i { display: block; height: 100%; border-radius: inherit; background: var(--color-ok); }
+.cs-bar u { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: var(--color-fg); border-radius: 1px; opacity: .55; }
+.warn .cs-bar i { background: var(--color-warn); } .bad .cs-bar i { background: var(--color-bad); }
+.cs-h { margin: 10px 2px 0; font-family: var(--font-anthropic-serif); font-size: 24px; font-weight: 500; }
+.cs-hint { margin: -6px 2px 0; font-size: 14px; color: var(--color-fg-muted); }
+.cs-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (min-width: 760px) { .cs-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } .cs { max-width: 980px; } }
+.cs-env { font: inherit; text-align: left; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 18px;
+  padding: 14px; display: grid; gap: 6px; min-height: 150px; align-content: start; -webkit-tap-highlight-color: transparent; transition: transform .08s; }
+.cs-env:active { transform: scale(.97); }
+.cs-env.warn { border-color: color-mix(in srgb, var(--color-warn) 55%, transparent); background: color-mix(in srgb, var(--color-warn) 6%, var(--color-panel)); }
+.cs-env.bad { border-color: color-mix(in srgb, var(--color-bad) 55%, transparent); background: color-mix(in srgb, var(--color-bad) 6%, var(--color-panel)); }
+.cs-em { font-size: 30px; line-height: 1; }
+.cs-et { font-size: 16px; font-weight: 700; }
+.cs-ef { font-size: 15px; }
+.cs-env.ok .cs-ef b { color: var(--color-ok); } .cs-env.warn .cs-ef b { color: var(--color-warn); } .cs-env.bad .cs-ef b { color: var(--color-bad); }
+.cs-de { font-size: 12.5px; color: var(--color-fg-muted); }
+.cs-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--color-fg-muted); padding: 2px 4px 8px; }
+.cs-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.cs-legend i { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+.cs-legend i.ok { background: var(--color-ok); } .cs-legend i.warn { background: var(--color-warn); } .cs-legend i.bad { background: var(--color-bad); }
+.cs-legend u { width: 2px; height: 14px; background: var(--color-fg); opacity: .55; display: inline-block; }

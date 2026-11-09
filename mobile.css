@@ -133,3 +133,5 @@
   .ob-row, .ob-subrow { grid-template-columns: minmax(0, 1fr) auto 18px; }
   .ob-sum { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+/* rodapé de navegação só depois do login */
+body.ob-logout .ob-nav, body.ob-logout .ob-sheet, body.ob-logout .ob-scrim { display: none !important; }
