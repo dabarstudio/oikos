@@ -1,0 +1,77 @@
+/* Oikos — camada mobile: navegação por abas no rodapé, cabeçalho enxuto e listas no lugar de tabelas. */
+.ob-nav, .ob-sheet, .ob-scrim, .ob-pagetitle { display: none; }
+@media (max-width: 760px) {
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+  #sv-sair { display: none; }
+  .sv-top { padding-block: 8px; }
+  .sv-top .who div:last-child { display: block; font-size: 11px; }
+
+  /* abas de cima somem: a navegação vai para o rodapé */
+  .fv-tabs { display: none !important; }
+  .fv-bar { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 47px); z-index: 15; background: var(--color-bg); padding-block: 8px; margin-block: -8px; flex-wrap: nowrap; }
+  .fv-bar .fv-sel, .fv-bar select { font-size: 15px; min-height: 40px; max-width: 62vw; }
+  .ob-pagetitle { display: block; font-family: var(--font-anthropic-serif); font-size: 20px; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; font-weight: 500; margin: 0; white-space: nowrap; }
+  /* título grande e frase-resumo só na tela inicial */
+  body:not([data-tab="visao"]) .fv-head { display: none; }
+  .fv-title { font-size: 24px; }
+  .fv-take { font-size: 15px; }
+
+  /* toques mais confortáveis */
+  .fv-sel, .fv-input, .fv-chip, .fv-toggle, select, input[type="search"] { min-height: 44px; font-size: 16px !important; }
+  .fv-card { border-radius: 16px; }
+
+  /* rodapé de navegação */
+  .ob-nav { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    background: color-mix(in srgb, var(--color-panel) 94%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    border-top: 1px solid var(--color-border-line); padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px)); }
+  .ob-nav button { font: inherit; background: none; border: 0; color: var(--color-fg-muted); display: grid; justify-items: center; gap: 3px;
+    font-size: 11.5px; font-weight: 600; padding: 6px 2px; border-radius: 12px; -webkit-tap-highlight-color: transparent; }
+  .ob-nav svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .ob-nav button[aria-current="page"] { color: var(--sv-green); }
+  .ob-nav button[aria-current="page"] svg { stroke-width: 2.4; }
+  .ob-nav button:active { background: color-mix(in srgb, var(--sv-green) 10%, transparent); }
+
+  /* "Mais": folha que sobe do rodapé */
+  .ob-scrim { display: block; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 45; opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .ob-sheet { display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; background: var(--color-panel); border-radius: 20px 20px 0 0;
+    padding: 10px 16px calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateY(105%); transition: transform .25s var(--cds-ease-out); box-shadow: 0 -8px 30px rgba(0,0,0,.15); }
+  .ob-open .ob-scrim { opacity: 1; pointer-events: auto; }
+  .ob-open .ob-sheet { transform: none; }
+  .ob-grab { width: 40px; height: 5px; border-radius: 3px; background: var(--color-border-line); margin: 0 auto 12px; }
+  .ob-sheet h3 { margin: 0 0 8px; font-size: 13px; color: var(--color-fg-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  .ob-sheet button { font: inherit; width: 100%; display: flex; align-items: center; gap: 14px; background: none; border: 0; color: var(--color-fg);
+    padding: 14px 6px; font-size: 16px; text-align: left; border-bottom: 1px solid var(--color-border-line); }
+  .ob-sheet button:last-child { border-bottom: 0; }
+  .ob-sheet button small { display: block; color: var(--color-fg-muted); font-size: 12.5px; }
+  .ob-sheet svg { width: 22px; height: 22px; flex: none; fill: none; stroke: var(--sv-green); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .ob-sheet .ob-sair { color: var(--color-bad); }
+  .ob-sheet .ob-sair svg { stroke: var(--color-bad); }
+
+  /* lançamentos: lista em cartões, sem rolagem lateral */
+  #tb-lanc thead { display: none; }
+  #tb-lanc, #tb-lanc tbody { display: block; }
+  #tb-lanc tr { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 12px 4px; border-bottom: 1px solid var(--color-border-line); }
+  #tb-lanc td { border: 0; padding: 0; white-space: normal; min-width: 0 !important; }
+  #tb-lanc td:nth-child(2) { grid-column: 1; grid-row: 1; font-size: 14.5px; color: var(--color-fg); }
+  #tb-lanc td:nth-child(6) { grid-column: 2; grid-row: 1; font-size: 15px; font-weight: 600; text-align: right; }
+  #tb-lanc td:nth-child(1) { grid-column: 1; grid-row: 2; color: var(--color-fg-muted); font-size: 12.5px; }
+  #tb-lanc td:nth-child(3) { grid-column: 2; grid-row: 2; color: var(--color-fg-muted); font-size: 12.5px; text-align: right; }
+  #tb-lanc td:nth-child(7) { grid-column: 1 / -1; grid-row: 3; margin-top: 6px; }
+  #tb-lanc td:nth-child(7) select { width: 100%; min-height: 40px; font-size: 14px !important; }
+  #card-lanc .fv-scroll { max-height: none; overflow: visible; }
+}
+@media (prefers-reduced-motion: reduce) { .ob-sheet, .ob-scrim { transition: none; } }
+@media (max-width: 760px) {
+  html, body { overflow-x: hidden; }
+  body[data-tab="visao"] .ob-pagetitle { display: none; }
+  body[data-tab="visao"] .fv-bar { justify-content: flex-end; }
+  #card-lanc .fv-filters { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  #card-lanc .fv-filters > * { width: 100%; min-width: 0; }
+  #tb-lanc { width: 100% !important; min-width: 0 !important; table-layout: auto; }
+  #tb-lanc td:nth-child(2) { overflow-wrap: anywhere; }
+  /* "Mover para…" só aparece ao tocar no lançamento */
+  #tb-lanc td:nth-child(7) { display: none; }
+  #tb-lanc tr.ob-sel td:nth-child(7), #tb-lanc tr.moved td:nth-child(7) { display: block; }
+  #tb-lanc tr.ob-sel { background: color-mix(in srgb, var(--sv-green) 6%, transparent); border-radius: 10px; }
+  .ob-dica { font-size: 12.5px; color: var(--color-fg-muted); margin: 0 0 4px; }
+}
