@@ -1,5 +1,7 @@
 <svg id="s" xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 100 100">
 <rect id="bg" width="100" height="100" rx="22" fill="#007941"></rect>
-<path d="M24 40 L50 17 L76 40" fill="none" stroke="#eb6834" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"></path>
-<text x="50" y="83" text-anchor="middle" font-family="Fraunces" font-weight="700" font-size="50" fill="#fff">$</text>
-</svg>
+<g fill="none" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+<path d="M24 40 L50 17 L76 40" stroke="#eb6834"></path>
+<path d="M62 53 C59 48.5 55 47 50 47 C43.5 47 38.5 50.5 38.5 56 C38.5 61.5 43.5 63.5 50 65 C56.5 66.5 61.5 68.5 61.5 74.5 C61.5 80 56.5 83.5 50 83.5 C44.5 83.5 40 81.5 37.5 77.5" stroke="#fff"></path>
+<path d="M50 40.5 V90" stroke="#fff"></path>
+</g></svg>
