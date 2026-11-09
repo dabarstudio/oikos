@@ -29,7 +29,7 @@
   --font-anthropic-serif: "Fraunces", Georgia, "Times New Roman", serif;
   color-scheme: light;
 }
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) and (min-width: 99999px) { /* tema escuro desligado: o app usa sempre o fundo claro */
   :root {
     --color-bg: #121411; --color-panel: #1b1e1a; --color-fg: #eef0ea; --color-fg-muted: #a3a99e; --color-border-line: #2c312a;
     --color-ok: #4cc283; --color-warn: #e0a339; --color-bad: #f0765a;
