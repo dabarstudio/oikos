@@ -13,7 +13,7 @@
     sair: '<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>',
   };
   const svg = (k) => '<svg viewBox="0 0 24 24" aria-hidden="true">' + I[k] + '</svg>';
-  const NOMES = { visao: 'Início', metas: 'Metas', mercado: 'Mercado', lanc: 'Gastos', contas: 'Contas mês a mês', fixos: 'Gastos fixos', patrimonio: 'Patrimônio', plano: 'Plano de aportes' };
+  const NOMES = { visao: 'Início', metas: 'Metas', mercado: 'Mercado', lanc: 'Gastos', contas: 'Contas', fixos: 'Gastos fixos', patrimonio: 'Patrimônio', plano: 'Plano de aportes' };
   const MAIS = [['contas', 'Entradas e saídas por conta, mês a mês'], ['fixos', 'Contas que se repetem todo mês'], ['patrimonio', 'O que a família tem e deve'], ['plano', 'Para onde vai a sobra do mês']];
 
   function montar() {
@@ -23,7 +23,7 @@
       + `<button type="button" data-mais>${svg('mais')}<span>Mais</span></button>`;
     const scrim = document.createElement('div'); scrim.className = 'ob-scrim';
     const sheet = document.createElement('div'); sheet.className = 'ob-sheet'; sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-label', 'Mais seções');
-    sheet.innerHTML = '<div class="ob-grab"></div><h3>Mais seções</h3>' + MAIS.map(([k, d]) => `<button type="button" data-go="${k}">${svg(k)}<span>${NOMES[k]}<small>${d}</small></span></button>`).join('')
+    sheet.innerHTML = '<div class="ob-grab"></div><h3>Mais seções</h3>' + MAIS.map(([k, d]) => `<button type="button" data-go="${k}">${svg(k)}<span>${k==='contas'?'Contas mês a mês':NOMES[k]}<small>${d}</small></span></button>`).join('')
       + `<button type="button" class="ob-sair">${svg('sair')}<span>Sair da conta</span></button>`;
     document.body.append(nav, scrim, sheet);
 
@@ -68,6 +68,11 @@
   }
 
   // "Clique" vira "Toque" em telas de toque
+  // dica na tela Contas mês a mês (celular)
+  document.addEventListener('DOMContentLoaded', () => {
+    const tb = document.getElementById('tb-pivot');
+    if (tb && matchMedia('(max-width: 760px)').matches) { const d = document.createElement('p'); d.className = 'ob-dica'; d.textContent = 'No celular aparece um mês por vez: troque o mês no "Período", lá em cima.'; tb.closest('.fv-scroll, .fv-card').before ? tb.parentElement.before(d) : null; }
+  });
   const toque = matchMedia('(hover: none)').matches;
   function textos(root) {
     if (!toque) return;

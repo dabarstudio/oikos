@@ -75,3 +75,22 @@
   #tb-lanc tr.ob-sel { background: color-mix(in srgb, var(--sv-green) 6%, transparent); border-radius: 10px; }
   .ob-dica { font-size: 12.5px; color: var(--color-fg-muted); margin: 0 0 4px; }
 }
+/* nada pode ficar mais largo que a tela (no iPhone isso "trava" o zoom da página) */
+.fv-card, .fv-page, .fv { min-width: 0; max-width: 100%; }
+.fv-card { overflow-x: auto; }
+@media (max-width: 760px) {
+  #tb-alav td, #tb-alav th, #tb-comp td, #tb-comp th { white-space: normal; }
+  #tb-alav, #tb-comp { width: 100%; table-layout: fixed; }
+  #tb-alav td:last-child, #tb-alav th:last-child, #tb-comp td:nth-child(3), #tb-comp th:nth-child(3) { width: 30%; }
+  .fv-chart svg { max-width: 100%; height: auto; }
+}
+@media (max-width: 760px) {
+  /* Contas mês a mês: no celular mostra só o mês escolhido no "Período" (Conta | Valor | %) */
+  #tb-pivot th:not(.fv-col1):not(.selc), #tb-pivot td:not(.fv-col1):not(.selc) { display: none; }
+  #tb-pivot { width: 100%; }
+  #tb-pivot .fv-col1 { position: static; white-space: normal; width: 62%; }
+  #tb-pivot td, #tb-pivot th { padding: 10px 8px; font-size: 14px; }
+  #tb-pivot td.p.selc { color: var(--color-fg-muted); font-size: 12.5px; }
+  #tb-pivot .selc { background: transparent; }
+  #contas .fv-scroll { overflow: visible; max-height: none; }
+}
