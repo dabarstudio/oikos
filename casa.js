@@ -37,11 +37,14 @@
     const faltamDias = diasMes - dia;
 
     const meta = (nivel, chave) => (mt.data.find((m) => m.nivel === nivel && m.chave === chave) || {}).valor_meta || 0;
-    const gastoDe = (nivel, chave) => co.data.filter((c) => c.tipo === 'Saída' && c.mes === mes && (nivel === 'conta' ? c.conta === chave : c.mae === chave)).reduce((s, c) => s + c.valor, 0);
+    const G = (window.OIKOS_GASTOS ? window.OIKOS_GASTOS.lista() : []).filter((g) => !g.reembolsar && String(g.data).slice(0, 7) === mes);
+    const MP = window.OIKOS_GASTOS ? window.OIKOS_GASTOS.mapa : {};
+    const appDe = (nivel, chave) => G.filter((g) => { const m = MP[g.envelope]; if (!m) return false; if (nivel === 'conta') return m[0] === 'conta' && m[1] === chave; if (m[0] === 'mae') return m[1] === chave; const cc = co.data.find((x) => x.conta === m[1]); return cc && cc.mae === chave; }).reduce((s, g) => s + (+g.valor), 0);
+    const gastoDe = (nivel, chave) => co.data.filter((c) => c.tipo === 'Saída' && c.mes === mes && (nivel === 'conta' ? c.conta === chave : c.mae === chave)).reduce((s, c) => s + c.valor, 0) + appDe(nivel, chave);
 
     const teto = meta('total', 'SAÍDAS');
     const linha = me.data.find((r) => r.mes === mes) || {};
-    const saiu = linha.saidas || 0;
+    const saiu = (linha.saidas || 0) + G.reduce((s, g) => s + (+g.valor), 0);
     const resta = teto - saiu;
     const st = estado(saiu, teto, ritmo);
     const frase = st === 'bad' ? 'O dinheiro do mês para gastos acabou. Só o essencial até o fim do mês.'
@@ -70,6 +73,7 @@
         <span class="cs-sub">Gastou ${BRL.format(saiu)} de ${BRL.format(teto)} · faltam ${faltamDias} dias</span>
         <p class="cs-msg"><span aria-hidden="true">${st === 'ok' ? '😊' : st === 'warn' ? '⚠️' : '🛑'}</span> ${frase}</p>
       </div>
+      <button type="button" class="cs-cta2" data-anotar><span aria-hidden="true">✍️</span><span><b>Anotar gasto</b><small>Gastou em dinheiro, PIX ou cartão? Anote aqui</small></span></button>
       <h2 class="cs-h">Envelopes do mês</h2>
       <p class="cs-hint">Toque num envelope para ver o que foi gasto.</p>
       <div class="cs-grid">${envs}</div>
@@ -123,8 +127,9 @@
     root = document.createElement('section'); root.className = 'cs'; root.id = 'casa'; root.setAttribute('aria-label', 'Início');
     dr.prepend(root);
     montarLimites();
-    root.addEventListener('click', (e) => { if (e.target.closest('[data-lim]')) return abrirLimites(); const b = e.target.closest('.cs-env'); if (b) abrirEnvelope(b.dataset.nivel, decodeURIComponent(b.dataset.chave)); });
+    root.addEventListener('click', (e) => { if (e.target.closest('[data-anotar]')) return window.OIKOS_ANOTAR && window.OIKOS_ANOTAR(); if (e.target.closest('[data-lim]')) return abrirLimites(); const b = e.target.closest('.cs-env'); if (b) abrirEnvelope(b.dataset.nivel, decodeURIComponent(b.dataset.chave)); });
     dash.onData(render);
+    document.addEventListener('oikos:gastos', render);
     window.OIKOS_CASA = { show: () => { document.body.classList.remove('og-on'); document.body.classList.add('cs-on'); render(); scrollTo(0, 0); document.dispatchEvent(new Event('oikos:tab')); }, hide: () => { document.body.classList.remove('cs-on'); document.dispatchEvent(new Event('oikos:tab')); } };
     if (matchMedia('(max-width: 760px)').matches && !location.hash) window.OIKOS_CASA.show();
   }

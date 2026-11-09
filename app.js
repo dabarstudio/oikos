@@ -133,6 +133,25 @@
       }
       await carregar();
     },
+    gastos: {
+      _ls() { try { return JSON.parse(localStorage.getItem('oikos-gas') || '[]'); } catch (e) { return []; } },
+      _sv(l) { try { localStorage.setItem('oikos-gas', JSON.stringify(l)); } catch (e) { /* ignora */ } },
+      async listar() {
+        if (demo) return this._ls();
+        const { data, error } = await sb.from('gastos_app').select('*').eq('household_id', household.id).eq('conciliado', false).order('data', { ascending: false }).order('criado_em', { ascending: false }).limit(200);
+        if (error) throw error; return data;
+      },
+      async salvar(g) {
+        if (demo) { const l = this._ls(); l.unshift({ ...g, id: 'g' + Date.now(), criado_em: new Date().toISOString() }); this._sv(l); return; }
+        const { data: u } = await sb.auth.getUser();
+        const { error } = await sb.from('gastos_app').insert({ ...g, household_id: household.id, pessoa: g.pessoa || (u && u.user && u.user.email.startsWith('jheniffer') ? 'jheniffer' : 'george') });
+        if (error) throw error;
+      },
+      async apagar(id) {
+        if (demo) { this._sv(this._ls().filter((x) => x.id !== id)); return; }
+        const { error } = await sb.from('gastos_app').delete().eq('id', id); if (error) throw error;
+      },
+    },
     pessoas: {
       PADRAO: [
         { chave: 'george', nome: 'George', ordem: 1, avatar: { pele: 1, cabelo: 'careca', cor: 'castanho', barba: 'cheia', crianca: false, fundo: '#cfe3d4' } },
