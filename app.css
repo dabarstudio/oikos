@@ -45,7 +45,7 @@ body { background: var(--color-bg); color: var(--color-fg); font-family: var(--f
 
 .sv-top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--color-panel); border-bottom: 1px solid var(--color-border-line);
   padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; align-items: center; gap: 12px; }
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--color-panel); }
+body::before { content: ""; pointer-events: none; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--color-panel); }
 .sv-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -.01em; }
 .sv-mark { white-space: nowrap; letter-spacing: -.02em; width: 30px; height: 30px; border-radius: 8px; background: var(--sv-green); display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--font-anthropic-serif); font-size: 15px; font-weight: 600; }
 .sv-mark span { color: #ffd2bf; }
@@ -65,7 +65,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .sv-card p { margin: 0; color: var(--color-fg-muted); }
 .sv-field { display: grid; gap: 6px; }
 .sv-field label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
-.sv-in { font: inherit; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--color-border-line); background: var(--color-bg); color: var(--color-fg); }
+.sv-in { font: inherit; font-size: 16px; -webkit-user-select: text; user-select: text; touch-action: manipulation; position: relative; z-index: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--color-border-line); background: var(--color-bg); color: var(--color-fg); }
 .sv-err { color: var(--color-bad); font-size: var(--cds-font-size-caption); min-height: 1em; }
 .sv-pulse { height: 34px; }
 .sv-pulse path { fill: none; stroke: var(--sv-green); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
@@ -76,3 +76,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 @keyframes sv-sk { to { background-position: -200% 0; } }
 @media (prefers-reduced-motion: reduce) { .dash-skeleton { animation: none; } }
 [hidden] { display: none !important; }
+
+/* iPhone (app instalado): campos sempre tocáveis e sem zoom ao focar */
+.sv-login, .sv-card { position: relative; z-index: 1; }
+input, textarea { -webkit-user-select: text; user-select: text; }
