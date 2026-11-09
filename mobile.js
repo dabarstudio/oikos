@@ -68,11 +68,6 @@
   }
 
   // "Clique" vira "Toque" em telas de toque
-  // dica na tela Contas mês a mês (celular)
-  document.addEventListener('DOMContentLoaded', () => {
-    const tb = document.getElementById('tb-pivot');
-    if (tb && matchMedia('(max-width: 760px)').matches) { const d = document.createElement('p'); d.className = 'ob-dica'; d.textContent = 'No celular aparece um mês por vez: troque o mês no "Período", lá em cima.'; tb.closest('.fv-scroll, .fv-card').before ? tb.parentElement.before(d) : null; }
-  });
   const toque = matchMedia('(hover: none)').matches;
   function textos(root) {
     if (!toque) return;
