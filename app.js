@@ -133,6 +133,38 @@
       }
       await carregar();
     },
+    pessoas: {
+      PADRAO: [
+        { chave: 'george', nome: 'George', ordem: 1, avatar: { pele: 1, cabelo: 'careca', cor: 'castanho', barba: 'cheia', crianca: false, fundo: '#cfe3d4' } },
+        { chave: 'jheniffer', nome: 'Jheniffer', ordem: 2, avatar: { pele: 3, cabelo: 'longo', cor: 'preto', barba: 'nao', crianca: false, fundo: '#f3d9cf' } },
+        { chave: 'abner', nome: 'Abner', ordem: 3, avatar: { pele: 3, cabelo: 'curto', cor: 'preto', barba: 'nao', crianca: true, fundo: '#d6e4f2' } },
+      ],
+      _ls() { try { const l = JSON.parse(localStorage.getItem('oikos-pes') || 'null'); return l && l.length ? l : null; } catch (e) { return null; } },
+      _sv(l) { try { localStorage.setItem('oikos-pes', JSON.stringify(l)); } catch (e) { /* ignora */ } },
+      _local: demo,
+      async listar() {
+        if (!this._local) {
+          const { data, error } = await sb.from('pessoas').select('id, chave, nome, avatar, ordem').eq('household_id', household.id).order('ordem');
+          if (!error && data && data.length) return data;
+          if (error) this._local = true; // tabela ainda não criada: guarda no aparelho
+        }
+        return this._ls() || this.PADRAO.map((p) => ({ ...p, avatar: { ...p.avatar } }));
+      },
+      async salvar(p) {
+        if (!p.chave) p.chave = (p.nome || 'pessoa').toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g, '').slice(0, 20) + '-' + Date.now().toString(36).slice(-4);
+        if (!this._local) {
+          const row = { household_id: household.id, chave: p.chave, nome: p.nome, avatar: p.avatar, ordem: p.ordem || 99 };
+          const { error } = await sb.from('pessoas').upsert(row, { onConflict: 'household_id,chave' });
+          if (!error) return; this._local = true;
+        }
+        const l = await this.listar(); const i = l.findIndex((x) => x.chave === p.chave);
+        if (i >= 0) l[i] = { ...l[i], ...p }; else l.push({ ...p, ordem: l.length + 1 }); this._sv(l);
+      },
+      async apagar(chave) {
+        if (!this._local) { const { error } = await sb.from('pessoas').delete().eq('household_id', household.id).eq('chave', chave); if (!error) return; this._local = true; }
+        this._sv((await this.listar()).filter((x) => x.chave !== chave));
+      },
+    },
     objetivos: {
       _ls() { try { return JSON.parse(localStorage.getItem('oikos-obj') || '[]'); } catch (e) { return []; } },
       _sv(l) { try { localStorage.setItem('oikos-obj', JSON.stringify(l)); } catch (e) { /* ignora */ } },
