@@ -132,7 +132,7 @@
     $('sv-esqueci').addEventListener('click', async () => {
       const email = $('sv-email').value.trim();
       if (!email) { $('sv-err').textContent = 'Digite seu e-mail acima e toque de novo.'; return; }
-      const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin });
+      const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
       $('sv-err').textContent = error ? error.message : 'Enviamos um link para redefinir a senha.';
     });
     sb.auth.onAuthStateChange((ev) => { if (ev === 'SIGNED_OUT') mostrar(false); if (ev === 'PASSWORD_RECOVERY') { $('sv-nova').hidden = false; } });
