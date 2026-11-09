@@ -2,20 +2,20 @@
 :root {
   --sv-green: #007941;
   --sv-orange: #eb6834;
-  --color-bg: #f6f7f4;
-  --color-panel: #ffffff;
-  --color-fg: #1d1f1c;
-  --color-fg-muted: #61665e;
-  --color-border-line: #e1e4dc;
+  --color-bg: #e9ede4;
+  --color-panel: #f5f6f0;
+  --color-fg: #2b2f29;
+  --color-fg-muted: #656b61;
+  --color-border-line: #d6dbcf;
   --color-ok: #087a3e;
   --color-warn: #a86400;
   --color-bad: #c2361b;
-  --cds-chart-grid: #eceee8;
+  --cds-chart-grid: #e0e4da;
   --cds-chart-axis: #b9bdb3;
   --cds-chart-reference: #7d8277;
   --cds-chart-muted: #c9cdc3;
   --cds-chart-status-critical: #c2361b;
-  --cds-surface-popover: #ffffff;
+  --cds-surface-popover: #f5f6f0;
   --cds-border: #d9dcd3;
   --cds-text-secondary: #61665e;
   --cds-shadow-popover: 0 6px 20px rgba(20, 30, 20, .14);
