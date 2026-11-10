@@ -55,3 +55,6 @@ body.cs-lopen .cs-lsheet { pointer-events: auto; } body.cs-lopen .cs-lscrim { op
 
 .cs-de b { color: var(--color-fg); font-weight: 700; }
 .cs-de { font-size: 13.5px; }
+/* nada dentro do Início pode alargar a tela */
+body.cs-on .cs { grid-template-columns: minmax(0, 1fr); }
+.cs > * { min-width: 0; max-width: 100%; }

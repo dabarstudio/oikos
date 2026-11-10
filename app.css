@@ -80,3 +80,8 @@ body::before { content: ""; pointer-events: none; position: fixed; inset: 0 0 au
 /* iPhone (app instalado): campos sempre tocáveis e sem zoom ao focar */
 .sv-login, .sv-card { position: relative; z-index: 1; }
 input, textarea { -webkit-user-select: text; user-select: text; }
+/* login cabe em qualquer celular (inclusive iPhone SE, 320px) */
+.sv-login { grid-template-columns: minmax(0, 1fr); }
+.sv-card { min-width: 0; max-width: 100%; justify-self: center; }
+.sv-card .sv-in, .sv-card .sv-btn { width: 100%; min-width: 0; }
+@media (max-width: 360px) { .sv-card { padding: 20px; } .sv-card h1 { font-size: 26px; } }

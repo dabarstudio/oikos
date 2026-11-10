@@ -69,3 +69,4 @@ body.og-open .og-sheet { pointer-events: auto; } body.og-open .og-scrim { opacit
 .og-op.on { border-color: var(--sv-green); box-shadow: 0 0 0 3px color-mix(in srgb, var(--sv-green) 25%, transparent); }
 .og-ops.av .og-op { height: auto; padding: 6px 8px; border-radius: 14px; display: grid; justify-items: center; gap: 2px; }
 .og-ops.av small { font-size: 12px; }
+body.og-on .og { grid-template-columns: minmax(0, 1fr); } .og > * { min-width: 0; max-width: 100%; }

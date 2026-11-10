@@ -35,3 +35,5 @@ body.nt-open .nt-sheet { pointer-events: auto; } body.nt-open .nt-scrim { opacit
 
 .nt-it b.ok { color: var(--color-ok); }
 .nt-it span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nt-wrap, #nt-lista { min-width: 0; max-width: 100%; }
+.nt-it { min-width: 0; } .nt-it span { flex: 1; min-width: 0; } .nt-it b { flex: none; }
