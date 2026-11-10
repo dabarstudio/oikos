@@ -22,7 +22,7 @@
     document.dispatchEvent(new Event('oikos:gastos')); listaGastos();
   }
 
-  function abrir() { f = { passo: 1, valor: '', envelope: null, forma: 'dinheiro', data: hoje(), reembolsar: false, reembolso_de: 'Vital', descricao: '', conta: null, venda_para: '', venda_valor: '', venda_recebido: false }; passo(); document.body.classList.add('ag-open'); setTimeout(() => { const i = document.getElementById('ag-val'); if (i) i.focus(); }, 280); }
+  function abrir(opts) { const pre = opts && opts.envelope ? opts.envelope : null; f = { passo: 1, preset: pre, valor: '', envelope: null, forma: 'dinheiro', data: hoje(), reembolsar: false, reembolso_de: 'Vital', descricao: '', conta: null, venda_para: '', venda_valor: '', venda_recebido: false }; if (pre) f.envelope = pre; passo(); document.body.classList.add('ag-open'); setTimeout(() => { const i = document.getElementById('ag-val'); if (i) i.focus(); }, 280); }
   const fechar = () => document.body.classList.remove('ag-open');
   function passo() {
     const b = sh.querySelector('.ag-body');
@@ -63,8 +63,8 @@
   async function onClick(e) {
     if (e.target.classList.contains('ag-scrim')) return fechar();
     const b = e.target.closest('button'); if (!b) return;
-    if (b.hasAttribute('data-next1')) { const v = num(document.getElementById('ag-val').value); if (!v) { document.getElementById('ag-val').focus(); return; } f.valor = v; f.passo = 2; return passo(); }
-    if (b.hasAttribute('data-back')) { lerCampos(); f.passo -= 1; return passo(); }
+    if (b.hasAttribute('data-next1')) { const v = num(document.getElementById('ag-val').value); if (!v) { document.getElementById('ag-val').focus(); return; } f.valor = v; f.passo = f.preset ? 3 : 2; return passo(); }
+    if (b.hasAttribute('data-back')) { lerCampos(); f.passo = f.preset && f.passo === 3 ? 1 : f.passo - 1; return passo(); }
     if (b.dataset.env) { f.envelope = b.dataset.env; f.reembolsar = false; f.passo = 3; return passo(); }
     if (b.dataset.forma) { lerCampos(); f.forma = b.dataset.forma; return passo(); }
     if (b.dataset.dia) { lerCampos(); f.data = b.dataset.dia; return passo(); }
@@ -73,7 +73,7 @@
     if (b.hasAttribute('data-salvar')) {
       lerCampos(); b.disabled = true; b.textContent = 'Anotando…';
       try {
-        await window.APP.gastos.salvar({ data: f.data, valor: f.valor, envelope: f.envelope, descricao: f.descricao || cat(f.envelope)[2], forma: f.forma, reembolsar: f.reembolsar, reembolso_de: f.reembolsar ? (f.reembolso_de || null) : null, conta: f.forma === 'dinheiro' ? null : f.conta, ...(f.envelope === 'revenda' ? { venda_para: f.venda_para || null, venda_valor: num(f.venda_valor) || null, venda_recebido: f.venda_recebido } : {}) });
+        await window.APP.gastos.salvar({ data: f.data, valor: f.valor, envelope: f.envelope, descricao: f.descricao || cat(f.envelope)[2], forma: f.forma, reembolsar: f.reembolsar, reembolso_de: f.reembolsar ? (f.reembolso_de || null) : null, conta: f.forma === 'dinheiro' ? null : f.conta, ...(f.envelope === 'revenda' ? { venda_para: f.venda_para || null, venda_valor: num(f.venda_valor) || null, venda_recebido: f.venda_recebido, venda_em: num(f.venda_valor) ? f.data : null } : {}) });
         sh.querySelector('.ag-body').innerHTML = `<div class="ag-big">✅</div><p class="ag-q" style="text-align:center">Anotado!</p>
           <p class="ag-s">${cat(f.envelope)[1]} ${BRL.format(f.valor)} em ${cat(f.envelope)[2]}${f.reembolsar ? ' · <b>a receber de ' + (f.reembolso_de || 'alguém') + '</b> (não conta nos envelopes)' : ''}${f.envelope === 'revenda' && num(f.venda_valor) ? ' · lucro de <b>' + BRL.format(num(f.venda_valor) - f.valor) + '</b>' : ''}.</p>
           <button type="button" class="ag-next" data-outro>➕ Anotar outro</button><button type="button" class="ag-sec" data-fim>Pronto</button>`;

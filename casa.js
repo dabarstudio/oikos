@@ -138,7 +138,7 @@
     root.addEventListener('click', (e) => { if (e.target.closest('[data-anotar]')) return window.OIKOS_ANOTAR && window.OIKOS_ANOTAR(); if (e.target.closest('[data-lim]')) return abrirLimites(); const b = e.target.closest('.cs-env'); if (b) abrirEnvelope(b.dataset.nivel, decodeURIComponent(b.dataset.chave)); });
     dash.onData(render);
     document.addEventListener('oikos:gastos', render);
-    window.OIKOS_CASA = { show: () => { document.body.classList.remove('og-on'); document.body.classList.add('cs-on'); render(); scrollTo(0, 0); document.dispatchEvent(new Event('oikos:tab')); }, hide: () => { document.body.classList.remove('cs-on'); document.dispatchEvent(new Event('oikos:tab')); } };
+    window.OIKOS_CASA = { show: () => { document.body.classList.remove('og-on', 'ng-on'); document.body.classList.add('cs-on'); render(); scrollTo(0, 0); document.dispatchEvent(new Event('oikos:tab')); }, hide: () => { document.body.classList.remove('cs-on'); document.dispatchEvent(new Event('oikos:tab')); } };
     if (matchMedia('(max-width: 760px)').matches && !location.hash) window.OIKOS_CASA.show();
   }
   document.addEventListener('DOMContentLoaded', () => setTimeout(montar, 0));

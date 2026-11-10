@@ -85,7 +85,7 @@
       if (pend.envelope === 'revenda' && window.APP.gastos) {
         const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
         await window.APP.gastos.salvar({ data: d.toISOString().slice(0, 10), valor: num(pend.custo), envelope: 'revenda', descricao: pend.obs || 'Compra para revenda', forma: pend.forma, reembolsar: false, conta: pend.forma === 'dinheiro' ? null : pend.conta,
-          venda_para: pend.venda_para || null, venda_valor: num(pend.venda_valor) || null, venda_recebido: !!pend.venda_recebido });
+          venda_para: pend.venda_para || null, venda_valor: num(pend.venda_valor) || null, venda_recebido: !!pend.venda_recebido, venda_em: num(pend.venda_valor) ? d.toISOString().slice(0, 10) : null });
         document.dispatchEvent(new Event('oikos:recarregar-gastos'));
       }
       abrirFolha(`<div class="nt-big">✅</div><p class="nt-t">Notinha recebida!</p>
@@ -141,7 +141,7 @@
     // no Início (Casa): logo depois do quadro principal
     const tentar = () => {
       const hero = document.querySelector('#casa .cs-hero');
-      if (hero && !document.querySelector('#casa .nt-wrap')) { hero.after(botao()); listar(); }
+      if (hero && !document.querySelector('#casa .nt-wrap')) { (document.querySelector('#casa .ng-banner') || hero).after(botao()); listar(); }
       const merc = document.getElementById('mercado');
       if (merc && !merc.querySelector('.nt-wrap')) merc.prepend(botao());
     };

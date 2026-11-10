@@ -197,7 +197,7 @@
     if (tabs) { const b = document.createElement('button'); b.className = 'fv-tab'; b.type = 'button'; b.id = 'tab-objetivos'; b.textContent = '🎯 Objetivos'; b.addEventListener('click', () => window.OIKOS_OBJ.show()); tabs.appendChild(b); }
     document.querySelectorAll('.fv-tab[data-tab]').forEach((b) => b.addEventListener('click', () => window.OIKOS_OBJ.hide()));
     window.OIKOS_OBJ = {
-      show: () => { document.body.classList.remove('cs-on'); document.body.classList.add('og-on'); const t = document.getElementById('tab-objetivos'); document.querySelectorAll('.fv-tab').forEach((x) => x.setAttribute('aria-selected', String(x === t))); carregar(); scrollTo(0, 0); document.dispatchEvent(new Event('oikos:tab')); },
+      show: () => { document.body.classList.remove('cs-on', 'ng-on'); document.body.classList.add('og-on'); const t = document.getElementById('tab-objetivos'); document.querySelectorAll('.fv-tab').forEach((x) => x.setAttribute('aria-selected', String(x === t))); carregar(); scrollTo(0, 0); document.dispatchEvent(new Event('oikos:tab')); },
       hide: () => { if (document.body.classList.contains('og-on')) { document.body.classList.remove('og-on'); document.dispatchEvent(new Event('oikos:tab')); } },
     };
   }

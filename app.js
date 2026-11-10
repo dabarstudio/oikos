@@ -179,6 +179,11 @@
         if (demo) { this._sv(this._ls().filter((x) => x.id !== id)); return; }
         const { error } = await sb.from('gastos_app').delete().eq('id', id); if (error) throw error;
       },
+      async revendas() {
+        if (demo) return this._ls().filter((g) => g.envelope === 'revenda');
+        const { data, error } = await sb.from('gastos_app').select('*').eq('household_id', household.id).eq('envelope', 'revenda').order('data', { ascending: false }).limit(500);
+        if (error) throw error; return data;
+      },
       async atualizar(id, campos) {
         if (demo) { this._sv(this._ls().map((x) => (x.id === id ? { ...x, ...campos } : x))); return; }
         const { error } = await sb.from('gastos_app').update(campos).eq('id', id); if (error) throw error;
@@ -202,6 +207,15 @@
       },
       nome() { return household ? household.nome : ''; },
       negocio() { return household && household.negocio ? household.negocio : ''; },
+      negocioInfo() {
+        if (demo && !household) { let n = null; try { n = JSON.parse(localStorage.getItem('oikos-neg') || 'null'); } catch (e) { /* vazio */ } return n || { nome: '', meta: 0, logo: '', cor: '' }; }
+        const h = household || {}; return { nome: h.negocio || '', meta: Number(h.negocio_meta || 0), logo: h.negocio_logo || '', cor: h.negocio_cor || '' };
+      },
+      async definirNegocio(nome, meta) {
+        if (demo && (!household || household.id === 'demo')) { const n = { ...this.negocioInfo(), nome, meta }; try { localStorage.setItem('oikos-neg', JSON.stringify(n)); } catch (e) { /* ignora */ } if (household) Object.assign(household, { negocio: nome, negocio_meta: meta }); return; }
+        const { error } = await sb.rpc('definir_negocio', { p_nome: nome, p_meta: meta }); if (error) throw error;
+        Object.assign(household, { negocio: nome, negocio_meta: meta });
+      },
       async trocarSenha(nova) { if (demo) return; const { error } = await sb.auth.updateUser({ password: nova }); if (error) throw error; },
       recarregar() { return carregar(); },
     },

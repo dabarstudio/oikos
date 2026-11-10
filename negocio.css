@@ -1,0 +1,63 @@
+/* Oikos — "Meu negócio" (QuickBox): azul-marinho, amarelo e laranja da marca */
+:root { --ng-navy: #1a2753; --ng-yel: #f2b632; --ng-or: #e8552d; }
+.ng { display: none; }
+body.ng-on .ng { display: grid; gap: 14px; max-width: 760px; grid-template-columns: minmax(0, 1fr); }
+body.ng-on .fv-head, body.ng-on .fv-bar .ob-pagetitle, body.ng-on .fv-page, body.ng-on .cs, body.ng-on .og { display: none !important; }
+@media (max-width: 760px) { body.ng-on .fv-bar { display: none !important; } }
+body.ng-on .ag-fab { display: none; }
+.ng > * { min-width: 0; max-width: 100%; }
+.ng-logo { display: block; border-radius: 50%; flex: none; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+.ng-logo-e { display: grid; place-items: center; background: var(--ng-navy); }
+.ng-hero { background: var(--ng-navy); color: #fff; border-radius: 22px; padding: 18px; box-shadow: 0 6px 20px rgba(26,39,83,.3); }
+.ng-top { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.ng-top h2 { margin: 0; font-size: 22px; color: #fff; overflow-wrap: anywhere; }
+.ng-top small { color: #c9d1ea; font-size: 14px; }
+.ng-big { font-size: 38px; font-weight: 800; margin: 14px 0 8px; color: var(--ng-yel); line-height: 1.1; overflow-wrap: anywhere; }
+.ng-big small { font-size: 17px; color: #c9d1ea; font-weight: 600; }
+.ng-bar { height: 14px; background: rgba(255,255,255,.18); border-radius: 8px; overflow: hidden; }
+.ng-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--ng-or), var(--ng-yel)); border-radius: 8px; transition: width .6s; }
+.ng-msg { margin: 10px 0 0; font-size: 15.5px; line-height: 1.4; }
+.ng-msg b { color: var(--ng-yel); }
+.ng-meta { font: inherit; margin-top: 12px; background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.3); border-radius: 12px; padding: 9px 14px; font-weight: 700; font-size: 14.5px; }
+.ng-acts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.ng-acts button { font: inherit; min-height: 58px; border-radius: 16px; border: 0; font-weight: 800; font-size: 15.5px; padding: 8px 10px; line-height: 1.2; }
+.ng-a1 { background: var(--ng-or); color: #fff; box-shadow: 0 4px 12px rgba(232,85,45,.35); }
+.ng-a2 { background: var(--ng-yel); color: var(--ng-navy); }
+.ng-kpis { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.ng-kpis span { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 14px; padding: 10px 12px; min-width: 0; }
+.ng-kpis span.warn { border-color: var(--ng-or); background: #fdeee8; }
+.ng-kpis small { display: block; font-size: 13px; color: var(--color-fg-muted); }
+.ng-kpis b { display: block; font-size: 19px; color: var(--ng-navy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ng-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 18px; padding: 14px; }
+.ng-card h3 { margin: 0 0 6px; font-size: 17px; color: var(--ng-navy); }
+.ng-nudge { border-left: 6px solid var(--ng-yel); } .ng-nudge p { margin: 6px 0 0; font-size: 15px; line-height: 1.4; }
+.ng-it { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--color-border-line); min-width: 0; }
+.ng-card h3 + .ng-it { border-top: 0; }
+.ng-il { flex: 1; min-width: 0; } .ng-il > b { display: block; font-size: 15px; overflow-wrap: anywhere; } .ng-il small { display: block; font-size: 13px; color: var(--color-fg-muted); line-height: 1.35; } .ng-il .pos { color: var(--color-ok, #2f7d4f); }
+.ng-b { font: inherit; flex: none; border: 0; border-radius: 12px; padding: 10px 14px; font-weight: 800; font-size: 14.5px; background: var(--ng-or); color: #fff; }
+.ng-chart { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; align-items: end; height: 130px; margin-top: 8px; }
+.ng-col { display: grid; grid-template-rows: auto 1fr auto; height: 100%; align-items: end; justify-items: center; min-width: 0; }
+.ng-col i { display: block; width: 70%; background: var(--ng-navy); border-radius: 6px 6px 0 0; align-self: end; }
+.ng-col:last-child i { background: var(--ng-or); }
+.ng-col small { font-size: 10.5px; color: var(--color-fg-muted); white-space: nowrap; }
+.ng-col span { font-size: 12px; color: var(--color-fg-muted); margin-top: 4px; }
+/* faixa no Início */
+.ng-banner { font: inherit; display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 12px 14px; border-radius: 18px; border: 0; cursor: pointer;
+  background: var(--ng-navy); color: #fff; box-shadow: 0 4px 14px rgba(26,39,83,.3); min-width: 0; }
+.ng-bt { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.ng-bt b { font-size: 17px; } .ng-bt small { font-size: 13.5px; color: #c9d1ea; } .ng-bt strong { color: var(--ng-yel); }
+.ng-bt .ng-alert { color: #ffd2c4; font-weight: 700; }
+.ng-mbar { height: 7px; background: rgba(255,255,255,.18); border-radius: 4px; overflow: hidden; } .ng-mbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--ng-or), var(--ng-yel)); }
+.ng-go { font-size: 28px; color: var(--ng-yel); flex: none; }
+/* botão no rodapé */
+.ob-nav .ng-navb { position: relative; }
+.ob-nav .ng-navb .ng-logo { width: 40px !important; height: 40px !important; margin-top: -16px; border: 3px solid var(--color-panel, #f5f6f0); box-shadow: 0 3px 10px rgba(26,39,83,.35); }
+.ob-nav .ng-navb .ng-logo-e { font-size: 20px !important; }
+.ob-nav .ng-navb span { color: var(--ng-navy); font-weight: 800; }
+.ob-nav .ng-navb[aria-current="page"] span { color: var(--ng-or); }
+body.tem-negocio .ob-nav [data-go="mercado"] { display: none; }
+.ob-sheet .ng-merc { display: none; } body.tem-negocio:not(.oikos-simples) .ob-sheet .ng-merc { display: flex; }
+body.tem-negocio .ob-sheet .ng-ativar { display: none; }
+body.ngs-open .ng-sheet { pointer-events: auto; } body.ngs-open .ng-sheet .vc-scrim { opacity: 1; } body.ngs-open .ng-sheet .vc-panel { transform: none; }
+.ng-hero .ng-logo, .ng-banner .ng-logo { border: 3px solid rgba(255,255,255,.9); }
+.ng-big small { white-space: nowrap; }
