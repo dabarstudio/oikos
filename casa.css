@@ -58,3 +58,5 @@ body.cs-lopen .cs-lsheet { pointer-events: auto; } body.cs-lopen .cs-lscrim { op
 /* nada dentro do Início pode alargar a tela */
 body.cs-on .cs { grid-template-columns: minmax(0, 1fr); }
 .cs > * { min-width: 0; max-width: 100%; }
+.cs-novo .cs-big { line-height: 1.2; white-space: normal; }
+.cs-defin { font: inherit; margin-top: 12px; width: 100%; min-height: 50px; border: 0; border-radius: 14px; background: var(--sv-green); color: #fff; font-size: 17px; font-weight: 700; }

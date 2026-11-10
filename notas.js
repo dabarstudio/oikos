@@ -34,23 +34,36 @@
   const fechar = () => document.body.classList.remove('nt-open');
 
   const OQUE = [['mercado', '🛒', 'Mercado'], ['acougue', '🥩', 'Açougue'], ['comerfora', '🍔', 'Comer fora'], ['farmacia', '💊', 'Farmácia'],
-    ['presente', '🎁', 'Presente'], ['abner', '👶', 'Abner'], ['casa', '🏠', 'Casa'], ['combustivel', '⛽', 'Combustível'], ['outros', '📦', 'Outros']];
+    ['presente', '🎁', 'Presente'], ['abner', '👶', 'Abner'], ['casa', '🏠', 'Casa'], ['combustivel', '⛽', 'Combustível'], ['revenda', '🏷️', 'Revenda'], ['outros', '📦', 'Outros']];
   const FORMAS = [['pix', '⚡ PIX'], ['debito', '🏦 Débito'], ['credito', '💳 Crédito'], ['dinheiro', '💵 Dinheiro']];
   let pend = null;
   function perguntar() {
     const p = pend;
     abrirFolha(`<img class="nt-thumb" src="${p.url}" alt="">
       <p class="nt-t" style="margin-top:8px">O que foi essa compra?</p>
-      <div class="nt-grid">${OQUE.map(([k, e, n]) => `<button type="button" data-oq="${k}" class="${p.envelope === k ? 'on' : ''}"><span>${e}</span>${n}</button>`).join('')}</div>
+      <div class="nt-grid">${OQUE.map(([k, e, n]) => [k, e, k === 'abner' ? (window.OIKOS_FILHOS || 'Filhos') : n]).map(([k, e, n]) => `<button type="button" data-oq="${k}" class="${p.envelope === k ? 'on' : ''}"><span>${e}</span>${n}</button>`).join('')}</div>
       <p class="nt-l">Como pagou?</p>
       <div class="nt-ops">${FORMAS.map(([k, n]) => `<button type="button" data-fp="${k}" class="${p.forma === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       ${p.forma !== 'dinheiro' ? '<p class="nt-l">De qual conta saiu?</p><div id="nt-bk"></div>' : ''}
+      ${p.envelope === 'revenda' ? `<div class="nt-rv"><p class="nt-l">🏷️ Comprou para revender — não entra nos envelopes da casa.</p>
+        <label class="nt-l">Quanto custou?<input id="nt-custo" class="sv-in" inputmode="decimal" placeholder="0,00" value="${p.custo || ''}"></label>
+        <label class="nt-l">Vendeu para quem? <small>(se já vendeu)</small><input id="nt-vpara" class="sv-in" placeholder="Ex.: Carlos Henrique" value="${(p.venda_para || '').replace(/"/g, '&quot;')}" maxlength="50"></label>
+        <label class="nt-l">Por quanto vendeu?<input id="nt-vval" class="sv-in" inputmode="decimal" placeholder="0,00" value="${p.venda_valor || ''}"></label>
+        <p class="nt-l">Já recebeu o dinheiro da venda?</p><div class="nt-ops"><button type="button" data-vrec="0" class="${!p.venda_recebido ? 'on' : ''}">Ainda não</button><button type="button" data-vrec="1" class="${p.venda_recebido ? 'on' : ''}">Sim, recebi</button></div></div>` : ''}
       <label class="nt-l">Quer explicar? <small>(opcional)</small><input id="nt-obs" class="sv-in" value="${(p.obs || '').replace(/"/g, '&quot;')}" placeholder="${p.envelope === 'presente' ? 'Ex.: presente para o Emanuel' : 'Ex.: compra do mês'}" maxlength="80"></label>
       <button type="button" class="nt-btn" data-enviar ${pronto() ? '' : 'disabled'}>Enviar notinha</button>
       <p class="nt-falta" id="nt-falta">${falta()}</p>
       <button type="button" class="nt-btn sec" data-fechar>Cancelar</button>`);
     const bk = document.getElementById('nt-bk');
     if (bk && window.OIKOS_BANCOS) window.OIKOS_BANCOS.montar(bk, p.conta, (v) => { p.conta = v; atualizarBotao(); });
+  }
+  const num = (v) => { const n = parseFloat(String(v || '').replace(/[^\d,.-]/g, '').replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.')); return isFinite(n) ? n : 0; };
+  function lerNt() {
+    if (!pend) return; const g = (id) => document.getElementById(id);
+    if (g('nt-obs')) pend.obs = g('nt-obs').value;
+    if (g('nt-custo')) pend.custo = g('nt-custo').value;
+    if (g('nt-vpara')) pend.venda_para = g('nt-vpara').value;
+    if (g('nt-vval')) pend.venda_valor = g('nt-vval').value;
   }
   const pronto = () => pend && pend.envelope && (pend.forma === 'dinheiro' || pend.conta);
   const falta = () => !pend ? '' : !pend.envelope ? '👆 Toque no que foi a compra' : (pend.forma !== 'dinheiro' && !pend.conta) ? '👆 Toque na conta que pagou' : '';
@@ -69,6 +82,12 @@
       const qr = lerQR(im);
       const blob = await comprimir(im);
       await window.APP.enviarNota(blob, qr, { envelope: pend.envelope, forma: pend.forma, obs: pend.obs, conta: pend.forma === 'dinheiro' ? null : pend.conta });
+      if (pend.envelope === 'revenda' && window.APP.gastos) {
+        const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+        await window.APP.gastos.salvar({ data: d.toISOString().slice(0, 10), valor: num(pend.custo), envelope: 'revenda', descricao: pend.obs || 'Compra para revenda', forma: pend.forma, reembolsar: false, conta: pend.forma === 'dinheiro' ? null : pend.conta,
+          venda_para: pend.venda_para || null, venda_valor: num(pend.venda_valor) || null, venda_recebido: !!pend.venda_recebido });
+        document.dispatchEvent(new Event('oikos:recarregar-gastos'));
+      }
       abrirFolha(`<div class="nt-big">✅</div><p class="nt-t">Notinha recebida!</p>
         <p class="nt-s">${qr ? 'Consegui ler o código da nota. Os produtos vão aparecer na aba Mercado na próxima atualização.' : 'Guardei a foto. Os produtos vão aparecer na aba Mercado na próxima atualização.'}</p>
         <button type="button" class="nt-btn" data-mais>📸 Enviar outra</button><button type="button" class="nt-btn sec" data-fechar>Pronto</button>`);
@@ -107,9 +126,14 @@
     sheet = document.createElement('div'); sheet.className = 'nt-sheet'; sheet.setAttribute('role', 'dialog');
     sheet.innerHTML = '<div class="nt-scrim"></div><div class="nt-panel"><div class="nt-body"></div></div>';
     sheet.addEventListener('click', (e) => {
-      const oq = e.target.closest('[data-oq]'); if (oq && pend) { pend.obs = (document.getElementById('nt-obs') || {}).value || pend.obs; pend.envelope = oq.dataset.oq; return perguntar(); }
-      const fp = e.target.closest('[data-fp]'); if (fp && pend) { pend.obs = (document.getElementById('nt-obs') || {}).value || pend.obs; pend.forma = fp.dataset.fp; return perguntar(); }
-      if (e.target.closest('[data-enviar]') && pend) { pend.obs = (document.getElementById('nt-obs') || {}).value || ''; return enviar(); }
+      const oq = e.target.closest('[data-oq]'); if (oq && pend) { lerNt(); pend.envelope = oq.dataset.oq; return perguntar(); }
+      const fp = e.target.closest('[data-fp]'); if (fp && pend) { lerNt(); pend.forma = fp.dataset.fp; return perguntar(); }
+      const vr = e.target.closest('[data-vrec]'); if (vr && pend) { lerNt(); pend.venda_recebido = vr.dataset.vrec === '1'; return perguntar(); }
+      if (e.target.closest('[data-enviar]') && pend) {
+        lerNt();
+        if (pend.envelope === 'revenda' && !num(pend.custo)) { const c = document.getElementById('nt-custo'); if (c) { c.focus(); c.placeholder = 'Escreva quanto custou'; } return; }
+        return enviar();
+      }
       if (e.target.closest('[data-fechar]') || e.target.classList.contains('nt-scrim')) fechar();
       if (e.target.closest('[data-mais]')) { fechar(); input.click(); }
     });

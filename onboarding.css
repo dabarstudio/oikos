@@ -1,0 +1,41 @@
+/* Oikos — primeiro acesso */
+.ob1 { position: fixed; inset: 0; z-index: 90; background: var(--color-bg, #e9ede4); overflow-y: auto; -webkit-overflow-scrolling: touch; display: none; }
+body.ob1-on .ob1 { display: block; }
+body.ob1-on .ag-fab, body.ob1-on .ob-nav { display: none !important; }
+.ob1-in { max-width: 460px; margin: 0 auto; padding: calc(24px + env(safe-area-inset-top, 0px)) 18px calc(32px + env(safe-area-inset-bottom, 0px)); box-sizing: border-box; min-width: 0; }
+.ob1 h1 { font-size: 28px; margin: 8px 0 6px; text-align: center; }
+.ob1 h2 { font-size: 23px; margin: 10px 0 6px; line-height: 1.2; }
+.ob1-s { font-size: 16px; color: var(--color-fg-muted); margin: 0 0 18px; line-height: 1.45; }
+.ob1-logo { font-size: 64px; text-align: center; margin-top: 24px; }
+.ob1-logo + h1 + .ob1-s { text-align: center; }
+.ob1-big { font: inherit; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 14px; align-items: center; width: 100%; text-align: left;
+  padding: 18px; border-radius: 18px; border: 0; background: var(--sv-green); color: #fff; margin-top: 12px; box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+.ob1-big span { grid-row: 1 / 3; font-size: 34px; } .ob1-big b { font-size: 18px; } .ob1-big small { font-size: 14px; opacity: .9; }
+.ob1-big.sec { background: var(--color-panel); color: var(--color-fg); border: 1.5px solid var(--color-border-line); box-shadow: none; }
+.ob1-back { font: inherit; background: none; border: 0; color: var(--sv-green); font-size: 17px; font-weight: 700; padding: 6px 0; }
+.ob1-dots { display: flex; gap: 6px; margin: 4px 0 6px; } .ob1-dots i { flex: 1; height: 5px; border-radius: 3px; background: var(--color-border-line); } .ob1-dots i.on { background: var(--sv-green); }
+.ob1-fam { display: flex; align-items: center; gap: 10px; min-width: 0; } .ob1-fam span { font-size: 19px; font-weight: 700; flex: none; }
+.ob1-fam .sv-in { flex: 1; min-width: 0; font-size: 19px; padding: 14px; }
+.ob1-cod { width: 100%; box-sizing: border-box; font-size: 28px !important; letter-spacing: 6px; text-align: center; text-transform: uppercase; padding: 14px !important; }
+.ob1-go { font: inherit; display: block; width: 100%; min-height: 54px; margin-top: 18px; border: 0; border-radius: 16px; background: var(--sv-green); color: #fff; font-size: 18px; font-weight: 700; }
+.ob1-go:disabled { opacity: .5; }
+.ob1-link { font: inherit; display: block; margin: 12px auto 0; background: none; border: 0; color: var(--color-fg-muted); font-size: 15px; text-decoration: underline; }
+.ob1-erro { color: #b3261e; font-weight: 700; margin: 10px 0 0; font-size: 15px; } .ob1-erro:empty { display: none; }
+.ob1-money { margin: 6px 0 12px; }
+.ob1-sug { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.ob1-sug button { font: inherit; min-height: 46px; border-radius: 14px; border: 1.5px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); font-weight: 700; font-size: 16px; }
+.ob1-dicas { background: var(--color-panel); border-radius: 16px; padding: 6px 14px; margin: 8px 0; } .ob1-dicas p { margin: 10px 0; font-size: 15.5px; line-height: 1.4; }
+.ob1 .og-plist { display: grid; gap: 8px; }
+.ob1 .og-plist button { font: inherit; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 10px 14px; border-radius: 16px;
+  border: 1.5px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); font-size: 16px; }
+.ob1 .og-plist b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ob1 .og-plist small { font-weight: 400; color: var(--color-fg-muted); }
+.ob1 .og-plus { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--color-bg); font-size: 26px; color: var(--sv-green); }
+/* Mais → convidar / senha */
+.fx-ic { font-size: 22px; width: 24px; text-align: center; flex: none; }
+body.fx-open .fx-sheet { pointer-events: auto; } body.fx-open .fx-sheet .vc-scrim { opacity: 1; } body.fx-open .fx-sheet .vc-panel { transform: none; }
+.fx-cod { font-size: 38px; font-weight: 800; letter-spacing: 8px; text-align: center; padding: 16px; margin: 6px 0 10px; border-radius: 16px; background: var(--color-bg); border: 2px dashed var(--sv-green); color: var(--sv-green); }
+a.fx-zap { text-align: center; text-decoration: none; box-sizing: border-box; background: #1f9e55; }
+/* família nova (sem planilha importada): esconde as telas que dependem do extrato */
+body.oikos-simples [data-go="visao"], body.oikos-simples [data-go="contas"], body.oikos-simples [data-go="fixos"], body.oikos-simples [data-go="patrimonio"],
+body.oikos-simples [data-go="plano"], body.oikos-simples [data-go="mercado"], body.oikos-simples #tab-visao, body.oikos-simples #tab-contas, body.oikos-simples #tab-fixos,
+body.oikos-simples #tab-patrimonio, body.oikos-simples #tab-plano, body.oikos-simples #tab-mercado { display: none !important; }

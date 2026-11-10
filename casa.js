@@ -38,7 +38,7 @@
     const faltamDias = diasMes - dia;
 
     const meta = (nivel, chave) => (mt.data.find((m) => m.nivel === nivel && m.chave === chave) || {}).valor_meta || 0;
-    const G = (window.OIKOS_GASTOS ? window.OIKOS_GASTOS.lista() : []).filter((g) => !g.reembolsar && String(g.data).slice(0, 7) === mes);
+    const G = (window.OIKOS_GASTOS ? window.OIKOS_GASTOS.lista() : []).filter((g) => !g.reembolsar && g.envelope !== 'revenda' && String(g.data).slice(0, 7) === mes);
     const MP = window.OIKOS_GASTOS ? window.OIKOS_GASTOS.mapa : {};
     const appDe = (nivel, chave) => G.filter((g) => { const m = MP[g.envelope]; if (!m) return false; if (nivel === 'conta') return m[0] === 'conta' && m[1] === chave; if (m[0] === 'mae') return m[1] === chave; const cc = co.data.find((x) => x.conta === m[1]); return cc && cc.mae === chave; }).reduce((s, g) => s + (+g.valor), 0);
     const gastoDe = (nivel, chave) => co.data.filter((c) => c.tipo === 'Saída' && c.mes === mes && (nivel === 'conta' ? c.conta === chave : c.mae === chave)).reduce((s, c) => s + c.valor, 0) + appDe(nivel, chave);
@@ -53,7 +53,8 @@
       : 'Tudo certo! Vocês estão gastando no ritmo do mês.';
     const usado = teto ? Math.min(100, saiu / teto * 100) : 0;
 
-    const envs = ENV.map(([rot, em, nivel, chave]) => {
+    const envs = ENV.map(([rot0, em, nivel, chave]) => {
+      const rot = chave === 'ABNER' ? (window.OIKOS_FILHOS || 'Filhos') : rot0;
       const t = meta(nivel, chave), g = gastoDe(nivel, chave), e = estado(g, t, ritmo), f = t - g;
       const txt = !t ? BRL.format(g) + ' gastos' : f >= 0 ? 'Faltam <b>' + BRL.format(f) + '</b>' : 'Passou <b>' + BRL.format(-f) + '</b>';
       return `<button type="button" class="cs-env ${e}" data-nivel="${nivel}" data-chave="${encodeURIComponent(chave)}">
@@ -65,15 +66,21 @@
       </button>`;
     }).join('');
 
+    const hero = !teto ? `<div class="cs-card cs-hero ok cs-novo">
+        <span class="cs-lbl">Primeiro passo</span>
+        <span class="cs-big" style="font-size:24px">Quanto a família pode gastar por mês?</span>
+        <span class="cs-sub">${saiu ? 'Já anotou ' + BRL.format(saiu) + ' este mês. ' : ''}Com esse número o Oikos avisa quando o mês estiver apertando.</span>
+        <button type="button" class="cs-defin" data-lim>💰 Definir o limite do mês</button>
+      </div>` : null;
     root.innerHTML = `
       <p class="cs-hello">Olá! Hoje é dia ${dia} de ${MESES[mm - 1]}.</p>
-      <div class="cs-card cs-hero ${st}">
+      ${hero || `<div class="cs-card cs-hero ${st}">
         <span class="cs-lbl">${resta >= 0 ? 'Ainda dá para gastar este mês' : 'Passou do limite do mês'}</span>
         <span class="cs-big">${BRL.format(Math.abs(resta))}</span>
         <span class="cs-bar big"><i style="width:${Math.max(3, usado)}%"></i><u style="left:${ritmo * 100}%"></u></span>
         <span class="cs-sub">Gastou ${BRL.format(saiu)} de ${BRL.format(teto)} · faltam ${faltamDias} dias</span>
         <p class="cs-msg"><span aria-hidden="true">${st === 'ok' ? '😊' : st === 'warn' ? '⚠️' : '🛑'}</span> ${frase}</p>
-      </div>
+      </div>`}
       <button type="button" class="cs-cta2" data-anotar><span aria-hidden="true">✍️</span><span><b>Anotar gasto</b><small>Gastou em dinheiro, PIX ou cartão? Anote aqui</small></span></button>
       <h2 class="cs-h">Envelopes do mês</h2>
       <p class="cs-hint">Toque num envelope para ver o que foi gasto.</p>
@@ -88,7 +95,7 @@
   function abrirLimites() {
     const mt = dash.data('metas'); if (mt.status !== 'ok') return;
     const v = (nivel, chave) => (mt.data.find((m) => m.nivel === nivel && m.chave === chave) || {}).valor_meta || 0;
-    const itens = [['Total do mês', '🧾', 'total', 'SAÍDAS'], ...ENV];
+    const itens = [['Total do mês', '🧾', 'total', 'SAÍDAS'], ...ENV.map((e) => (e[3] === 'ABNER' ? [window.OIKOS_FILHOS || 'Filhos', ...e.slice(1)] : e))];
     lsheet.querySelector('.cs-lbody').innerHTML = '<p class="cs-lq">Quanto pode gastar por mês?</p><p class="cs-lsub">Use − e + (de R$ 50 em R$ 50) ou toque no valor para digitar.</p>'
       + itens.map(([rot, em, nivel, chave]) => `<div class="cs-lrow${nivel === 'total' ? ' tot' : ''}" data-nivel="${nivel}" data-chave="${encodeURIComponent(chave)}">
           <span class="cs-lem">${em}</span><span class="cs-lnm">${rot}</span>

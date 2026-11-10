@@ -65,12 +65,26 @@
     emit();
   }
 
+  // Família nova (sem planilha importada): começa com dados vazios e envelopes sem limite.
+  const ENV_PADRAO = [['conta', 'MERCADO'], ['conta', 'AÇOUGUE'], ['conta', 'ALIMENTAÇÃO FORA'], ['mae', 'VEÍCULO E TRANSPORTE'], ['mae', 'SAÚDE E BEM-ESTAR'], ['mae', 'ABNER'], ['mae', 'CASA'], ['mae', 'LAZER, PRESENTES E ASSINATURAS']];
+  function inicial() {
+    const d = new Date(); const mes = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    const vazio = { entradas: 0, saidas: 0, saldo: 0 };
+    const metas = [{ id: 'total:SAÍDAS', nivel: 'total', chave: 'SAÍDAS', valor_meta: 0, tipo: 'teto' }, ...ENV_PADRAO.map(([n, c]) => ({ id: n + ':' + c, nivel: n, chave: c, valor_meta: 0, tipo: 'teto' }))];
+    return DATASETS.map((id) => ({ id, data: id === 'mensal' ? [{ mes, ...vazio }, { mes: 'total', ...vazio }] : id === 'metas' ? metas : [] }));
+  }
+  async function rotuloFilhos() {
+    try { const ps = await window.APP.pessoas.listar(); const k = ps.filter((p) => p.avatar && p.avatar.crianca).map((p) => p.nome); window.OIKOS_FILHOS = k.length ? k.join(' e ') : 'Filhos'; } catch (e) { window.OIKOS_FILHOS = 'Filhos'; }
+  }
+
   // ---------- autenticação e carga ----------
   const cfg = window.SV_CONFIG || {};
   const local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
   const demo = !cfg.SUPABASE_URL && local;
   const $ = (id) => document.getElementById(id);
-  let sb = null, household = null;
+  const demoNovo = demo && /[?&]novo=1/.test(location.search);
+  let sb = null, household = null, minhaPessoa = null;
+  function titulo(nome) { const h = document.querySelector('.fv-title'); if (h) h.textContent = 'Finanças da ' + nome; }
 
   function mostrar(logado) {
     $('sv-login').hidden = logado;
@@ -81,6 +95,14 @@
   async function carregar() {
     $('sv-upd').textContent = 'Carregando…';
     try {
+      if (demoNovo) {
+        let fam = null; try { fam = JSON.parse(localStorage.getItem('oikos-fam') || 'null'); } catch (e) { /* vazio */ }
+        if (!fam) { $('sv-upd').textContent = ''; if (window.OIKOS_ONBOARD) window.OIKOS_ONBOARD.abrir(); return; }
+        try { limites = JSON.parse(localStorage.getItem('oikos-lim') || '[]'); } catch (e) { limites = []; }
+        document.body.classList.add('oikos-simples'); await rotuloFilhos(); setDados(inicial());
+        $('sv-upd').textContent = 'Demonstração (família nova)'; $('sv-who').textContent = fam.nome; titulo(fam.nome);
+        return;
+      }
       if (demo) {
         const rows = await Promise.all(DATASETS.map(async (id) => {
           const r = await fetch('seed/' + id + '.json'); if (!r.ok) return null;
@@ -92,17 +114,21 @@
         $('sv-who').textContent = 'Família Sanches Vital';
         return;
       }
-      const { data: hh, error: e1 } = await sb.from('households').select('id, nome').limit(1);
+      const { data: hh, error: e1 } = await sb.from('households').select('*').limit(1);
       if (e1) throw e1;
-      if (!hh || !hh.length) throw new Error('Seu usuário ainda não está ligado a nenhuma família.');
+      if (!hh || !hh.length) { $('sv-upd').textContent = ''; if (window.OIKOS_ONBOARD) { window.OIKOS_ONBOARD.abrir(); return; } throw new Error('Seu usuário ainda não está ligado a nenhuma família.'); }
       household = hh[0];
-      $('sv-who').textContent = household.nome;
+      $('sv-who').textContent = household.nome; titulo(household.nome);
+      try { const { data: u } = await sb.auth.getUser(); const { data: mb } = await sb.from('members').select('pessoa').eq('household_id', household.id).eq('user_id', u.user.id).maybeSingle(); minhaPessoa = mb && mb.pessoa; } catch (e) { /* ok */ }
+      await rotuloFilhos();
       const { data, error } = await sb.from('datasets').select('id, data, updated_at').eq('household_id', household.id);
       if (error) throw error;
       try { const lr = await sb.from('limites').select('nivel, chave, valor_meta').eq('household_id', household.id); limites = lr.data || []; } catch (e) { limites = []; }
-      setDados(data);
+      const simples = !data.some((d) => d.id === 'mensal');
+      document.body.classList.toggle('oikos-simples', simples);
+      setDados(simples ? inicial() : data);
       const ult = data.map((d) => d.updated_at).sort().pop();
-      $('sv-upd').textContent = ult ? 'Dados atualizados em ' + new Date(ult).toLocaleDateString('pt-BR') : '';
+      $('sv-upd').textContent = simples ? '' : ult ? 'Dados atualizados em ' + new Date(ult).toLocaleDateString('pt-BR') : '';
     } catch (e) {
       console.error(e);
       for (const id of DATASETS) store.set(id, { status: 'error', data: [] });
@@ -146,12 +172,58 @@
       async salvar(g) {
         if (demo) { const l = this._ls(); l.unshift({ ...g, id: 'g' + Date.now(), criado_em: new Date().toISOString() }); this._sv(l); return; }
         const { data: u } = await sb.auth.getUser();
-        const { error } = await sb.from('gastos_app').insert({ ...g, household_id: household.id, pessoa: g.pessoa || (u && u.user && u.user.email.startsWith('jheniffer') ? 'jheniffer' : 'george') });
+        const { error } = await sb.from('gastos_app').insert({ ...g, household_id: household.id, pessoa: g.pessoa || minhaPessoa || (u && u.user && u.user.email.startsWith('jheniffer') ? 'jheniffer' : u && u.user ? u.user.email.split('@')[0] : null) });
         if (error) throw error;
       },
       async apagar(id) {
         if (demo) { this._sv(this._ls().filter((x) => x.id !== id)); return; }
         const { error } = await sb.from('gastos_app').delete().eq('id', id); if (error) throw error;
+      },
+      async atualizar(id, campos) {
+        if (demo) { this._sv(this._ls().map((x) => (x.id === id ? { ...x, ...campos } : x))); return; }
+        const { error } = await sb.from('gastos_app').update(campos).eq('id', id); if (error) throw error;
+      },
+    },
+    familia: {
+      async criar(nome) {
+        if (demo) { try { localStorage.setItem('oikos-fam', JSON.stringify({ nome, codigo: 'DEMO42' })); } catch (e) { /* ignora */ } household = { id: 'demo', nome }; return household; }
+        const { data, error } = await sb.rpc('criar_familia', { p_nome: nome }); if (error) throw error;
+        household = { id: data, nome }; return household;
+      },
+      async entrar(codigo) {
+        if (demo) throw new Error('Na demonstração não dá para entrar com código.');
+        const { data, error } = await sb.rpc('entrar_familia', { p_codigo: codigo.trim().toUpperCase() }); if (error) throw error;
+        const { data: hh } = await sb.from('households').select('id, nome').eq('id', data).single(); household = hh; return hh;
+      },
+      async definirPessoa(chave) { minhaPessoa = chave; if (demo) return; const { error } = await sb.rpc('definir_minha_pessoa', { p_chave: chave }); if (error) throw error; },
+      async codigo() {
+        if (demo) { try { return (JSON.parse(localStorage.getItem('oikos-fam') || '{}').codigo) || 'DEMO42'; } catch (e) { return 'DEMO42'; } }
+        const { data } = await sb.from('households').select('codigo').eq('id', household.id).single(); return data && data.codigo;
+      },
+      nome() { return household ? household.nome : ''; },
+      negocio() { return household && household.negocio ? household.negocio : ''; },
+      async trocarSenha(nova) { if (demo) return; const { error } = await sb.auth.updateUser({ password: nova }); if (error) throw error; },
+      recarregar() { return carregar(); },
+    },
+    vales: {
+      _ls() { try { return JSON.parse(localStorage.getItem('oikos-val') || '[]'); } catch (e) { return []; } },
+      _sv(l) { try { localStorage.setItem('oikos-val', JSON.stringify(l)); } catch (e) { /* ignora */ } },
+      _local: demo,
+      async listar() {
+        if (!this._local) {
+          const { data, error } = await sb.from('vales').select('*').eq('household_id', household.id).eq('encerrado', false).order('vence_em');
+          if (!error) return data; this._local = true;
+        }
+        return this._ls().filter((v) => !v.encerrado).sort((a, b) => String(a.vence_em).localeCompare(String(b.vence_em)));
+      },
+      async salvar(v) {
+        const row = { loja: v.loja, tipo: v.tipo || 'cashback', valor: v.valor, saldo: v.saldo != null ? v.saldo : v.valor, libera_em: v.libera_em || null, vence_em: v.vence_em || null,
+          limite_pct: v.limite_pct || null, regra: v.regra || null, para: v.para || null, encerrado: !!v.encerrado, atualizado_em: new Date().toISOString() };
+        if (!this._local) {
+          const r = v.id ? await sb.from('vales').update(row).eq('id', v.id) : await sb.from('vales').insert({ ...row, household_id: household.id });
+          if (!r.error) return; if (v.id) throw r.error; this._local = true;
+        }
+        const l = this._ls(); if (v.id) { const i = l.findIndex((x) => x.id === v.id); if (i >= 0) l[i] = { ...l[i], ...row }; } else l.push({ ...row, id: 'v' + Date.now() }); this._sv(l);
       },
     },
     bancos: {
@@ -169,7 +241,7 @@
           if (!error && data) return data;
           this._local = true;
         }
-        return this._ls() || this.PADRAO.map((b, i) => ({ ...b, id: 'b' + i }));
+        return this._ls() || (demo && !demoNovo ? this.PADRAO.map((b, i) => ({ ...b, id: 'b' + i })) : []);
       },
       async salvar(b) {
         const row = { nome: b.nome.trim(), dono: b.dono, cor: b.cor || '#61665e', ordem: b.ordem || 99 };
@@ -192,10 +264,10 @@
       async listar() {
         if (!this._local) {
           const { data, error } = await sb.from('pessoas').select('id, chave, nome, avatar, ordem').eq('household_id', household.id).order('ordem');
-          if (!error && data && data.length) return data;
-          if (error) this._local = true; // tabela ainda não criada: guarda no aparelho
+          if (!error && data) return data;
+          this._local = true; // tabela ainda não criada: guarda no aparelho
         }
-        return this._ls() || this.PADRAO.map((p) => ({ ...p, avatar: { ...p.avatar } }));
+        return this._ls() || (demo && !demoNovo ? this.PADRAO.map((p) => ({ ...p, avatar: { ...p.avatar } })) : []);
       },
       async salvar(p) {
         if (!p.chave) p.chave = (p.nome || 'pessoa').toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g, '').slice(0, 20) + '-' + Date.now().toString(36).slice(-4);
@@ -216,7 +288,7 @@
       _ls() { try { return JSON.parse(localStorage.getItem('oikos-obj') || '[]'); } catch (e) { return []; } },
       _sv(l) { try { localStorage.setItem('oikos-obj', JSON.stringify(l)); } catch (e) { /* ignora */ } },
       async listar() {
-        if (demo) { let l = this._ls(); if (!l.length) { l = [{ id: 'd1', pessoa: 'familia', categoria: 'reserva', titulo: 'Reserva de emergência (3 meses)', valor_alvo: 15000, valor_guardado: 1303.67, prazo: '2027-12-01' }]; this._sv(l); } return l; }
+        if (demo) { let l = this._ls(); if (!l.length && !demoNovo) { l = [{ id: 'd1', pessoa: 'familia', categoria: 'reserva', titulo: 'Reserva de emergência (3 meses)', valor_alvo: 15000, valor_guardado: 1303.67, prazo: '2027-12-01' }]; this._sv(l); } return l; }
         const { data, error } = await sb.from('objetivos').select('*').eq('household_id', household.id).order('criado_em');
         if (error) throw error; return data;
       },

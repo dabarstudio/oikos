@@ -4,7 +4,7 @@
   const CATS = [
     ['mercado', '🛒', 'Mercado'], ['acougue', '🥩', 'Açougue'], ['comerfora', '🍔', 'Comer fora'], ['combustivel', '⛽', 'Combustível'],
     ['transporte', '🚌', 'Ônibus / Uber'], ['saude', '💊', 'Saúde / Farmácia'], ['abner', '👶', 'Abner'], ['casa', '🏠', 'Casa'],
-    ['lazer', '🎁', 'Lazer / Presentes'], ['outros', '📦', 'Outros'],
+    ['lazer', '🎁', 'Lazer / Presentes'], ['revenda', '🏷️', 'Revenda'], ['outros', '📦', 'Outros'],
   ];
   // envelope do app → (nível, chave) da planilha, para somar nos envelopes do Início
   const MAPA = { mercado: ['conta', 'MERCADO'], acougue: ['conta', 'AÇOUGUE'], comerfora: ['conta', 'ALIMENTAÇÃO FORA'], combustivel: ['mae', 'VEÍCULO E TRANSPORTE'],
@@ -22,7 +22,7 @@
     document.dispatchEvent(new Event('oikos:gastos')); listaGastos();
   }
 
-  function abrir() { f = { passo: 1, valor: '', envelope: null, forma: 'dinheiro', data: hoje(), reembolsar: false, reembolso_de: 'Vital', descricao: '', conta: null }; passo(); document.body.classList.add('ag-open'); setTimeout(() => { const i = document.getElementById('ag-val'); if (i) i.focus(); }, 280); }
+  function abrir() { f = { passo: 1, valor: '', envelope: null, forma: 'dinheiro', data: hoje(), reembolsar: false, reembolso_de: 'Vital', descricao: '', conta: null, venda_para: '', venda_valor: '', venda_recebido: false }; passo(); document.body.classList.add('ag-open'); setTimeout(() => { const i = document.getElementById('ag-val'); if (i) i.focus(); }, 280); }
   const fechar = () => document.body.classList.remove('ag-open');
   function passo() {
     const b = sh.querySelector('.ag-body');
@@ -32,7 +32,7 @@
         <button type="button" class="ag-next" data-next1>Continuar</button>`;
     } else if (f.passo === 2) {
       b.innerHTML = `<button type="button" class="ag-back" data-back>‹ ${BRL.format(f.valor)}</button><p class="ag-q">Com o quê?</p>
-        <div class="ag-grid">${CATS.map(([k, e, n]) => `<button type="button" data-env="${k}"><span>${e}</span>${n}</button>`).join('')}</div>`;
+        <div class="ag-grid">${CATS.map(([k, e, n]) => [k, e, k === 'abner' ? (window.OIKOS_FILHOS || 'Filhos') : n]).map(([k, e, n]) => `<button type="button" data-env="${k}"><span>${e}</span>${n}</button>`).join('')}</div>`;
     } else {
       const c = cat(f.envelope);
       b.innerHTML = `<button type="button" class="ag-back" data-back>‹ Voltar</button>
@@ -40,8 +40,12 @@
         <p class="ag-l">Como pagou?</p><div class="ag-ops">${FORMAS.map(([k, e, n]) => `<button type="button" data-forma="${k}" class="${f.forma === k ? 'on' : ''}">${e} ${n}</button>`).join('')}</div>
         ${f.forma !== 'dinheiro' ? '<p class="ag-l">De qual conta saiu?</p><div id="ag-bk"></div>' : ''}
         <p class="ag-l">Quando?</p><div class="ag-ops"><button type="button" data-dia="${hoje()}" class="${f.data === hoje() ? 'on' : ''}">Hoje</button><button type="button" data-dia="${ontem()}" class="${f.data === ontem() ? 'on' : ''}">Ontem</button><input type="date" id="ag-data" value="${f.data}" max="${hoje()}"></div>
-        <p class="ag-l">Alguém vai te devolver esse dinheiro?</p><div class="ag-ops"><button type="button" data-reemb="0" class="${!f.reembolsar ? 'on' : ''}">Não</button><button type="button" data-reemb="1" class="${f.reembolsar ? 'on' : ''}">Sim, é reembolso</button></div>
-        ${f.reembolsar ? `<label class="ag-l">Quem vai devolver?<input id="ag-quem" class="sv-in" value="${f.reembolso_de}" placeholder="Ex.: Vital, cliente…"></label>` : ''}
+        ${f.envelope === 'revenda' ? `<div class="ag-rv"><p class="ag-l">🏷️ Comprou para revender — não entra nos envelopes da casa.</p>
+          <label class="ag-l">Vendeu para quem? <small>(se já vendeu)</small><input id="ag-vpara" class="sv-in" value="${f.venda_para.replace(/"/g, '&quot;')}" placeholder="Ex.: Carlos Henrique" maxlength="50"></label>
+          <label class="ag-l">Por quanto vendeu?<input id="ag-vval" class="sv-in" inputmode="decimal" value="${f.venda_valor}" placeholder="0,00"></label>
+          <p class="ag-l">Já recebeu o dinheiro da venda?</p><div class="ag-ops"><button type="button" data-vrec="0" class="${!f.venda_recebido ? 'on' : ''}">Ainda não</button><button type="button" data-vrec="1" class="${f.venda_recebido ? 'on' : ''}">Sim, recebi</button></div></div>`
+        : `<p class="ag-l">Alguém vai te devolver esse dinheiro?</p><div class="ag-ops"><button type="button" data-reemb="0" class="${!f.reembolsar ? 'on' : ''}">Não</button><button type="button" data-reemb="1" class="${f.reembolsar ? 'on' : ''}">Sim, é reembolso</button></div>
+        ${f.reembolsar ? `<label class="ag-l">Quem vai devolver?<input id="ag-quem" class="sv-in" value="${f.reembolso_de}" placeholder="Ex.: Vital, cliente…"></label>` : ''}`}
         <label class="ag-l">O que foi? <small>(opcional)</small><input id="ag-desc" class="sv-in" value="${f.descricao.replace(/"/g, '&quot;')}" placeholder="Ex.: passagem de ônibus" maxlength="80"></label>
         <button type="button" class="ag-next" data-salvar ${f.forma !== 'dinheiro' && !f.conta ? 'disabled' : ''}>Anotar gasto</button>
         <p class="ag-falta" id="ag-falta">${f.forma !== 'dinheiro' && !f.conta ? '👆 Toque na conta que pagou' : ''}</p>`;
@@ -53,6 +57,8 @@
     const d = document.getElementById('ag-desc'); if (d) f.descricao = d.value;
     const q = document.getElementById('ag-quem'); if (q) f.reembolso_de = q.value;
     const dt = document.getElementById('ag-data'); if (dt && dt.value) f.data = dt.value;
+    const vp = document.getElementById('ag-vpara'); if (vp) f.venda_para = vp.value;
+    const vv = document.getElementById('ag-vval'); if (vv) f.venda_valor = vv.value;
   }
   async function onClick(e) {
     if (e.target.classList.contains('ag-scrim')) return fechar();
@@ -62,13 +68,14 @@
     if (b.dataset.env) { f.envelope = b.dataset.env; f.reembolsar = false; f.passo = 3; return passo(); }
     if (b.dataset.forma) { lerCampos(); f.forma = b.dataset.forma; return passo(); }
     if (b.dataset.dia) { lerCampos(); f.data = b.dataset.dia; return passo(); }
+    if (b.dataset.vrec) { lerCampos(); f.venda_recebido = b.dataset.vrec === '1'; return passo(); }
     if (b.dataset.reemb) { lerCampos(); f.reembolsar = b.dataset.reemb === '1'; return passo(); }
     if (b.hasAttribute('data-salvar')) {
       lerCampos(); b.disabled = true; b.textContent = 'Anotando…';
       try {
-        await window.APP.gastos.salvar({ data: f.data, valor: f.valor, envelope: f.envelope, descricao: f.descricao || cat(f.envelope)[2], forma: f.forma, reembolsar: f.reembolsar, reembolso_de: f.reembolsar ? (f.reembolso_de || null) : null, conta: f.forma === 'dinheiro' ? null : f.conta });
+        await window.APP.gastos.salvar({ data: f.data, valor: f.valor, envelope: f.envelope, descricao: f.descricao || cat(f.envelope)[2], forma: f.forma, reembolsar: f.reembolsar, reembolso_de: f.reembolsar ? (f.reembolso_de || null) : null, conta: f.forma === 'dinheiro' ? null : f.conta, ...(f.envelope === 'revenda' ? { venda_para: f.venda_para || null, venda_valor: num(f.venda_valor) || null, venda_recebido: f.venda_recebido } : {}) });
         sh.querySelector('.ag-body').innerHTML = `<div class="ag-big">✅</div><p class="ag-q" style="text-align:center">Anotado!</p>
-          <p class="ag-s">${cat(f.envelope)[1]} ${BRL.format(f.valor)} em ${cat(f.envelope)[2]}${f.reembolsar ? ' · <b>a receber de ' + (f.reembolso_de || 'alguém') + '</b> (não conta nos envelopes)' : ''}.</p>
+          <p class="ag-s">${cat(f.envelope)[1]} ${BRL.format(f.valor)} em ${cat(f.envelope)[2]}${f.reembolsar ? ' · <b>a receber de ' + (f.reembolso_de || 'alguém') + '</b> (não conta nos envelopes)' : ''}${f.envelope === 'revenda' && num(f.venda_valor) ? ' · lucro de <b>' + BRL.format(num(f.venda_valor) - f.valor) + '</b>' : ''}.</p>
           <button type="button" class="ag-next" data-outro>➕ Anotar outro</button><button type="button" class="ag-sec" data-fim>Pronto</button>`;
         recarregar();
       } catch (err) { console.error(err); b.disabled = false; b.textContent = 'Não anotou. Tentar de novo'; }
@@ -105,6 +112,7 @@
       try { await window.APP.gastos.apagar(d.dataset.del); } catch (err) { console.error(err); } recarregar();
     });
     window.OIKOS_ANOTAR = abrir;
+    document.addEventListener('oikos:recarregar-gastos', recarregar);
     recarregar();
     if (window.dash) { let primeira = true; dash.onData(() => { if (primeira && dash.data('mensal').status === 'ok') { primeira = false; recarregar(); } }); }
   }
