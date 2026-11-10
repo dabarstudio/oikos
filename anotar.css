@@ -37,3 +37,4 @@ body.ag-open .ag-sheet { pointer-events: auto; } body.ag-open .ag-scrim { opacit
 .ag-falta { text-align: center; font-size: 14px; font-weight: 700; color: #8a5a00; margin: 6px 0 0; }
 .ag-falta:empty { display: none; }
 .ag-next:disabled { opacity: .45; }
+.pj-esc button { display: inline-flex; align-items: center; gap: 6px; } .pj-esc .ng-logo { box-shadow: none; }

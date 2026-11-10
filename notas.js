@@ -34,7 +34,7 @@
   const fechar = () => document.body.classList.remove('nt-open');
 
   const OQUE = [['mercado', '🛒', 'Mercado'], ['acougue', '🥩', 'Açougue'], ['comerfora', '🍔', 'Comer fora'], ['farmacia', '💊', 'Farmácia'],
-    ['presente', '🎁', 'Presente'], ['abner', '👶', 'Abner'], ['casa', '🏠', 'Casa'], ['combustivel', '⛽', 'Combustível'], ['revenda', '🏷️', 'Revenda'], ['outros', '📦', 'Outros']];
+    ['presente', '🎁', 'Presente'], ['abner', '👶', 'Abner'], ['casa', '🏠', 'Casa'], ['combustivel', '⛽', 'Combustível'], ['revenda', '🚀', 'Projeto / revenda'], ['outros', '📦', 'Outros']];
   const FORMAS = [['pix', '⚡ PIX'], ['debito', '🏦 Débito'], ['credito', '💳 Crédito'], ['dinheiro', '💵 Dinheiro']];
   let pend = null;
   function perguntar() {
@@ -45,7 +45,7 @@
       <p class="nt-l">Como pagou?</p>
       <div class="nt-ops">${FORMAS.map(([k, n]) => `<button type="button" data-fp="${k}" class="${p.forma === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       ${p.forma !== 'dinheiro' ? '<p class="nt-l">De qual conta saiu?</p><div id="nt-bk"></div>' : ''}
-      ${p.envelope === 'revenda' ? `<div class="nt-rv"><p class="nt-l">🏷️ Comprou para revender — não entra nos envelopes da casa.</p>
+      ${p.envelope === 'revenda' ? `<div class="nt-rv"><p class="nt-l">🚀 Gasto de projeto — não entra nos envelopes da casa.</p>${window.OIKOS_PROJ_CHIPS ? window.OIKOS_PROJ_CHIPS(p).replace(/ag-ops/g, 'nt-ops').replace(/ag-l/g, 'nt-l') : ''}
         <label class="nt-l">Quanto custou?<input id="nt-custo" class="sv-in" inputmode="decimal" placeholder="0,00" value="${p.custo || ''}"></label>
         <label class="nt-l">Vendeu para quem? <small>(se já vendeu)</small><input id="nt-vpara" class="sv-in" placeholder="Ex.: Carlos Henrique" value="${(p.venda_para || '').replace(/"/g, '&quot;')}" maxlength="50"></label>
         <label class="nt-l">Por quanto vendeu?<input id="nt-vval" class="sv-in" inputmode="decimal" placeholder="0,00" value="${p.venda_valor || ''}"></label>
@@ -85,7 +85,7 @@
       if (pend.envelope === 'revenda' && window.APP.gastos) {
         const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
         await window.APP.gastos.salvar({ data: d.toISOString().slice(0, 10), valor: num(pend.custo), envelope: 'revenda', descricao: pend.obs || 'Compra para revenda', forma: pend.forma, reembolsar: false, conta: pend.forma === 'dinheiro' ? null : pend.conta,
-          venda_para: pend.venda_para || null, venda_valor: num(pend.venda_valor) || null, venda_recebido: !!pend.venda_recebido, venda_em: num(pend.venda_valor) ? d.toISOString().slice(0, 10) : null });
+          venda_para: pend.venda_para || null, venda_valor: num(pend.venda_valor) || null, venda_recebido: !!pend.venda_recebido, venda_em: num(pend.venda_valor) ? d.toISOString().slice(0, 10) : null, projeto_id: pend.projeto_id || null });
         document.dispatchEvent(new Event('oikos:recarregar-gastos'));
       }
       listar();
@@ -146,6 +146,7 @@
     sheet.addEventListener('click', (e) => {
       const oq = e.target.closest('[data-oq]'); if (oq && pend) { lerNt(); pend.envelope = oq.dataset.oq; return perguntar(); }
       const fp = e.target.closest('[data-fp]'); if (fp && pend) { lerNt(); pend.forma = fp.dataset.fp; return perguntar(); }
+      const pj = e.target.closest('[data-proj]'); if (pj && pend) { lerNt(); pend.projeto_id = pj.dataset.proj; return perguntar(); }
       const vr = e.target.closest('[data-vrec]'); if (vr && pend) { lerNt(); pend.venda_recebido = vr.dataset.vrec === '1'; return perguntar(); }
       if (e.target.closest('[data-enviar]') && pend) {
         lerNt();

@@ -4,7 +4,7 @@
   const CATS = [
     ['mercado', '🛒', 'Mercado'], ['acougue', '🥩', 'Açougue'], ['comerfora', '🍔', 'Comer fora'], ['combustivel', '⛽', 'Combustível'],
     ['transporte', '🚌', 'Ônibus / Uber'], ['saude', '💊', 'Saúde / Farmácia'], ['abner', '👶', 'Abner'], ['casa', '🏠', 'Casa'],
-    ['lazer', '🎁', 'Lazer / Presentes'], ['revenda', '🏷️', 'Revenda'], ['outros', '📦', 'Outros'],
+    ['lazer', '🎁', 'Lazer / Presentes'], ['revenda', '🚀', 'Projeto / revenda'], ['outros', '📦', 'Outros'],
   ];
   // envelope do app → (nível, chave) da planilha, para somar nos envelopes do Início
   const MAPA = { mercado: ['conta', 'MERCADO'], acougue: ['conta', 'AÇOUGUE'], comerfora: ['conta', 'ALIMENTAÇÃO FORA'], combustivel: ['mae', 'VEÍCULO E TRANSPORTE'],
@@ -40,7 +40,7 @@
         <p class="ag-l">Como pagou?</p><div class="ag-ops">${FORMAS.map(([k, e, n]) => `<button type="button" data-forma="${k}" class="${f.forma === k ? 'on' : ''}">${e} ${n}</button>`).join('')}</div>
         ${f.forma !== 'dinheiro' ? '<p class="ag-l">De qual conta saiu?</p><div id="ag-bk"></div>' : ''}
         <p class="ag-l">Quando?</p><div class="ag-ops"><button type="button" data-dia="${hoje()}" class="${f.data === hoje() ? 'on' : ''}">Hoje</button><button type="button" data-dia="${ontem()}" class="${f.data === ontem() ? 'on' : ''}">Ontem</button><input type="date" id="ag-data" value="${f.data}" max="${hoje()}"></div>
-        ${f.envelope === 'revenda' ? `<div class="ag-rv"><p class="ag-l">🏷️ Comprou para revender — não entra nos envelopes da casa.</p>
+        ${f.envelope === 'revenda' ? `<div class="ag-rv"><p class="ag-l">🚀 Gasto de projeto — não entra nos envelopes da casa.</p>${projChips(f)}
           <label class="ag-l">Vendeu para quem? <small>(se já vendeu)</small><input id="ag-vpara" class="sv-in" value="${f.venda_para.replace(/"/g, '&quot;')}" placeholder="Ex.: Carlos Henrique" maxlength="50"></label>
           <label class="ag-l">Por quanto vendeu?<input id="ag-vval" class="sv-in" inputmode="decimal" value="${f.venda_valor}" placeholder="0,00"></label>
           <p class="ag-l">Já recebeu o dinheiro da venda?</p><div class="ag-ops"><button type="button" data-vrec="0" class="${!f.venda_recebido ? 'on' : ''}">Ainda não</button><button type="button" data-vrec="1" class="${f.venda_recebido ? 'on' : ''}">Sim, recebi</button></div></div>`
@@ -53,6 +53,13 @@
       if (bk && window.OIKOS_BANCOS) window.OIKOS_BANCOS.montar(bk, f.conta, (v) => { f.conta = v; const s = sh.querySelector('[data-salvar]'); if (s) s.disabled = false; const x = document.getElementById('ag-falta'); if (x) x.textContent = ''; });
     }
   }
+  function projChips(o) {
+    const ps = window.OIKOS_PROJ ? window.OIKOS_PROJ.lista() : []; if (!ps.length) return '';
+    if (!o.projeto_id || !ps.some((p) => String(p.id) === String(o.projeto_id))) o.projeto_id = ps[0].id;
+    if (ps.length < 2) return '';
+    return `<p class="ag-l">Qual projeto?</p><div class="ag-ops pj-esc">${ps.map((p) => `<button type="button" data-proj="${p.id}" class="${String(o.projeto_id) === String(p.id) ? 'on' : ''}">${window.OIKOS_PROJ.logo(p, 22)} ${p.nome.replace(/</g, '&lt;')}</button>`).join('')}</div>`;
+  }
+  window.OIKOS_PROJ_CHIPS = projChips;
   function lerCampos() {
     const d = document.getElementById('ag-desc'); if (d) f.descricao = d.value;
     const q = document.getElementById('ag-quem'); if (q) f.reembolso_de = q.value;
@@ -68,12 +75,13 @@
     if (b.dataset.env) { f.envelope = b.dataset.env; f.reembolsar = false; f.passo = 3; return passo(); }
     if (b.dataset.forma) { lerCampos(); f.forma = b.dataset.forma; return passo(); }
     if (b.dataset.dia) { lerCampos(); f.data = b.dataset.dia; return passo(); }
+    if (b.dataset.proj) { lerCampos(); f.projeto_id = b.dataset.proj; return passo(); }
     if (b.dataset.vrec) { lerCampos(); f.venda_recebido = b.dataset.vrec === '1'; return passo(); }
     if (b.dataset.reemb) { lerCampos(); f.reembolsar = b.dataset.reemb === '1'; return passo(); }
     if (b.hasAttribute('data-salvar')) {
       lerCampos(); b.disabled = true; b.textContent = 'Anotando…';
       try {
-        await window.APP.gastos.salvar({ data: f.data, valor: f.valor, envelope: f.envelope, descricao: f.descricao || cat(f.envelope)[2], forma: f.forma, reembolsar: f.reembolsar, reembolso_de: f.reembolsar ? (f.reembolso_de || null) : null, conta: f.forma === 'dinheiro' ? null : f.conta, ...(f.envelope === 'revenda' ? { venda_para: f.venda_para || null, venda_valor: num(f.venda_valor) || null, venda_recebido: f.venda_recebido, venda_em: num(f.venda_valor) ? f.data : null } : {}) });
+        await window.APP.gastos.salvar({ data: f.data, valor: f.valor, envelope: f.envelope, descricao: f.descricao || cat(f.envelope)[2], forma: f.forma, reembolsar: f.reembolsar, reembolso_de: f.reembolsar ? (f.reembolso_de || null) : null, conta: f.forma === 'dinheiro' ? null : f.conta, ...(f.envelope === 'revenda' ? { venda_para: f.venda_para || null, venda_valor: num(f.venda_valor) || null, venda_recebido: f.venda_recebido, venda_em: num(f.venda_valor) ? f.data : null, projeto_id: f.projeto_id || null } : {}) });
         sh.querySelector('.ag-body').innerHTML = `<div class="ag-big">✅</div><p class="ag-q" style="text-align:center">Anotado!</p>
           <p class="ag-s">${cat(f.envelope)[1]} ${BRL.format(f.valor)} em ${cat(f.envelope)[2]}${f.reembolsar ? ' · <b>a receber de ' + (f.reembolso_de || 'alguém') + '</b> (não conta nos envelopes)' : ''}${f.envelope === 'revenda' && num(f.venda_valor) ? ' · lucro de <b>' + BRL.format(num(f.venda_valor) - f.valor) + '</b>' : ''}.</p>
           <button type="button" class="ag-next" data-outro>➕ Anotar outro</button><button type="button" class="ag-sec" data-fim>Pronto</button>`;

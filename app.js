@@ -228,6 +228,35 @@
       async trocarSenha(nova) { if (demo) return; const { error } = await sb.auth.updateUser({ password: nova }); if (error) throw error; },
       recarregar() { return carregar(); },
     },
+    projetos: {
+      _ls() { try { return JSON.parse(localStorage.getItem('oikos-proj') || '[]'); } catch (e) { return []; } },
+      _sv(l) { try { localStorage.setItem('oikos-proj', JSON.stringify(l)); } catch (e) { /* ignora */ } },
+      _local: demo,
+      async listar() {
+        if (!this._local) {
+          const { data, error } = await sb.from('projetos').select('*').eq('household_id', household.id).eq('ativo', true).order('ordem').order('criado_em');
+          if (!error) return data; this._local = true;
+        }
+        return this._ls().filter((p) => p.ativo !== false);
+      },
+      async salvar(p) {
+        const row = { nome: p.nome, tipo: p.tipo || 'revenda', logo_url: p.logo_url || null, icone: p.icone || '🏷️', cor: p.cor || '#1a2753', meta: p.meta || null, donos: p.donos || [], ativo: p.ativo !== false };
+        if (!this._local) {
+          const r = p.id ? await sb.from('projetos').update(row).eq('id', p.id).select().single() : await sb.from('projetos').insert({ ...row, household_id: household.id }).select().single();
+          if (r.error) throw r.error; return r.data;
+        }
+        const l = this._ls(); let out;
+        if (p.id) { const i = l.findIndex((x) => x.id === p.id); l[i] = { ...l[i], ...row }; out = l[i]; } else { out = { ...row, id: 'p' + Date.now(), ordem: l.length + 1 }; l.push(out); }
+        this._sv(l); return out;
+      },
+      async subirLogo(blob) {
+        if (this._local) return await new Promise((ok) => { const r = new FileReader(); r.onload = () => ok(r.result); r.readAsDataURL(blob); });
+        const nome = household.id + '/' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6) + '.jpg';
+        const up = await sb.storage.from('logos').upload(nome, blob, { contentType: 'image/jpeg', upsert: false });
+        if (up.error) throw up.error;
+        return sb.storage.from('logos').getPublicUrl(nome).data.publicUrl;
+      },
+    },
     vales: {
       _ls() { try { return JSON.parse(localStorage.getItem('oikos-val') || '[]'); } catch (e) { return []; } },
       _sv(l) { try { localStorage.setItem('oikos-val', JSON.stringify(l)); } catch (e) { /* ignora */ } },
