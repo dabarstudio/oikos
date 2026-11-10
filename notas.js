@@ -33,13 +33,32 @@
   }
   const fechar = () => document.body.classList.remove('nt-open');
 
+  const OQUE = [['mercado', '🛒', 'Mercado'], ['acougue', '🥩', 'Açougue'], ['comerfora', '🍔', 'Comer fora'], ['farmacia', '💊', 'Farmácia'],
+    ['presente', '🎁', 'Presente'], ['abner', '👶', 'Abner'], ['casa', '🏠', 'Casa'], ['combustivel', '⛽', 'Combustível'], ['outros', '📦', 'Outros']];
+  const FORMAS = [['pix', '⚡ PIX'], ['debito', '🏦 Débito'], ['credito', '💳 Crédito'], ['dinheiro', '💵 Dinheiro']];
+  let pend = null;
+  function perguntar() {
+    const p = pend;
+    abrirFolha(`<img class="nt-thumb" src="${p.url}" alt="">
+      <p class="nt-t" style="margin-top:8px">O que foi essa compra?</p>
+      <div class="nt-grid">${OQUE.map(([k, e, n]) => `<button type="button" data-oq="${k}" class="${p.envelope === k ? 'on' : ''}"><span>${e}</span>${n}</button>`).join('')}</div>
+      <p class="nt-l">Como pagou?</p>
+      <div class="nt-ops">${FORMAS.map(([k, n]) => `<button type="button" data-fp="${k}" class="${p.forma === k ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <label class="nt-l">Quer explicar? <small>(opcional)</small><input id="nt-obs" class="sv-in" value="${(p.obs || '').replace(/"/g, '&quot;')}" placeholder="${p.envelope === 'presente' ? 'Ex.: presente para o Emanuel' : 'Ex.: compra do mês'}" maxlength="80"></label>
+      <button type="button" class="nt-btn" data-enviar ${p.envelope ? '' : 'disabled'}>Enviar notinha</button>
+      <button type="button" class="nt-btn sec" data-fechar>Cancelar</button>`);
+  }
   async function processar(file) {
+    try { const im = await lerImagem(file); pend = { im, url: im.src, envelope: null, forma: 'pix', obs: '' }; perguntar(); }
+    catch (e) { console.error(e); abrirFolha('<div class="nt-big">😕</div><p class="nt-t">Não consegui abrir a foto</p><button type="button" class="nt-btn" data-mais>Tentar de novo</button>'); }
+  }
+  async function enviar() {
     abrirFolha('<div class="nt-big">⏳</div><p class="nt-t">Enviando a notinha…</p><p class="nt-s">Só um instante.</p>');
     try {
-      const im = await lerImagem(file);
+      const im = pend.im;
       const qr = lerQR(im);
       const blob = await comprimir(im);
-      await window.APP.enviarNota(blob, qr);
+      await window.APP.enviarNota(blob, qr, { envelope: pend.envelope, forma: pend.forma, obs: pend.obs });
       abrirFolha(`<div class="nt-big">✅</div><p class="nt-t">Notinha recebida!</p>
         <p class="nt-s">${qr ? 'Consegui ler o código da nota. Os produtos vão aparecer na aba Mercado na próxima atualização.' : 'Guardei a foto. Os produtos vão aparecer na aba Mercado na próxima atualização.'}</p>
         <button type="button" class="nt-btn" data-mais>📸 Enviar outra</button><button type="button" class="nt-btn sec" data-fechar>Pronto</button>`);
@@ -73,6 +92,9 @@
     sheet = document.createElement('div'); sheet.className = 'nt-sheet'; sheet.setAttribute('role', 'dialog');
     sheet.innerHTML = '<div class="nt-scrim"></div><div class="nt-panel"><div class="nt-body"></div></div>';
     sheet.addEventListener('click', (e) => {
+      const oq = e.target.closest('[data-oq]'); if (oq && pend) { pend.obs = (document.getElementById('nt-obs') || {}).value || pend.obs; pend.envelope = oq.dataset.oq; return perguntar(); }
+      const fp = e.target.closest('[data-fp]'); if (fp && pend) { pend.obs = (document.getElementById('nt-obs') || {}).value || pend.obs; pend.forma = fp.dataset.fp; return perguntar(); }
+      if (e.target.closest('[data-enviar]') && pend) { pend.obs = (document.getElementById('nt-obs') || {}).value || ''; return enviar(); }
       if (e.target.closest('[data-fechar]') || e.target.classList.contains('nt-scrim')) fechar();
       if (e.target.closest('[data-mais]')) { fechar(); input.click(); }
     });

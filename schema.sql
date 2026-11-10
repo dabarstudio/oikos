@@ -210,3 +210,7 @@ insert into public.gastos_app (household_id, data, valor, envelope, descricao, f
 select h.id, date '2026-11-09', 6.00, 'transporte', 'Passagem de ônibus urbano – visita Agro TNZ', 'dinheiro', 'george', true, 'Vital (Agro TNZ)'
 from public.households h
 where not exists (select 1 from public.gastos_app g where g.household_id = h.id and g.descricao like 'Passagem de ônibus urbano – visita Agro TNZ%');
+
+-- notas: o que foi e como pagou (perguntado antes de enviar)
+alter table public.notas add column if not exists envelope text;
+alter table public.notas add column if not exists forma text;

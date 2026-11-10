@@ -112,13 +112,15 @@
   }
 
   window.APP = {
-    async enviarNota(blob, qr) {
+    async enviarNota(blob, qr, extra) {
+      extra = extra || {};
       const chave = qr ? ((qr.match(/\d{44}/) || [])[0] || null) : null;
       if (demo) { await new Promise((r) => setTimeout(r, 600)); return { ok: true, chave }; }
       const nome = household.id + '/' + new Date().toISOString().replace(/[:.]/g, '-') + '-' + Math.random().toString(36).slice(2, 7) + '.jpg';
       const up = await sb.storage.from('notas').upload(nome, blob, { contentType: 'image/jpeg', upsert: false });
       if (up.error) throw up.error;
-      const { error } = await sb.from('notas').insert({ household_id: household.id, foto_path: nome, qr_texto: qr || null, chave });
+      let { error } = await sb.from('notas').insert({ household_id: household.id, foto_path: nome, qr_texto: qr || null, chave, envelope: extra.envelope || null, forma: extra.forma || null, obs: extra.obs || null });
+      if (error && /column/.test(error.message || '')) ({ error } = await sb.from('notas').insert({ household_id: household.id, foto_path: nome, qr_texto: qr || null, chave, obs: [extra.envelope, extra.forma, extra.obs].filter(Boolean).join(' | ') || null }));
       if (error) throw error;
       return { ok: true, chave };
     },

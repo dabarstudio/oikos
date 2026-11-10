@@ -32,7 +32,8 @@
     const [ano, mm] = mes.split('-').map(Number);
     const diasMes = new Date(ano, mm, 0).getDate();
     const ult = la.data.filter((r) => r.mes === mes).map((r) => r.data).sort().pop();
-    const dia = ult ? +ult.slice(8, 10) : 1;
+    const agora = new Date(); const mesHoje = agora.getFullYear() + '-' + String(agora.getMonth() + 1).padStart(2, '0');
+    const dia = mesHoje === mes ? agora.getDate() : (ult ? +ult.slice(8, 10) : 1);
     const ritmo = dia / diasMes;
     const faltamDias = diasMes - dia;
 
