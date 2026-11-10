@@ -52,3 +52,6 @@ body.cs-lopen .cs-lsheet { pointer-events: auto; } body.cs-lopen .cs-lscrim { op
 .cs-lrow input { font: inherit; height: 44px; width: 100%; text-align: center; border-radius: 12px; border: 1px solid var(--color-border-line); background: var(--color-bg); color: var(--color-fg); font-size: 17px !important; font-weight: 700; }
 .cs-lsave { font: inherit; width: 100%; padding: 16px; margin-top: 14px; border-radius: 14px; border: 0; background: var(--sv-green); color: #fff; font-size: 17px; font-weight: 700; }
 .cs-lcancel { font: inherit; width: 100%; padding: 14px; margin-top: 8px; border-radius: 14px; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg); font-size: 16px; }
+
+.cs-de b { color: var(--color-fg); font-weight: 700; }
+.cs-de { font-size: 13.5px; }

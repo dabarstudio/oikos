@@ -60,7 +60,7 @@
         <span class="cs-et">${rot}</span>
         <span class="cs-ef">${txt}</span>
         <span class="cs-bar"><i style="width:${t ? Math.min(100, Math.max(3, g / t * 100)) : 0}%"></i><u style="left:${ritmo * 100}%"></u></span>
-        <span class="cs-de">${t ? 'de ' + BRL.format(t) : 'sem limite'}</span>
+        <span class="cs-de">Gastou <b>${BRL.format(g)}</b> ${t ? 'de ' + BRL.format(t) : '(sem limite)'}</span>
       </button>`;
     }).join('');
 
