@@ -75,7 +75,12 @@
     try {
       const l = await window.APP.listarNotas();
       if (!l.length) { box.innerHTML = ''; return; }
-      box.innerHTML = '<p class="nt-lh">Últimas notinhas</p>' + l.slice(0, 5).map((n) => `<div class="nt-it"><span>🧾 ${n.loja || 'Notinha'} · ${fmt.format(new Date(n.criado_em))}</span><b class="${n.status}">${n.status === 'lida' ? (n.total ? BRL.format(n.total) : 'Lida') : n.status === 'erro' ? 'Ilegível' : 'Na fila'}</b></div>`).join('');
+      const OQ = Object.fromEntries(OQUE.map(([k, e, nm]) => [k, e + ' ' + nm]));
+      box.innerHTML = '<p class="nt-lh">Últimas notinhas</p>' + l.slice(0, 5).map((n) => {
+        const rot = n.obs || OQ[n.envelope] || n.loja || 'Notinha';
+        const st = n.status === 'lida' ? (n.total ? BRL.format(n.total) : '✅ Lida') : n.status === 'erro' ? 'Ilegível' : '✅ Recebida';
+        return `<div class="nt-it"><span>${n.envelope ? (OQ[n.envelope] || '🧾').split(' ')[0] : '🧾'} ${rot} · ${fmt.format(new Date(n.criado_em))}</span><b class="${n.status === 'pendente' ? 'ok' : n.status}">${st}</b></div>`;
+      }).join('');
     } catch (e) { box.innerHTML = ''; }
   }
 

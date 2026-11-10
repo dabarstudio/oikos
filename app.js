@@ -207,7 +207,7 @@
     },
     async listarNotas() {
       if (demo) return [];
-      const { data, error } = await sb.from('notas').select('id, criado_em, status, loja, total, chave').eq('household_id', household.id).order('criado_em', { ascending: false }).limit(10);
+      const { data, error } = await sb.from('notas').select('*').eq('household_id', household.id).order('criado_em', { ascending: false }).limit(10);
       if (error) throw error;
       return data;
     },
