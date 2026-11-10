@@ -34,3 +34,6 @@ body.ag-open .ag-sheet { pointer-events: auto; } body.ag-open .ag-scrim { opacit
 .ag-iv { font-weight: 700; font-size: 15px; } .ag-del { font: inherit; border: 0; background: none; font-size: 15px; color: var(--color-bad); padding: 6px; }
 .cs-cta2 { font: inherit; display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; padding: 16px 18px; border-radius: 18px; border: 0; background: var(--sv-orange); color: #fff; }
 .cs-cta2 > span:first-child { font-size: 30px; } .cs-cta2 b { display: block; font-size: 18px; } .cs-cta2 small { display: block; font-size: 14px; opacity: .92; }
+.ag-falta { text-align: center; font-size: 14px; font-weight: 700; color: #8a5a00; margin: 6px 0 0; }
+.ag-falta:empty { display: none; }
+.ag-next:disabled { opacity: .45; }

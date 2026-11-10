@@ -1,0 +1,27 @@
+/* Oikos — seletor de banco/conta */
+.bk-ops { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 6px 0 4px; }
+.bk-ops button { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; min-height: 52px; padding: 8px 10px 8px 14px; position: relative;
+  border: 1.5px solid var(--border, #d6dbcf); border-radius: 12px; background: var(--panel, #f5f6f0); color: inherit; font: inherit; text-align: left; cursor: pointer; overflow: hidden; }
+.bk-ops button i { position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--bk, #61665e); }
+.bk-ops .bk-n { font-weight: 700; font-size: 15px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bk-ops .bk-d { display: flex; align-items: center; gap: 4px; font-size: 12.5px; opacity: .8; max-width: 100%; overflow: hidden; white-space: nowrap; }
+.bk-ops .bk-d svg { flex: none; border-radius: 50%; }
+.bk-ops button.on { border-color: #2f7d4f; background: #e3f0e6; box-shadow: 0 0 0 2px #2f7d4f33; }
+.bk-ops button.on::after { content: '✓'; position: absolute; right: 8px; top: 6px; font-weight: 800; color: #2f7d4f; }
+.bk-ops .bk-add { grid-column: 1 / -1; align-items: center; justify-content: center; min-height: 44px; border-style: dashed; font-weight: 700; color: #2f7d4f; padding-left: 10px; }
+.bk-novo { border: 1.5px solid #2f7d4f55; border-radius: 14px; padding: 12px; margin: 6px 0; background: var(--panel, #f5f6f0); min-width: 0; }
+.bk-novo .sv-in { width: 100%; box-sizing: border-box; font-size: 16px; }
+.bk-t { margin: 10px 0 6px; font-weight: 700; font-size: 14px; }
+.bk-t:first-child { margin-top: 0; }
+.bk-donos { display: flex; flex-wrap: wrap; gap: 8px; }
+.bk-donos button { display: flex; align-items: center; gap: 6px; padding: 5px 12px 5px 5px; border-radius: 999px; border: 1.5px solid var(--border, #d6dbcf); background: #fff8; font: inherit; color: inherit; cursor: pointer; min-height: 40px; }
+.bk-donos button svg { border-radius: 50%; flex: none; }
+.bk-donos button.on { border-color: #2f7d4f; background: #e3f0e6; font-weight: 700; }
+.bk-cores { display: flex; flex-wrap: wrap; gap: 8px; }
+.bk-cores button { width: 32px; height: 32px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; padding: 0; }
+.bk-cores button.on { border-color: var(--fg, #2b2f29); }
+.bk-erro { color: #b3261e; font-weight: 700; margin: 10px 0 0; font-size: 14px; }
+.bk-acoes { display: flex; gap: 8px; margin-top: 12px; }
+.bk-acoes button { flex: 1; min-height: 44px; border-radius: 12px; font: inherit; font-weight: 700; cursor: pointer; border: 0; }
+.bk-ok { background: #2f7d4f; color: #fff; }
+.bk-cancel { background: transparent; border: 1.5px solid var(--border, #d6dbcf) !important; color: inherit; }

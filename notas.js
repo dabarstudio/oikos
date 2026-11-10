@@ -44,12 +44,22 @@
       <div class="nt-grid">${OQUE.map(([k, e, n]) => `<button type="button" data-oq="${k}" class="${p.envelope === k ? 'on' : ''}"><span>${e}</span>${n}</button>`).join('')}</div>
       <p class="nt-l">Como pagou?</p>
       <div class="nt-ops">${FORMAS.map(([k, n]) => `<button type="button" data-fp="${k}" class="${p.forma === k ? 'on' : ''}">${n}</button>`).join('')}</div>
+      ${p.forma !== 'dinheiro' ? '<p class="nt-l">De qual conta saiu?</p><div id="nt-bk"></div>' : ''}
       <label class="nt-l">Quer explicar? <small>(opcional)</small><input id="nt-obs" class="sv-in" value="${(p.obs || '').replace(/"/g, '&quot;')}" placeholder="${p.envelope === 'presente' ? 'Ex.: presente para o Emanuel' : 'Ex.: compra do mês'}" maxlength="80"></label>
-      <button type="button" class="nt-btn" data-enviar ${p.envelope ? '' : 'disabled'}>Enviar notinha</button>
+      <button type="button" class="nt-btn" data-enviar ${pronto() ? '' : 'disabled'}>Enviar notinha</button>
+      <p class="nt-falta" id="nt-falta">${falta()}</p>
       <button type="button" class="nt-btn sec" data-fechar>Cancelar</button>`);
+    const bk = document.getElementById('nt-bk');
+    if (bk && window.OIKOS_BANCOS) window.OIKOS_BANCOS.montar(bk, p.conta, (v) => { p.conta = v; atualizarBotao(); });
+  }
+  const pronto = () => pend && pend.envelope && (pend.forma === 'dinheiro' || pend.conta);
+  const falta = () => !pend ? '' : !pend.envelope ? '👆 Toque no que foi a compra' : (pend.forma !== 'dinheiro' && !pend.conta) ? '👆 Toque na conta que pagou' : '';
+  function atualizarBotao() {
+    const b = sheet.querySelector('[data-enviar]'); if (b) b.disabled = !pronto();
+    const f = document.getElementById('nt-falta'); if (f) f.textContent = falta();
   }
   async function processar(file) {
-    try { const im = await lerImagem(file); pend = { im, url: im.src, envelope: null, forma: 'pix', obs: '' }; perguntar(); }
+    try { const im = await lerImagem(file); pend = { im, url: im.src, envelope: null, forma: 'pix', obs: '', conta: null }; perguntar(); }
     catch (e) { console.error(e); abrirFolha('<div class="nt-big">😕</div><p class="nt-t">Não consegui abrir a foto</p><button type="button" class="nt-btn" data-mais>Tentar de novo</button>'); }
   }
   async function enviar() {
@@ -58,7 +68,7 @@
       const im = pend.im;
       const qr = lerQR(im);
       const blob = await comprimir(im);
-      await window.APP.enviarNota(blob, qr, { envelope: pend.envelope, forma: pend.forma, obs: pend.obs });
+      await window.APP.enviarNota(blob, qr, { envelope: pend.envelope, forma: pend.forma, obs: pend.obs, conta: pend.forma === 'dinheiro' ? null : pend.conta });
       abrirFolha(`<div class="nt-big">✅</div><p class="nt-t">Notinha recebida!</p>
         <p class="nt-s">${qr ? 'Consegui ler o código da nota. Os produtos vão aparecer na aba Mercado na próxima atualização.' : 'Guardei a foto. Os produtos vão aparecer na aba Mercado na próxima atualização.'}</p>
         <button type="button" class="nt-btn" data-mais>📸 Enviar outra</button><button type="button" class="nt-btn sec" data-fechar>Pronto</button>`);
@@ -79,7 +89,7 @@
       box.innerHTML = '<p class="nt-lh">Últimas notinhas</p>' + l.slice(0, 5).map((n) => {
         const rot = n.obs || OQ[n.envelope] || n.loja || 'Notinha';
         const st = n.status === 'lida' ? (n.total ? BRL.format(n.total) : '✅ Lida') : n.status === 'erro' ? 'Ilegível' : '✅ Recebida';
-        return `<div class="nt-it"><span>${n.envelope ? (OQ[n.envelope] || '🧾').split(' ')[0] : '🧾'} ${rot} · ${fmt.format(new Date(n.criado_em))}</span><b class="${n.status === 'pendente' ? 'ok' : n.status}">${st}</b></div>`;
+        return `<div class="nt-it"><span>${n.envelope ? (OQ[n.envelope] || '🧾').split(' ')[0] : '🧾'} ${rot} · ${fmt.format(new Date(n.criado_em))}${n.conta ? ' · ' + n.conta : ''}</span><b class="${n.status === 'pendente' ? 'ok' : n.status}">${st}</b></div>`;
       }).join('');
     } catch (e) { box.innerHTML = ''; }
   }

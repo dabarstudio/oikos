@@ -119,8 +119,8 @@
       const nome = household.id + '/' + new Date().toISOString().replace(/[:.]/g, '-') + '-' + Math.random().toString(36).slice(2, 7) + '.jpg';
       const up = await sb.storage.from('notas').upload(nome, blob, { contentType: 'image/jpeg', upsert: false });
       if (up.error) throw up.error;
-      let { error } = await sb.from('notas').insert({ household_id: household.id, foto_path: nome, qr_texto: qr || null, chave, envelope: extra.envelope || null, forma: extra.forma || null, obs: extra.obs || null });
-      if (error && /column/.test(error.message || '')) ({ error } = await sb.from('notas').insert({ household_id: household.id, foto_path: nome, qr_texto: qr || null, chave, obs: [extra.envelope, extra.forma, extra.obs].filter(Boolean).join(' | ') || null }));
+      let { error } = await sb.from('notas').insert({ household_id: household.id, foto_path: nome, qr_texto: qr || null, chave, envelope: extra.envelope || null, forma: extra.forma || null, obs: extra.obs || null, conta: extra.conta || null });
+      if (error && /column/.test(error.message || '')) ({ error } = await sb.from('notas').insert({ household_id: household.id, foto_path: nome, qr_texto: qr || null, chave, obs: [extra.envelope, extra.forma, extra.conta, extra.obs].filter(Boolean).join(' | ') || null }));
       if (error) throw error;
       return { ok: true, chave };
     },
@@ -152,6 +152,32 @@
       async apagar(id) {
         if (demo) { this._sv(this._ls().filter((x) => x.id !== id)); return; }
         const { error } = await sb.from('gastos_app').delete().eq('id', id); if (error) throw error;
+      },
+    },
+    bancos: {
+      PADRAO: [
+        { nome: 'Bradesco', dono: 'george', cor: '#cc092f', ordem: 1 }, { nome: 'Bradesco', dono: 'jheniffer', cor: '#cc092f', ordem: 2 },
+        { nome: 'Nubank', dono: 'jheniffer', cor: '#820ad1', ordem: 3 }, { nome: 'Cartão Carrefour', dono: 'george', cor: '#1e5bc6', ordem: 4 },
+        { nome: 'XP', dono: 'george', cor: '#1d1d1b', ordem: 5 },
+      ],
+      _ls() { try { const l = JSON.parse(localStorage.getItem('oikos-ban') || 'null'); return l && l.length ? l : null; } catch (e) { return null; } },
+      _sv(l) { try { localStorage.setItem('oikos-ban', JSON.stringify(l)); } catch (e) { /* ignora */ } },
+      _local: demo,
+      async listar() {
+        if (!this._local) {
+          const { data, error } = await sb.from('bancos').select('id, nome, dono, cor, ordem').eq('household_id', household.id).order('ordem').order('criado_em');
+          if (!error && data) return data;
+          this._local = true;
+        }
+        return this._ls() || this.PADRAO.map((b, i) => ({ ...b, id: 'b' + i }));
+      },
+      async salvar(b) {
+        const row = { nome: b.nome.trim(), dono: b.dono, cor: b.cor || '#61665e', ordem: b.ordem || 99 };
+        if (!this._local) {
+          const { data, error } = await sb.from('bancos').insert({ ...row, household_id: household.id }).select().single();
+          if (!error) return data; this._local = true;
+        }
+        const l = await this.listar(); const n = { ...row, id: 'b' + Date.now() }; l.push(n); this._sv(l); return n;
       },
     },
     pessoas: {

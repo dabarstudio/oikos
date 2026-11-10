@@ -37,3 +37,5 @@ body.nt-open .nt-sheet { pointer-events: auto; } body.nt-open .nt-scrim { opacit
 .nt-it span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .nt-wrap, #nt-lista { min-width: 0; max-width: 100%; }
 .nt-it { min-width: 0; } .nt-it span { flex: 1; min-width: 0; } .nt-it b { flex: none; }
+.nt-falta { text-align: center; font-size: 14px; font-weight: 700; color: #8a5a00; margin: 6px 0 0; min-height: 0; }
+.nt-falta:empty { display: none; }

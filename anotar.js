@@ -22,7 +22,7 @@
     document.dispatchEvent(new Event('oikos:gastos')); listaGastos();
   }
 
-  function abrir() { f = { passo: 1, valor: '', envelope: null, forma: 'dinheiro', data: hoje(), reembolsar: false, reembolso_de: 'Vital', descricao: '' }; passo(); document.body.classList.add('ag-open'); setTimeout(() => { const i = document.getElementById('ag-val'); if (i) i.focus(); }, 280); }
+  function abrir() { f = { passo: 1, valor: '', envelope: null, forma: 'dinheiro', data: hoje(), reembolsar: false, reembolso_de: 'Vital', descricao: '', conta: null }; passo(); document.body.classList.add('ag-open'); setTimeout(() => { const i = document.getElementById('ag-val'); if (i) i.focus(); }, 280); }
   const fechar = () => document.body.classList.remove('ag-open');
   function passo() {
     const b = sh.querySelector('.ag-body');
@@ -38,11 +38,15 @@
       b.innerHTML = `<button type="button" class="ag-back" data-back>‹ Voltar</button>
         <p class="ag-q">${c[1]} ${BRL.format(f.valor)} <small>${c[2]}</small></p>
         <p class="ag-l">Como pagou?</p><div class="ag-ops">${FORMAS.map(([k, e, n]) => `<button type="button" data-forma="${k}" class="${f.forma === k ? 'on' : ''}">${e} ${n}</button>`).join('')}</div>
+        ${f.forma !== 'dinheiro' ? '<p class="ag-l">De qual conta saiu?</p><div id="ag-bk"></div>' : ''}
         <p class="ag-l">Quando?</p><div class="ag-ops"><button type="button" data-dia="${hoje()}" class="${f.data === hoje() ? 'on' : ''}">Hoje</button><button type="button" data-dia="${ontem()}" class="${f.data === ontem() ? 'on' : ''}">Ontem</button><input type="date" id="ag-data" value="${f.data}" max="${hoje()}"></div>
         <p class="ag-l">Alguém vai te devolver esse dinheiro?</p><div class="ag-ops"><button type="button" data-reemb="0" class="${!f.reembolsar ? 'on' : ''}">Não</button><button type="button" data-reemb="1" class="${f.reembolsar ? 'on' : ''}">Sim, é reembolso</button></div>
         ${f.reembolsar ? `<label class="ag-l">Quem vai devolver?<input id="ag-quem" class="sv-in" value="${f.reembolso_de}" placeholder="Ex.: Vital, cliente…"></label>` : ''}
         <label class="ag-l">O que foi? <small>(opcional)</small><input id="ag-desc" class="sv-in" value="${f.descricao.replace(/"/g, '&quot;')}" placeholder="Ex.: passagem de ônibus" maxlength="80"></label>
-        <button type="button" class="ag-next" data-salvar>Anotar gasto</button>`;
+        <button type="button" class="ag-next" data-salvar ${f.forma !== 'dinheiro' && !f.conta ? 'disabled' : ''}>Anotar gasto</button>
+        <p class="ag-falta" id="ag-falta">${f.forma !== 'dinheiro' && !f.conta ? '👆 Toque na conta que pagou' : ''}</p>`;
+      const bk = document.getElementById('ag-bk');
+      if (bk && window.OIKOS_BANCOS) window.OIKOS_BANCOS.montar(bk, f.conta, (v) => { f.conta = v; const s = sh.querySelector('[data-salvar]'); if (s) s.disabled = false; const x = document.getElementById('ag-falta'); if (x) x.textContent = ''; });
     }
   }
   function lerCampos() {
@@ -62,7 +66,7 @@
     if (b.hasAttribute('data-salvar')) {
       lerCampos(); b.disabled = true; b.textContent = 'Anotando…';
       try {
-        await window.APP.gastos.salvar({ data: f.data, valor: f.valor, envelope: f.envelope, descricao: f.descricao || cat(f.envelope)[2], forma: f.forma, reembolsar: f.reembolsar, reembolso_de: f.reembolsar ? (f.reembolso_de || null) : null });
+        await window.APP.gastos.salvar({ data: f.data, valor: f.valor, envelope: f.envelope, descricao: f.descricao || cat(f.envelope)[2], forma: f.forma, reembolsar: f.reembolsar, reembolso_de: f.reembolsar ? (f.reembolso_de || null) : null, conta: f.forma === 'dinheiro' ? null : f.conta });
         sh.querySelector('.ag-body').innerHTML = `<div class="ag-big">✅</div><p class="ag-q" style="text-align:center">Anotado!</p>
           <p class="ag-s">${cat(f.envelope)[1]} ${BRL.format(f.valor)} em ${cat(f.envelope)[2]}${f.reembolsar ? ' · <b>a receber de ' + (f.reembolso_de || 'alguém') + '</b> (não conta nos envelopes)' : ''}.</p>
           <button type="button" class="ag-next" data-outro>➕ Anotar outro</button><button type="button" class="ag-sec" data-fim>Pronto</button>`;
@@ -82,7 +86,7 @@
     if (!lista.length) { box.innerHTML = ''; return; }
     box.innerHTML = '<h3>Anotados no app <small>ainda não chegaram pelo extrato</small></h3>' + lista.slice(0, 20).map((g) => {
       const c = cat(g.envelope); const d = g.data.split('-').reverse().slice(0, 2).join('/');
-      return `<div class="ag-it"><span class="ag-ie">${c[1]}</span><span class="ag-in"><b>${g.descricao || c[2]}</b><small>${d} · ${(FORMAS.find((x) => x[0] === g.forma) || ['', '', g.forma])[2]}${g.reembolsar ? ' · <em>a receber de ' + (g.reembolso_de || '?') + '</em>' : ''}</small></span><span class="ag-iv">${BRL.format(g.valor)}</span><button type="button" class="ag-del" data-del="${g.id}" aria-label="Apagar">🗑️</button></div>`;
+      return `<div class="ag-it"><span class="ag-ie">${c[1]}</span><span class="ag-in"><b>${g.descricao || c[2]}</b><small>${d} · ${(FORMAS.find((x) => x[0] === g.forma) || ['', '', g.forma])[2]}${g.conta ? ' · ' + g.conta : ''}${g.reembolsar ? ' · <em>a receber de ' + (g.reembolso_de || '?') + '</em>' : ''}</small></span><span class="ag-iv">${BRL.format(g.valor)}</span><button type="button" class="ag-del" data-del="${g.id}" aria-label="Apagar">🗑️</button></div>`;
     }).join('');
   }
 
