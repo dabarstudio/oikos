@@ -109,7 +109,8 @@
       if (ancora && !document.querySelector('#casa .vc-wrap')) { const w = document.createElement('div'); w.className = 'vc-wrap'; ancora.after(w); desenhar(); }
     };
     new MutationObserver(tentar).observe(document.getElementById('dash-root') || document.body, { childList: true, subtree: true });
-    tentar(); recarregar();
+    tentar();
+    if (window.dash) { let ok = false; dash.onData(() => { if (!ok && dash.data('mensal').status === 'ok') { ok = true; recarregar(); } }); } else recarregar();
   }
   document.addEventListener('DOMContentLoaded', () => setTimeout(montar, 80));
 })();

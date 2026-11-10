@@ -81,17 +81,17 @@
       const im = pend.im;
       const qr = lerQR(im);
       const blob = await comprimir(im);
-      await window.APP.enviarNota(blob, qr, { envelope: pend.envelope, forma: pend.forma, obs: pend.obs, conta: pend.forma === 'dinheiro' ? null : pend.conta });
+      const env = await window.APP.enviarNota(blob, qr, { envelope: pend.envelope, forma: pend.forma, obs: pend.obs, conta: pend.forma === 'dinheiro' ? null : pend.conta });
       if (pend.envelope === 'revenda' && window.APP.gastos) {
         const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
         await window.APP.gastos.salvar({ data: d.toISOString().slice(0, 10), valor: num(pend.custo), envelope: 'revenda', descricao: pend.obs || 'Compra para revenda', forma: pend.forma, reembolsar: false, conta: pend.forma === 'dinheiro' ? null : pend.conta,
           venda_para: pend.venda_para || null, venda_valor: num(pend.venda_valor) || null, venda_recebido: !!pend.venda_recebido, venda_em: num(pend.venda_valor) ? d.toISOString().slice(0, 10) : null });
         document.dispatchEvent(new Event('oikos:recarregar-gastos'));
       }
-      abrirFolha(`<div class="nt-big">✅</div><p class="nt-t">Notinha recebida!</p>
-        <p class="nt-s">${qr ? 'Consegui ler o código da nota. Os produtos vão aparecer na aba Mercado na próxima atualização.' : 'Guardei a foto. Os produtos vão aparecer na aba Mercado na próxima atualização.'}</p>
-        <button type="button" class="nt-btn" data-mais>📸 Enviar outra</button><button type="button" class="nt-btn sec" data-fechar>Pronto</button>`);
       listar();
+      if (env && env.id && pend.envelope !== 'revenda') { await lerAgora(env.id, pend.envelope); return; }
+      abrirFolha(`<div class="nt-big">✅</div><p class="nt-t">Notinha guardada!</p><p class="nt-s">${pend.envelope === 'revenda' ? 'A compra já entrou na tela do seu negócio.' : 'Guardei a foto.'}</p>
+        <button type="button" class="nt-btn" data-mais>📸 Enviar outra</button><button type="button" class="nt-btn sec" data-fechar>Pronto</button>`);
     } catch (e) {
       console.error(e);
       abrirFolha(`<div class="nt-big">😕</div><p class="nt-t">Não consegui enviar</p><p class="nt-s">Confira a internet e tente de novo.</p>
@@ -99,6 +99,24 @@
     }
   }
 
+  const OQN = () => Object.fromEntries(OQUE.map(([k, e, nm]) => [k, e + ' ' + nm]));
+  async function lerAgora(id, envPadrao) {
+    abrirFolha('<div class="nt-big nt-spin">🔎</div><p class="nt-t">Lendo a notinha…</p><p class="nt-s">Só uns segundinhos.</p>');
+    const r = await window.APP.lerNota(id);
+    listar();
+    if (r && r.ok && r.nota && (r.nota.total || (r.nota.itens || []).length)) {
+      const n = r.nota; const it = (n.itens || []).slice(0, 8);
+      if (r.gasto) document.dispatchEvent(new Event('oikos:recarregar-gastos'));
+      abrirFolha(`<div class="nt-big">✅</div><p class="nt-t">${n.total ? BRL.format(n.total) : 'Notinha lida'}</p>
+        <p class="nt-s">${n.loja ? n.loja.replace(/</g, '&lt;') : ''}${r.gasto ? '<br><b>Já descontei do envelope ' + (OQN()[n.envelope || envPadrao] || '') + '.</b>' : ''}</p>
+        ${it.length ? `<div class="nt-itens">${it.map((x) => `<div><span>${String(x.descricao || '').replace(/</g, '&lt;')}</span><b>${x.total != null ? BRL.format(x.total) : ''}</b></div>`).join('')}${(n.itens || []).length > 8 ? `<small>+ ${(n.itens.length - 8)} itens</small>` : ''}</div>` : ''}
+        <button type="button" class="nt-btn" data-mais>📸 Enviar outra</button><button type="button" class="nt-btn sec" data-fechar>Pronto</button>`);
+    } else {
+      const semChave = r && r.erro === 'sem_chave';
+      abrirFolha(`<div class="nt-big">📥</div><p class="nt-t">Notinha guardada</p><p class="nt-s">${semChave ? 'A leitura automática ainda está sendo ligada. A foto está salva e será lida assim que ligar.' : (r && r.nota && r.nota.obs_leitura) ? String(r.nota.obs_leitura).replace(/</g, '&lt;') : 'Não consegui ler agora (foto tremida ou sem internet). A foto está salva — toque em “Ler” na lista para tentar de novo.'}</p>
+        <button type="button" class="nt-btn" data-mais>📸 Enviar outra</button><button type="button" class="nt-btn sec" data-fechar>Pronto</button>`);
+    }
+  }
   async function listar() {
     const box = document.getElementById('nt-lista'); if (!box || !window.APP || !window.APP.listarNotas) return;
     try {
@@ -107,7 +125,7 @@
       const OQ = Object.fromEntries(OQUE.map(([k, e, nm]) => [k, e + ' ' + nm]));
       box.innerHTML = '<p class="nt-lh">Últimas notinhas</p>' + l.slice(0, 5).map((n) => {
         const rot = n.obs || OQ[n.envelope] || n.loja || 'Notinha';
-        const st = n.status === 'lida' ? (n.total ? BRL.format(n.total) : '✅ Lida') : n.status === 'erro' ? 'Ilegível' : '✅ Recebida';
+        const st = n.status === 'lida' ? (n.total ? BRL.format(n.total) : '✅ Lida') : `<button type="button" class="nt-ler" data-ler="${n.id}">🔎 Ler</button>`;
         return `<div class="nt-it"><span>${n.envelope ? (OQ[n.envelope] || '🧾').split(' ')[0] : '🧾'} ${rot} · ${fmt.format(new Date(n.criado_em))}${n.conta ? ' · ' + n.conta : ''}</span><b class="${n.status === 'pendente' ? 'ok' : n.status}">${st}</b></div>`;
       }).join('');
     } catch (e) { box.innerHTML = ''; }
@@ -138,6 +156,7 @@
       if (e.target.closest('[data-mais]')) { fechar(); input.click(); }
     });
     document.body.append(input, sheet);
+    document.addEventListener('click', (e) => { const l = e.target.closest('[data-ler]'); if (l) { e.preventDefault(); lerAgora(l.dataset.ler); } });
     // no Início (Casa): logo depois do quadro principal
     const tentar = () => {
       const hero = document.querySelector('#casa .cs-hero');

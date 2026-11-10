@@ -141,14 +141,23 @@
     async enviarNota(blob, qr, extra) {
       extra = extra || {};
       const chave = qr ? ((qr.match(/\d{44}/) || [])[0] || null) : null;
-      if (demo) { await new Promise((r) => setTimeout(r, 600)); return { ok: true, chave }; }
+      if (demo) { await new Promise((r) => setTimeout(r, 600)); return { ok: true, chave, id: 'demo-' + Date.now() }; }
       const nome = household.id + '/' + new Date().toISOString().replace(/[:.]/g, '-') + '-' + Math.random().toString(36).slice(2, 7) + '.jpg';
       const up = await sb.storage.from('notas').upload(nome, blob, { contentType: 'image/jpeg', upsert: false });
       if (up.error) throw up.error;
-      let { error } = await sb.from('notas').insert({ household_id: household.id, foto_path: nome, qr_texto: qr || null, chave, envelope: extra.envelope || null, forma: extra.forma || null, obs: extra.obs || null, conta: extra.conta || null });
-      if (error && /column/.test(error.message || '')) ({ error } = await sb.from('notas').insert({ household_id: household.id, foto_path: nome, qr_texto: qr || null, chave, obs: [extra.envelope, extra.forma, extra.conta, extra.obs].filter(Boolean).join(' | ') || null }));
+      let { data, error } = await sb.from('notas').insert({ household_id: household.id, foto_path: nome, qr_texto: qr || null, chave, envelope: extra.envelope || null, forma: extra.forma || null, obs: extra.obs || null, conta: extra.conta || null }).select('id').single();
+      if (error && /column/.test(error.message || '')) ({ data, error } = await sb.from('notas').insert({ household_id: household.id, foto_path: nome, qr_texto: qr || null, chave, obs: [extra.envelope, extra.forma, extra.conta, extra.obs].filter(Boolean).join(' | ') || null }).select('id').single());
       if (error) throw error;
-      return { ok: true, chave };
+      return { ok: true, chave, id: data && data.id };
+    },
+    // lê a notinha na hora (função "ler-nota" no Supabase) e já lança o gasto no envelope
+    async lerNota(id) {
+      if (demo) { await new Promise((r) => setTimeout(r, 900)); return { ok: true, nota: { loja: 'Supermercado Exemplo', total: 87.4, itens: [{ descricao: 'Arroz 5kg', total: 27.9 }, { descricao: 'Feijão 1kg', total: 8.5 }, { descricao: 'Café 500g', total: 21 }] }, gasto: { valor: 87.4 } }; }
+      try {
+        const { data, error } = await sb.functions.invoke('ler-nota', { body: { id } });
+        if (error) { let b = null; try { b = await error.context.json(); } catch (e) { /* sem corpo */ } return b || { erro: error.message }; }
+        return data;
+      } catch (e) { return { erro: String(e) }; }
     },
     async salvarLimites(lista) {
       if (demo) {
