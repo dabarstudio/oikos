@@ -1,4 +1,4 @@
-// Oikos — navegação mobile (rodapé + "Mais"), título da seção e textos de toque.
+// Denário — navegação mobile (rodapé + "Mais"), título da seção e textos de toque.
 (function () {
   const I = {
     casa: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',

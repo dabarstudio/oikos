@@ -1,7 +1,7 @@
-/* Oikos — tokens do app (claro e escuro). Layout: barra superior fixa + conteúdo em coluna larga. */
+/* Denário — tokens do app (claro e escuro). Layout: barra superior fixa + conteúdo em coluna larga. */
 :root {
-  --sv-green: #007941;
-  --sv-orange: #eb6834;
+  --sv-green: #0e5a3a;
+  --sv-orange: #c4512a;
   --color-bg: #e9ede4;
   --color-panel: #f5f6f0;
   --color-fg: #2b2f29;
@@ -85,3 +85,4 @@ input, textarea { -webkit-user-select: text; user-select: text; }
 .sv-card { min-width: 0; max-width: 100%; justify-self: center; }
 .sv-card .sv-in, .sv-card .sv-btn { width: 100%; min-width: 0; }
 @media (max-width: 360px) { .sv-card { padding: 20px; } .sv-card h1 { font-size: 26px; } }
+.sv-brand { font-family: Fraunces, Georgia, serif; letter-spacing: .2px; }

@@ -1,4 +1,4 @@
-// Oikos — "Vales e cashback": dinheiro que a família tem para usar em lojas, com contagem até vencer.
+// Denário — "Vales e cashback": dinheiro que a família tem para usar em lojas, com contagem até vencer.
 (function () {
   const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));

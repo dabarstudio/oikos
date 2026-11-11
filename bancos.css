@@ -1,4 +1,4 @@
-/* Oikos — seletor de banco/conta */
+/* Denário — seletor de banco/conta */
 .bk-ops { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 6px 0 4px; }
 .bk-ops button { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; min-height: 52px; padding: 8px 10px 8px 14px; position: relative;
   border: 1.5px solid var(--border, #d6dbcf); border-radius: 12px; background: var(--panel, #f5f6f0); color: inherit; font: inherit; text-align: left; cursor: pointer; overflow: hidden; }

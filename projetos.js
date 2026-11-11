@@ -1,4 +1,4 @@
-// Oikos — "Meus projetos": negócios e rendas extras da família (ex.: QuickBox). O próprio usuário cria e personaliza
+// Denário — "Meus projetos": negócios e rendas extras da família (ex.: QuickBox). O próprio usuário cria e personaliza
 // nome, logo, cor, tipo (revenda ou serviço), quem participa e a meta de lucro do mês.
 (function () {
   const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });

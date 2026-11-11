@@ -1,4 +1,4 @@
-// Oikos — login (Supabase Auth), carga dos dados da família e a camada `dash`
+// Denário — login (Supabase Auth), carga dos dados da família e a camada `dash`
 // que as telas usam para ler dados, cálculos e filtros.
 (function () {
   const DATASETS = ['mensal', 'contas', 'lancamentos', 'fixos', 'balanco', 'indicadores', 'plano', 'mercado', 'mercado_itens',
@@ -16,7 +16,7 @@
 
   function emit() {
     ver += 1;
-    for (const fn of listeners) { try { fn(); } catch (e) { console.error('[Oikos] erro ao desenhar:', e); } }
+    for (const fn of listeners) { try { fn(); } catch (e) { console.error('[Denário] erro ao desenhar:', e); } }
   }
   const dash = {
     data(id) {
@@ -30,7 +30,7 @@
         if (m && m.ver === dataVer) return m.res;
         let res;
         try { const data = c.fn(...ins.map((x) => x.data)); res = { status: 'ok', data, columns: Array.isArray(data) && data[0] ? Object.keys(data[0]) : [] }; }
-        catch (e) { console.error('[Oikos] cálculo', id, e); res = { status: 'error', data: [], message: String(e) }; }
+        catch (e) { console.error('[Denário] cálculo', id, e); res = { status: 'error', data: [], message: String(e) }; }
         memo.set(id, { ver: dataVer, res });
         return res;
       }

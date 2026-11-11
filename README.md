@@ -1,4 +1,4 @@
-# Oikos
+# Denário
 
 A economia da sua casa: orçamento, metas, mercado e patrimônio, com login e senha.
 Versão 0.1 — uso pessoal da Família Vital (a mesma lógica do painel que usamos no Claude).

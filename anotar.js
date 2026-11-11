@@ -1,4 +1,4 @@
-// Oikos — "Anotar gasto": 3 passos bem simples (quanto → com o quê → como pagou). Entra na hora nos envelopes.
+// Denário — "Anotar gasto": 3 passos bem simples (quanto → com o quê → como pagou). Entra na hora nos envelopes.
 (function () {
   const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
   const CATS = [

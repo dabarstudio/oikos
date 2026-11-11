@@ -1,4 +1,4 @@
-// Oikos — "Enviar notinha": foto do cupom (NFC-e). Lê o QR Code quando possível e guarda a foto com segurança.
+// Denário — "Enviar notinha": foto do cupom (NFC-e). Lê o QR Code quando possível e guarda a foto com segurança.
 (function () {
   const fmt = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
   const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });

@@ -1,4 +1,4 @@
-// Oikos — anotar gasto falando: "gastei 6 reais de ônibus em dinheiro, a reembolsar pela Vital".
+// Denário — anotar gasto falando: "gastei 6 reais de ônibus em dinheiro, a reembolsar pela Vital".
 // Usa o reconhecimento de voz do navegador quando existe; senão, o microfone do teclado. Também abre por
 // link (?falar=...) para funcionar com um Atalho da Siri.
 (function () {

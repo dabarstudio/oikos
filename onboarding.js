@@ -1,4 +1,4 @@
-// Oikos — primeiro acesso: cria a família (ou entra com código), monta o bonequinho de cada pessoa e o limite do mês.
+// Denário — primeiro acesso: cria a família (ou entra com código), monta o bonequinho de cada pessoa e o limite do mês.
 // Também coloca no "Mais": chamar alguém da família (código) e trocar a senha.
 (function () {
   const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
@@ -19,7 +19,7 @@
   function passos(n) { return `<div class="ob1-dots">${[1, 2, 3, 4].map((i) => `<i class="${i <= n ? 'on' : ''}"></i>`).join('')}</div>`; }
 
   function inicio() {
-    tela(`<div class="ob1-logo">🏠</div><h1>Bem-vindo ao Oikos!</h1><p class="ob1-s">O jeito simples de cuidar do dinheiro da casa. Vamos arrumar tudo em 1 minuto.</p>
+    tela(`<div class="ob1-logo">🏠</div><h1>Bem-vindo ao Denário!</h1><p class="ob1-s">O jeito simples de cuidar do dinheiro da casa. Vamos arrumar tudo em 1 minuto.</p>
       <button type="button" class="ob1-big" data-ir="nome"><span>🏡</span><b>Começar minha família</b><small>Sou a primeira pessoa da casa a usar</small></button>
       <button type="button" class="ob1-big sec" data-ir="codigo"><span>🔑</span><b>Entrar na família de alguém</b><small>Recebi um código de quem já usa</small></button>`);
   }
@@ -30,7 +30,7 @@
     setTimeout(() => { const i = document.getElementById('ob1-fam'); if (i) i.focus(); }, 200);
   }
   function telaCodigo() {
-    tela(`<h2>Digite o código da família</h2><p class="ob1-s">Peça para quem já usa o Oikos: fica em <b>Mais → Chamar alguém da família</b>.</p>
+    tela(`<h2>Digite o código da família</h2><p class="ob1-s">Peça para quem já usa o Denário: fica em <b>Mais → Chamar alguém da família</b>.</p>
       <input id="ob1-cod" class="sv-in ob1-cod" placeholder="ABC123" maxlength="6" autocapitalize="characters" autocomplete="off">
       <p class="ob1-erro" id="ob1-erro"></p><button type="button" class="ob1-go" data-ok="codigo">Entrar</button>`, 'inicio');
   }
@@ -86,7 +86,7 @@
       for (let i = 0; i < todos.length; i++) await window.APP.pessoas.salvar({ ...todos[i], ordem: i + 1 });
       await window.APP.familia.definirPessoa(st.eu.chave);
       if (limite) await window.APP.salvarLimites([{ nivel: 'total', chave: 'SAÍDAS', valor_meta: limite }]);
-      fim(limite ? `A ${esc('Família ' + st.familia)} pode gastar até <b>${BRL.format(limite)}</b> por mês. O Oikos vai avisar quando estiver apertando.` : 'Quando souber quanto pode gastar por mês, toque em “Definir o limite do mês” no Início.');
+      fim(limite ? `A ${esc('Família ' + st.familia)} pode gastar até <b>${BRL.format(limite)}</b> por mês. O Denário vai avisar quando estiver apertando.` : 'Quando souber quanto pode gastar por mês, toque em “Definir o limite do mês” no Início.');
     } catch (e) {
       console.error(e);
       tela(`<div class="ob1-logo">😕</div><h2 style="text-align:center">Não consegui criar agora</h2><p class="ob1-s" style="text-align:center">Confira a internet e tente de novo.</p><button type="button" class="ob1-go" data-ok="limite-retry">Tentar de novo</button>`);
@@ -164,7 +164,7 @@
   async function convidar() {
     folha('<p class="vc-t">Chamar alguém da família</p><p class="vc-s">Carregando o código…</p>');
     let cod = ''; try { cod = await window.APP.familia.codigo(); } catch (e) { console.error(e); }
-    const txt = `Oi! Entra comigo no Oikos para a gente cuidar do dinheiro da casa juntos 🏠\n1) Abra ${location.origin + location.pathname}\n2) Entre com o e-mail e a senha que te mandei\n3) Toque em “Entrar na família de alguém” e digite o código: ${cod}`;
+    const txt = `Oi! Entra comigo no Denário para a gente cuidar do dinheiro da casa juntos 🏠\n1) Abra ${location.origin + location.pathname}\n2) Entre com o e-mail e a senha que te mandei\n3) Toque em “Entrar na família de alguém” e digite o código: ${cod}`;
     folha(`<p class="vc-t">Chamar alguém da família</p><p class="vc-s">A pessoa entra com o login dela e digita este código no primeiro acesso:</p>
       <div class="fx-cod">${esc(cod || '—')}</div>
       <a class="nt-btn fx-zap" href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">📲 Mandar pelo WhatsApp</a>

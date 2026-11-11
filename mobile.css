@@ -1,4 +1,4 @@
-/* Oikos — camada mobile: navegação por abas no rodapé, cabeçalho enxuto e listas no lugar de tabelas. */
+/* Denário — camada mobile: navegação por abas no rodapé, cabeçalho enxuto e listas no lugar de tabelas. */
 .ob-nav, .ob-sheet, .ob-scrim, .ob-pagetitle { display: none; }
 @media (max-width: 760px) {
   body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }

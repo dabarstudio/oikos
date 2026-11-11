@@ -1,13 +1,13 @@
 {
-  "name": "Oikos – a economia da sua casa",
-  "short_name": "Oikos",
+  "name": "Denário – a economia da sua casa",
+  "short_name": "Denário",
   "description": "A economia da sua casa: orçamento, metas, mercado e patrimônio da família.",
   "lang": "pt-BR",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#e9ede4",
-  "theme_color": "#f5f6f0",
+  "theme_color": "#0e4d33",
   "icons": [
     {
       "src": "icons/icon-192.png",

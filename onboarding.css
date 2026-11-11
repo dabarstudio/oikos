@@ -1,4 +1,4 @@
-/* Oikos — primeiro acesso */
+/* Denário — primeiro acesso */
 .ob1 { position: fixed; inset: 0; z-index: 90; background: var(--color-bg, #e9ede4); overflow-y: auto; -webkit-overflow-scrolling: touch; display: none; }
 body.ob1-on .ob1 { display: block; }
 body.ob1-on .ag-fab, body.ob1-on .ob-nav { display: none !important; }

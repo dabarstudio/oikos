@@ -1,4 +1,4 @@
-// Oikos — avatares desenhados (pele, cabelo, cor, barba, criança). Usado em Objetivos e onde houver pessoas.
+// Denário — avatares desenhados (pele, cabelo, cor, barba, criança). Usado em Objetivos e onde houver pessoas.
 (function () {
   const PELE = ['#f6dcc4', '#ecc29b', '#d6a274', '#b07a4f', '#87573a', '#5e3b26'];
   const COR = { preto: '#1f1b18', castanho: '#5a3a22', loiro: '#d9b25a', ruivo: '#b2522a', grisalho: '#a8a8a3' };

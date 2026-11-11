@@ -1,4 +1,4 @@
-/* Oikos — tela "Casa" (Início simples) */
+/* Denário — tela "Casa" (Início simples) */
 .cs { display: none; }
 body.cs-on .cs { display: grid; gap: 14px; }
 body.cs-on .fv-head, body.cs-on .fv-bar, body.cs-on .fv-page { display: none !important; }

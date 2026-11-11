@@ -1,4 +1,4 @@
-// Oikos — "Contas mês a mês" no celular: chips de mês + resumo + lista de categorias com barras (no lugar da tabela larga).
+// Denário — "Contas mês a mês" no celular: chips de mês + resumo + lista de categorias com barras (no lugar da tabela larga).
 (function () {
   const MQ = matchMedia('(max-width: 760px)');
   const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });

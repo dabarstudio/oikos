@@ -1,4 +1,4 @@
-// Oikos — "De qual conta saiu?": escolher banco/conta (com titular) e cadastrar um novo na hora.
+// Denário — "De qual conta saiu?": escolher banco/conta (com titular) e cadastrar um novo na hora.
 (function () {
   let bancos = null, pessoas = null;
   const esc = (s) => String(s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));

@@ -1,4 +1,4 @@
-/* Oikos — "Meu negócio" (QuickBox): azul-marinho, amarelo e laranja da marca */
+/* Denário — "Meu negócio" (QuickBox): azul-marinho, amarelo e laranja da marca */
 :root { --ng-navy: #1a2753; --ng-yel: #f2b632; --ng-or: #e8552d; }
 .ng { display: none; }
 body.ng-on .ng { display: grid; gap: 14px; max-width: 760px; grid-template-columns: minmax(0, 1fr); }

@@ -1,4 +1,4 @@
-/* Oikos — anotar falando */
+/* Denário — anotar falando */
 .vz-sheet { z-index: 64; }
 body.vz-open .vz-sheet { pointer-events: auto; } body.vz-open .vz-sheet .vc-scrim { opacity: 1; } body.vz-open .vz-sheet .vc-panel { transform: none; }
 .vz-mic { font: inherit; display: grid; justify-items: center; gap: 4px; margin: 6px auto 14px; width: 120px; height: 120px; border-radius: 50%; border: 0; background: var(--sv-green); color: #fff; box-shadow: 0 6px 18px rgba(0,0,0,.18); }

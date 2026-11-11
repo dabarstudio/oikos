@@ -1,4 +1,4 @@
-// Oikos — "Casa": tela inicial simples (princípio ELI5). Mostra o mês atual: quanto ainda dá para gastar e os envelopes.
+// Denário — "Casa": tela inicial simples (princípio ELI5). Mostra o mês atual: quanto ainda dá para gastar e os envelopes.
 (function () {
   const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
   const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
@@ -69,7 +69,7 @@
     const hero = !teto ? `<div class="cs-card cs-hero ok cs-novo">
         <span class="cs-lbl">Primeiro passo</span>
         <span class="cs-big" style="font-size:24px">Quanto a família pode gastar por mês?</span>
-        <span class="cs-sub">${saiu ? 'Já anotou ' + BRL.format(saiu) + ' este mês. ' : ''}Com esse número o Oikos avisa quando o mês estiver apertando.</span>
+        <span class="cs-sub">${saiu ? 'Já anotou ' + BRL.format(saiu) + ' este mês. ' : ''}Com esse número o Denário avisa quando o mês estiver apertando.</span>
         <button type="button" class="cs-defin" data-lim>💰 Definir o limite do mês</button>
       </div>` : null;
     root.innerHTML = `

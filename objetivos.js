@@ -1,4 +1,4 @@
-// Oikos — Objetivos (sonhos) da família e de cada pessoa. Feito para ser simples: escolher quem, escolher o sonho, dizer quanto e quando.
+// Denário — Objetivos (sonhos) da família e de cada pessoa. Feito para ser simples: escolher quem, escolher o sonho, dizer quanto e quando.
 (function () {
   const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
   const MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
