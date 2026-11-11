@@ -81,7 +81,9 @@
         <span class="cs-sub">Gastou ${BRL.format(saiu)} de ${BRL.format(teto)} · faltam ${faltamDias} dias</span>
         <p class="cs-msg"><span aria-hidden="true">${st === 'ok' ? '😊' : st === 'warn' ? '⚠️' : '🛑'}</span> ${frase}</p>
       </div>`}
+<div class="cs-anot">
       <button type="button" class="cs-cta2" data-anotar><span aria-hidden="true">✍️</span><span><b>Anotar gasto</b><small>Gastou em dinheiro, PIX ou cartão? Anote aqui</small></span></button>
+      <button type="button" class="cs-voz" data-falar aria-label="Anotar gasto falando"><span aria-hidden="true">🎤</span><small>Falar</small></button></div>
       <h2 class="cs-h">Envelopes do mês</h2>
       <p class="cs-hint">Toque num envelope para ver o que foi gasto.</p>
       <div class="cs-grid">${envs}</div>
@@ -135,7 +137,7 @@
     root = document.createElement('section'); root.className = 'cs'; root.id = 'casa'; root.setAttribute('aria-label', 'Início');
     dr.prepend(root);
     montarLimites();
-    root.addEventListener('click', (e) => { if (e.target.closest('[data-anotar]')) return window.OIKOS_ANOTAR && window.OIKOS_ANOTAR(); if (e.target.closest('[data-lim]')) return abrirLimites(); const b = e.target.closest('.cs-env'); if (b) abrirEnvelope(b.dataset.nivel, decodeURIComponent(b.dataset.chave)); });
+    root.addEventListener('click', (e) => { if (e.target.closest('[data-anotar]')) return window.OIKOS_ANOTAR && window.OIKOS_ANOTAR(); if (e.target.closest('[data-falar]')) return window.OIKOS_VOZ && window.OIKOS_VOZ.abrir(); if (e.target.closest('[data-lim]')) return abrirLimites(); const b = e.target.closest('.cs-env'); if (b) abrirEnvelope(b.dataset.nivel, decodeURIComponent(b.dataset.chave)); });
     dash.onData(render);
     document.addEventListener('oikos:gastos', render);
     window.OIKOS_CASA = { show: () => { document.body.classList.remove('og-on', 'ng-on'); document.body.classList.add('cs-on'); render(); scrollTo(0, 0); document.dispatchEvent(new Event('oikos:tab')); }, hide: () => { document.body.classList.remove('cs-on'); document.dispatchEvent(new Event('oikos:tab')); } };

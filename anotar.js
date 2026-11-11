@@ -22,14 +22,15 @@
     document.dispatchEvent(new Event('oikos:gastos')); listaGastos();
   }
 
-  function abrir(opts) { const pre = opts && opts.envelope ? opts.envelope : null; f = { passo: 1, preset: pre, valor: '', envelope: null, forma: 'dinheiro', data: hoje(), reembolsar: false, reembolso_de: 'Vital', descricao: '', conta: null, venda_para: '', venda_valor: '', venda_recebido: false }; if (pre) f.envelope = pre; passo(); document.body.classList.add('ag-open'); setTimeout(() => { const i = document.getElementById('ag-val'); if (i) i.focus(); }, 280); }
+  function abrir(opts) { const pre = opts && opts.envelope ? opts.envelope : null; f = { passo: 1, preset: pre, valor: '', envelope: null, forma: 'dinheiro', data: hoje(), reembolsar: false, reembolso_de: 'Vital', descricao: '', conta: null, venda_para: '', venda_valor: '', venda_recebido: false }; if (pre) f.envelope = pre; if (opts && opts.prefill) { Object.assign(f, opts.prefill); f.passo = !f.valor ? 1 : f.envelope ? 3 : 2; } passo(); document.body.classList.add('ag-open'); setTimeout(() => { const i = document.getElementById('ag-val'); if (i) i.focus(); }, 280); }
   const fechar = () => document.body.classList.remove('ag-open');
   function passo() {
     const b = sh.querySelector('.ag-body');
     if (f.passo === 1) {
       b.innerHTML = `<p class="ag-q">Quanto você gastou?</p>
         <div class="ag-money"><span>R$</span><input id="ag-val" inputmode="decimal" placeholder="0,00" value="${f.valor}" autocomplete="off"></div>
-        <button type="button" class="ag-next" data-next1>Continuar</button>`;
+        <button type="button" class="ag-next" data-next1>Continuar</button>
+        ${window.OIKOS_VOZ ? '<button type="button" class="ag-voz" data-voz>🎤 Prefere falar? Toque aqui</button>' : ''}`;
     } else if (f.passo === 2) {
       b.innerHTML = `<button type="button" class="ag-back" data-back>‹ ${BRL.format(f.valor)}</button><p class="ag-q">Com o quê?</p>
         <div class="ag-grid">${CATS.map(([k, e, n]) => [k, e, k === 'abner' ? (window.OIKOS_FILHOS || 'Filhos') : n]).map(([k, e, n]) => `<button type="button" data-env="${k}"><span>${e}</span>${n}</button>`).join('')}</div>`;
@@ -70,6 +71,7 @@
   async function onClick(e) {
     if (e.target.classList.contains('ag-scrim')) return fechar();
     const b = e.target.closest('button'); if (!b) return;
+    if (b.hasAttribute('data-voz')) { fechar(); return window.OIKOS_VOZ.abrir(); }
     if (b.hasAttribute('data-next1')) { const v = num(document.getElementById('ag-val').value); if (!v) { document.getElementById('ag-val').focus(); return; } f.valor = v; f.passo = f.preset ? 3 : 2; return passo(); }
     if (b.hasAttribute('data-back')) { lerCampos(); f.passo = f.preset && f.passo === 3 ? 1 : f.passo - 1; return passo(); }
     if (b.dataset.env) { f.envelope = b.dataset.env; f.reembolsar = false; f.passo = 3; return passo(); }
