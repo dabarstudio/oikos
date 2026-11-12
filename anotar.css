@@ -38,3 +38,6 @@ body.ag-open .ag-sheet { pointer-events: auto; } body.ag-open .ag-scrim { opacit
 .ag-falta:empty { display: none; }
 .ag-next:disabled { opacity: .45; }
 .pj-esc button { display: inline-flex; align-items: center; gap: 6px; } .pj-esc .ng-logo { box-shadow: none; }
+.ag-acts { display: flex; gap: 4px; }
+.ag-edit { font: inherit; font-size: 18px; background: none; border: 0; padding: 6px; border-radius: 10px; }
+.ag-it { grid-template-columns: 32px minmax(0, 1fr) auto auto !important; }

@@ -22,7 +22,7 @@
     document.dispatchEvent(new Event('oikos:gastos')); listaGastos();
   }
 
-  function abrir(opts) { const pre = opts && opts.envelope ? opts.envelope : null; f = { passo: 1, preset: pre, valor: '', envelope: null, forma: 'dinheiro', data: hoje(), reembolsar: false, reembolso_de: 'Vital', descricao: '', conta: null, venda_para: '', venda_valor: '', venda_recebido: false }; if (pre) f.envelope = pre; if (opts && opts.prefill) { Object.assign(f, opts.prefill); f.passo = !f.valor ? 1 : f.envelope ? 3 : 2; } passo(); document.body.classList.add('ag-open'); setTimeout(() => { const i = document.getElementById('ag-val'); if (i) i.focus(); }, 280); }
+  function abrir(opts) { const pre = opts && opts.envelope ? opts.envelope : null; f = { passo: 1, preset: pre, valor: '', envelope: null, forma: 'dinheiro', data: hoje(), reembolsar: false, reembolso_de: 'Vital', descricao: '', conta: null, venda_para: '', venda_valor: '', venda_recebido: false }; if (pre) f.envelope = pre; if (opts && opts.prefill) { Object.assign(f, opts.prefill); f.passo = !f.valor ? 1 : f.envelope ? 3 : 2; } f.editId = opts && opts.editId ? opts.editId : null; passo(); document.body.classList.add('ag-open'); setTimeout(() => { const i = document.getElementById('ag-val'); if (i) i.focus(); }, 280); }
   const fechar = () => document.body.classList.remove('ag-open');
   function passo() {
     const b = sh.querySelector('.ag-body');
@@ -48,7 +48,7 @@
         : `<p class="ag-l">Alguém vai te devolver esse dinheiro?</p><div class="ag-ops"><button type="button" data-reemb="0" class="${!f.reembolsar ? 'on' : ''}">Não</button><button type="button" data-reemb="1" class="${f.reembolsar ? 'on' : ''}">Sim, é reembolso</button></div>
         ${f.reembolsar ? `<label class="ag-l">Quem vai devolver?<input id="ag-quem" class="sv-in" value="${f.reembolso_de}" placeholder="Ex.: Vital, cliente…"></label>` : ''}`}
         <label class="ag-l">O que foi? <small>(opcional)</small><input id="ag-desc" class="sv-in" value="${f.descricao.replace(/"/g, '&quot;')}" placeholder="Ex.: passagem de ônibus" maxlength="80"></label>
-        <button type="button" class="ag-next" data-salvar ${f.forma !== 'dinheiro' && !f.conta ? 'disabled' : ''}>Anotar gasto</button>
+        <button type="button" class="ag-next" data-salvar ${f.forma !== 'dinheiro' && !f.conta ? 'disabled' : ''}>${f.editId ? 'Salvar alteração' : 'Anotar gasto'}</button>
         <p class="ag-falta" id="ag-falta">${f.forma !== 'dinheiro' && !f.conta ? '👆 Toque na conta que pagou' : ''}</p>`;
       const bk = document.getElementById('ag-bk');
       if (bk && window.OIKOS_BANCOS) window.OIKOS_BANCOS.montar(bk, f.conta, (v) => { f.conta = v; const s = sh.querySelector('[data-salvar]'); if (s) s.disabled = false; const x = document.getElementById('ag-falta'); if (x) x.textContent = ''; });
@@ -83,8 +83,9 @@
     if (b.hasAttribute('data-salvar')) {
       lerCampos(); b.disabled = true; b.textContent = 'Anotando…';
       try {
-        await window.APP.gastos.salvar({ data: f.data, valor: f.valor, envelope: f.envelope, descricao: f.descricao || cat(f.envelope)[2], forma: f.forma, reembolsar: f.reembolsar, reembolso_de: f.reembolsar ? (f.reembolso_de || null) : null, conta: f.forma === 'dinheiro' ? null : f.conta, ...(f.envelope === 'revenda' ? { venda_para: f.venda_para || null, venda_valor: num(f.venda_valor) || null, venda_recebido: f.venda_recebido, venda_em: num(f.venda_valor) ? f.data : null, projeto_id: f.projeto_id || null } : {}) });
-        sh.querySelector('.ag-body').innerHTML = `<div class="ag-big">✅</div><p class="ag-q" style="text-align:center">Anotado!</p>
+        const campos = { data: f.data, valor: f.valor, envelope: f.envelope, descricao: f.descricao || cat(f.envelope)[2], forma: f.forma, reembolsar: f.reembolsar, reembolso_de: f.reembolsar ? (f.reembolso_de || null) : null, conta: f.forma === 'dinheiro' ? null : f.conta, ...(f.envelope === 'revenda' ? { venda_para: f.venda_para || null, venda_valor: num(f.venda_valor) || null, venda_recebido: f.venda_recebido, venda_em: num(f.venda_valor) ? f.data : null, projeto_id: f.projeto_id || null } : {}) };
+        if (f.editId) await window.APP.gastos.atualizar(f.editId, campos); else await window.APP.gastos.salvar(campos);
+        sh.querySelector('.ag-body').innerHTML = `<div class="ag-big">✅</div><p class="ag-q" style="text-align:center">${f.editId ? 'Alterado!' : 'Anotado!'}</p>
           <p class="ag-s">${cat(f.envelope)[1]} ${BRL.format(f.valor)} em ${cat(f.envelope)[2]}${f.reembolsar ? ' · <b>a receber de ' + (f.reembolso_de || 'alguém') + '</b> (não conta nos envelopes)' : ''}${f.envelope === 'revenda' && num(f.venda_valor) ? ' · lucro de <b>' + BRL.format(num(f.venda_valor) - f.valor) + '</b>' : ''}.</p>
           <button type="button" class="ag-next" data-outro>➕ Anotar outro</button><button type="button" class="ag-sec" data-fim>Pronto</button>`;
         recarregar();
@@ -103,7 +104,7 @@
     if (!lista.length) { box.innerHTML = ''; return; }
     box.innerHTML = '<h3>Anotados no app <small>ainda não chegaram pelo extrato</small></h3>' + lista.slice(0, 20).map((g) => {
       const c = cat(g.envelope); const d = g.data.split('-').reverse().slice(0, 2).join('/');
-      return `<div class="ag-it"><span class="ag-ie">${c[1]}</span><span class="ag-in"><b>${g.descricao || c[2]}</b><small>${d} · ${(FORMAS.find((x) => x[0] === g.forma) || ['', '', g.forma])[2]}${g.conta ? ' · ' + g.conta : ''}${g.reembolsar ? ' · <em>a receber de ' + (g.reembolso_de || '?') + '</em>' : ''}</small></span><span class="ag-iv">${BRL.format(g.valor)}</span><button type="button" class="ag-del" data-del="${g.id}" aria-label="Apagar">🗑️</button></div>`;
+      return `<div class="ag-it"><span class="ag-ie">${c[1]}</span><span class="ag-in"><b>${g.descricao || c[2]}</b><small>${d} · ${(FORMAS.find((x) => x[0] === g.forma) || ['', '', g.forma])[2]}${g.conta ? ' · ' + g.conta : ''}${g.reembolsar ? ' · <em>a receber de ' + (g.reembolso_de || '?') + '</em>' : ''}</small></span><span class="ag-iv">${BRL.format(g.valor)}</span><span class="ag-acts"><button type="button" class="ag-edit" data-edit="${g.id}" aria-label="Editar">✏️</button><button type="button" class="ag-del" data-del="${g.id}" aria-label="Apagar">🗑️</button></span></div>`;
     }).join('');
   }
 
@@ -116,6 +117,11 @@
     const fab = document.createElement('button'); fab.type = 'button'; fab.className = 'ag-fab'; fab.setAttribute('aria-label', 'Anotar gasto'); fab.innerHTML = '<span>＋</span><b>Anotar gasto</b>';
     fab.addEventListener('click', abrir);
     document.body.append(sh, fab);
+    document.addEventListener('click', (e) => {
+      const ed = e.target.closest('.ag-edit'); if (!ed) return;
+      const g = lista.find((x) => String(x.id) === ed.dataset.edit); if (!g) return;
+      abrir({ editId: g.id, prefill: { valor: Number(g.valor), envelope: g.envelope, forma: g.forma || 'pix', data: g.data, descricao: g.descricao || '', conta: g.conta || null, reembolsar: !!g.reembolsar, reembolso_de: g.reembolso_de || 'Vital', venda_para: g.venda_para || '', venda_valor: g.venda_valor || '', venda_recebido: !!g.venda_recebido, projeto_id: g.projeto_id || null } });
+    });
     document.addEventListener('click', async (e) => {
       const d = e.target.closest('.ag-del'); if (!d) return;
       if (!d.dataset.ok) { d.dataset.ok = '1'; d.textContent = 'Apagar?'; return; }
