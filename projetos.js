@@ -1,4 +1,4 @@
-// Denário — "Meus projetos": negócios e rendas extras da família (ex.: QuickBox). O próprio usuário cria e personaliza
+// Denário — "Meus talentos" (Mt 25): negócios e rendas extras da família (ex.: QuickBox). O próprio usuário cria e personaliza
 // nome, logo, cor, tipo (revenda ou serviço), quem participa e a meta de lucro do mês.
 (function () {
   const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -48,7 +48,10 @@
     const lucMedio = vendidos.length ? vendidos.reduce((s, g) => s + Number(g.venda_valor) - (serv ? 0 : Number(g.valor || 0)), 0) / vendidos.length : 0;
     const meses = []; const d = new Date();
     for (let i = 5; i >= 0; i--) { const x = new Date(d.getFullYear(), d.getMonth() - i, 1); const k = x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0'); meses.push({ rot: MESES[x.getMonth()], v: lucroDe(k) }); }
-    return { m, doMes, vendido, lucro, receber, estoque: serv ? [] : gastos, gastos, gastosMes, diasSem, lucMedio, meses, meta: Number(p.meta || 0), serv, l };
+    const investido = serv ? l.filter((g) => !g.venda_valor).reduce((s, g) => s + Number(g.valor || 0), 0) : vendidos.reduce((s, g) => s + Number(g.valor || 0), 0);
+    const rendeu = vendidos.reduce((s, g) => s + Number(g.venda_valor), 0);
+    const mult = investido > 0 && rendeu > 0 ? rendeu / investido : null;
+    return { mult, investido, rendeu, m, doMes, vendido, lucro, receber, estoque: serv ? [] : gastos, gastos, gastosMes, diasSem, lucMedio, meses, meta: Number(p.meta || 0), serv, l };
   }
   const mesNome = () => MESES_L[new Date().getMonth()];
 
@@ -78,14 +81,15 @@
     const donos = (p.donos || []).map((k) => pessoas.find((x) => x.chave === k)).filter(Boolean);
     const linha = (g, acao) => `<div class="ng-it"><div class="ng-il"><b>${esc(g.descricao || 'Item')}</b><small>${g.venda_para ? esc(g.venda_para) + ' · ' : ''}${g.venda_valor ? (c.serv ? '' : 'custou ' + BRL.format(Number(g.valor || 0)) + ' · ') + 'vendeu ' + BRL.format(Number(g.venda_valor)) + (c.serv ? '' : ' · <b class="pos">lucro ' + BRL.format(Number(g.venda_valor) - Number(g.valor || 0)) + '</b>') : (c.serv ? 'gastou ' : 'custou ') + BRL.format(Number(g.valor || 0)) + ' · ' + g.data.split('-').reverse().slice(0, 2).join('/')}</small></div>${acao}</div>`;
     root.innerHTML = `
-      ${projetos.length > 1 ? '<button type="button" class="ng-voltar" data-nglista>‹ Meus projetos</button>' : ''}
+      ${projetos.length > 1 ? '<button type="button" class="ng-voltar" data-nglista>‹ Meus talentos</button>' : ''}
       <div class="ng-hero">
         <div class="ng-top">${logo(p, 64)}<div class="ng-tt"><h2>${esc(p.nome)}</h2><small>${c.serv ? '🛠️ Serviço' : '📦 Revenda'}${donos.length ? ' · ' + donos.map((x) => esc(x.nome)).join(' e ') : ''}</small></div>
-          <button type="button" class="ng-cfg" data-ngedit="${p.id}" aria-label="Editar projeto">⚙️</button></div>
+          <button type="button" class="ng-cfg" data-ngedit="${p.id}" aria-label="Editar talento">⚙️</button></div>
+        ${c.mult ? `<div class="ng-mult">🪙 Cada <b>R$ 1</b> investido virou <b>${BRL.format(c.mult)}</b>${c.mult >= 2 ? ' — dobrou, como o servo fiel!' : ''}</div>` : ''}
         <small class="ng-lbl">Lucro de ${mesNome()}</small>
         <div class="ng-big">${BRL.format(c.lucro)}<small>${c.meta ? ' de ' + BRL0.format(c.meta) : ''}</small></div>
         ${c.meta ? `<div class="ng-bar"><i style="width:${Math.max(3, pc)}%"></i></div>
-          <p class="ng-msg">${pc >= 100 ? '🏆 Meta batida! Que tal subir a meta do próximo mês?' : `Faltam <b>${BRL.format(falta)}</b>${nVendas ? ` — umas <b>${nVendas} venda${nVendas > 1 ? 's' : ''}</b> como as que vocês já fizeram` : ''}. Bora! 💪`}</p>`
+          <p class="ng-msg">${pc >= 100 ? '🏆 Muito bem, servo bom e fiel! Meta batida. Que tal subir a meta do próximo mês?' : `Faltam <b>${BRL.format(falta)}</b>${nVendas ? ` — umas <b>${nVendas} venda${nVendas > 1 ? 's' : ''}</b> como as que vocês já fizeram` : ''}. Bora! 💪`}</p>`
         : `<p class="ng-msg">Defina uma meta de lucro para o mês e acompanhe aqui. 🎯</p><button type="button" class="ng-meta" data-ngedit="${p.id}" data-passo="4">🎯 Definir meta</button>`}
       </div>
       <div class="ng-acts"><button type="button" class="ng-a1" data-ngvenda>💰 Registrar venda</button><button type="button" class="ng-a2" data-nggasto>${c.serv ? '🧾 Gastei no projeto' : '🛒 Comprei para revender'}</button></div>
@@ -103,10 +107,10 @@
       ${c.l.some((g) => g.venda_valor && g.venda_recebido) ? `<div class="ng-card"><h3>✅ Vendas recebidas</h3>${c.l.filter((g) => g.venda_valor && g.venda_recebido).slice(0, 10).map((g) => linha(g, '')).join('')}</div>` : ''}`;
   }
   function renderLista() {
-    root.innerHTML = `<h2 class="ng-lt">Meus projetos</h2><p class="ng-ls">Negócios e rendas extras da família. Toque para abrir.</p>
+    root.innerHTML = `<h2 class="ng-lt">Meus talentos</h2><p class="ng-ls">Negócios e rendas extras da família: o que Deus colocou nas suas mãos para multiplicar.</p><p class="ng-vers">“Foste fiel no pouco, sobre o muito te colocarei.” <small>Mateus 25:21</small></p>
       ${projetos.map((p) => { const c = calc(p); const pc = c.meta ? Math.min(100, Math.max(0, c.lucro / c.meta * 100)) : 0;
         return `<button type="button" class="ng-banner" data-ngabre="${p.id}" style="--ng-navy:${escura(p.cor)}">${logo(p, 52)}<span class="ng-bt"><b>${esc(p.nome)}</b><small>Lucro em ${mesNome()}: <strong>${BRL.format(c.lucro)}</strong></small>${c.meta ? `<span class="ng-mbar"><i style="width:${Math.max(3, pc)}%"></i></span>` : ''}</span><span class="ng-go">›</span></button>`; }).join('')}
-      <button type="button" class="ng-novo" data-ngcriar>＋ Criar projeto</button>`;
+      <button type="button" class="ng-novo" data-ngcriar>＋ Multiplicar um novo talento</button>`;
   }
 
   // ---------- folhas: venda / gasto ----------
@@ -142,10 +146,10 @@
   const preview = () => `<div class="pj-prev"><div class="ng-banner" style="--ng-navy:${escura(w.cor)}">${logo(w, 46)}<span class="ng-bt"><b>${esc(w.nome || 'Meu projeto')}</b><small>Lucro em ${mesNome()}: <strong>R$ 0,00</strong></small></span><span class="ng-go">›</span></div></div>`;
   function wzPasso() {
     if (w.passo === 1) {
-      wzTela(`${topo(1, 'sair')}<h2>${w.id ? 'Editar projeto' : 'Como se chama o projeto?'}</h2><p class="ob1-s">Pode ser uma loja, um serviço ou uma renda extra. Ex.: QuickBox, Bolos da Ana, Aulas de violão.</p>
-        <input id="wz-nome" class="sv-in pj-in" value="${esc(w.nome)}" placeholder="Nome do projeto" maxlength="40" autocomplete="off">
+      wzTela(`${topo(1, 'sair')}<h2>${w.id ? 'Editar talento' : 'Que talento você vai multiplicar?'}</h2><p class="ob1-s">Como na parábola dos talentos: aquilo que você sabe fazer ou vender, colocado para render. Pode ser uma loja, um serviço ou uma renda extra. Ex.: QuickBox, Bolos da Ana, Aulas de violão.</p>
+        <input id="wz-nome" class="sv-in pj-in" value="${esc(w.nome)}" placeholder="Nome do talento" maxlength="40" autocomplete="off">
         <p class="ob1-erro" id="wz-erro"></p><button type="button" class="ob1-go" data-wzok="1">Continuar</button>
-        ${w.id ? '<button type="button" class="ob1-link" data-wzarq>Arquivar este projeto</button>' : ''}`);
+        ${w.id ? '<button type="button" class="ob1-link" data-wzarq>Arquivar este talento</button>' : ''}`);
       setTimeout(() => { const i = document.getElementById('wz-nome'); if (i && !w.id) i.focus(); }, 200);
     } else if (w.passo === 2) {
       wzTela(`${topo(2, 1)}<h2>Tem uma logo?</h2><p class="ob1-s">Escolha a foto da logo (o app deixa redondinha). Não tem? Escolha um ícone.</p>
@@ -168,7 +172,7 @@
         <p class="og-f" style="margin-top:14px">Meta de lucro por mês</p>
         <div class="ag-money ob1-money"><span>R$</span><input id="wz-meta" inputmode="numeric" placeholder="500" value="${w.meta || ''}" autocomplete="off"></div>
         <div class="ob1-sug">${[300, 500, 1000, 2000].map((v) => `<button type="button" data-wzsug="${v}">${BRL0.format(v)}</button>`).join('')}</div>
-        <p class="ob1-erro" id="wz-erro"></p><button type="button" class="ob1-go" data-wzsalvar>${w.id ? 'Salvar mudanças' : 'Criar projeto 🚀'}</button>`);
+        <p class="ob1-erro" id="wz-erro"></p><button type="button" class="ob1-go" data-wzsalvar>${w.id ? 'Salvar mudanças' : 'Começar a multiplicar 🪙'}</button>`);
     }
   }
   function abrirWz(p, passo) {
@@ -292,7 +296,7 @@
           b.addEventListener('click', () => { if (projetos.length > 1) atual = null; return window.OIKOS_IR ? window.OIKOS_IR('negocio') : show(); });
         }
         const um = projetos.length === 1;
-        b.innerHTML = um ? `${logo(projetos[0], 40)}<span>${esc(projetos[0].nome.split(' ')[0])}</span>` : `<span class="ng-pilha">${projetos.slice(0, 2).map((p) => logo(p, 34)).join('')}</span><span>Projetos</span>`;
+        b.innerHTML = um ? `${logo(projetos[0], 40)}<span>${esc(projetos[0].nome.split(' ')[0])}</span>` : `<span class="ng-pilha">${projetos.slice(0, 2).map((p) => logo(p, 34)).join('')}</span><span>Talentos</span>`;
       }
     }
     const sheet = document.querySelector('.ob-sheet');
@@ -301,7 +305,7 @@
       m.innerHTML = '<span class="fx-ic">🛒</span><span>Mercado<small>Notinhas e preços dos produtos</small></span>';
       m.addEventListener('click', () => { document.body.classList.remove('ob-open'); window.OIKOS_IR && window.OIKOS_IR('mercado'); });
       const c = document.createElement('button'); c.type = 'button'; c.dataset.ngcriarmais = '1';
-      c.innerHTML = '<span class="fx-ic">🚀</span><span>Criar projeto<small>Negócio ou renda extra, com sua logo e meta</small></span>';
+      c.innerHTML = '<span class="fx-ic">🪙</span><span>Multiplicar talentos<small>Seu negócio ou renda extra, com logo e meta</small></span>';
       c.addEventListener('click', () => { document.body.classList.remove('ob-open'); abrirWz(null); });
       sheet.insertBefore(m, sheet.querySelector('h3').nextSibling); sheet.insertBefore(c, sheet.querySelector('.ob-sair'));
     }
@@ -309,7 +313,7 @@
     if (tabs) {
       let t = document.getElementById('tab-negocio');
       if (projetos.length && !t) { t = document.createElement('button'); t.className = 'fv-tab'; t.type = 'button'; t.id = 'tab-negocio'; t.addEventListener('click', show); tabs.appendChild(t); document.querySelectorAll('.fv-tab[data-tab]').forEach((x) => x.addEventListener('click', hide)); }
-      if (t) { t.hidden = !projetos.length; t.textContent = projetos.length === 1 ? '🏷️ ' + projetos[0].nome : '🚀 Projetos'; }
+      if (t) { t.hidden = !projetos.length; t.textContent = projetos.length === 1 ? '🏷️ ' + projetos[0].nome : '🪙 Talentos'; }
     }
   }
   function show() {
@@ -318,11 +322,11 @@
     render(); scrollTo(0, 0); sync();
   }
   function hide() { if (document.body.classList.contains('ng-on')) { document.body.classList.remove('ng-on'); sync(); } }
-  const nome = () => { const p = atual ? achar(atual) : projetos.length === 1 ? projetos[0] : null; return p ? p.nome : 'Meus projetos'; };
+  const nome = () => { const p = atual ? achar(atual) : projetos.length === 1 ? projetos[0] : null; return p ? p.nome : 'Meus talentos'; };
 
   function montar() {
     const dr = document.getElementById('dash-root'); if (!dr || !window.APP || !window.APP.projetos) return;
-    root = document.createElement('section'); root.className = 'ng'; root.id = 'negocio-pg'; root.setAttribute('aria-label', 'Meus projetos'); dr.prepend(root);
+    root = document.createElement('section'); root.className = 'ng'; root.id = 'negocio-pg'; root.setAttribute('aria-label', 'Meus talentos'); dr.prepend(root);
     sh = document.createElement('div'); sh.className = 'vc-sheet ng-sheet'; sh.innerHTML = '<div class="vc-scrim"></div><div class="vc-panel"><div class="vc-body"></div></div>'; document.body.append(sh);
     wz = document.createElement('div'); wz.className = 'ob1 pj-wz'; wz.setAttribute('role', 'dialog'); wz.setAttribute('aria-label', 'Projeto'); wz.innerHTML = '<div class="ob1-in"></div>'; document.body.append(wz);
     wzInput = document.createElement('input'); wzInput.type = 'file'; wzInput.accept = 'image/*'; wzInput.hidden = true; document.body.append(wzInput);

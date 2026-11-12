@@ -4,7 +4,7 @@
   const CATS = [
     ['mercado', '🛒', 'Mercado'], ['acougue', '🥩', 'Açougue'], ['comerfora', '🍔', 'Comer fora'], ['combustivel', '⛽', 'Combustível'],
     ['transporte', '🚌', 'Ônibus / Uber'], ['saude', '💊', 'Saúde / Farmácia'], ['abner', '👶', 'Abner'], ['casa', '🏠', 'Casa'],
-    ['lazer', '🎁', 'Lazer / Presentes'], ['revenda', '🚀', 'Projeto / revenda'], ['outros', '📦', 'Outros'],
+    ['lazer', '🎁', 'Lazer / Presentes'], ['revenda', '🪙', 'Talento / revenda'], ['outros', '📦', 'Outros'],
   ];
   // envelope do app → (nível, chave) da planilha, para somar nos envelopes do Início
   const MAPA = { mercado: ['conta', 'MERCADO'], acougue: ['conta', 'AÇOUGUE'], comerfora: ['conta', 'ALIMENTAÇÃO FORA'], combustivel: ['mae', 'VEÍCULO E TRANSPORTE'],
@@ -41,7 +41,7 @@
         <p class="ag-l">Como pagou?</p><div class="ag-ops">${FORMAS.map(([k, e, n]) => `<button type="button" data-forma="${k}" class="${f.forma === k ? 'on' : ''}">${e} ${n}</button>`).join('')}</div>
         ${f.forma !== 'dinheiro' ? '<p class="ag-l">De qual conta saiu?</p><div id="ag-bk"></div>' : ''}
         <p class="ag-l">Quando?</p><div class="ag-ops"><button type="button" data-dia="${hoje()}" class="${f.data === hoje() ? 'on' : ''}">Hoje</button><button type="button" data-dia="${ontem()}" class="${f.data === ontem() ? 'on' : ''}">Ontem</button><input type="date" id="ag-data" value="${f.data}" max="${hoje()}"></div>
-        ${f.envelope === 'revenda' ? `<div class="ag-rv"><p class="ag-l">🚀 Gasto de projeto — não entra nos envelopes da casa.</p>${projChips(f)}
+        ${f.envelope === 'revenda' ? `<div class="ag-rv"><p class="ag-l">🪙 Gasto de talento (negócio) — não entra nos envelopes da casa.</p>${projChips(f)}
           <label class="ag-l">Vendeu para quem? <small>(se já vendeu)</small><input id="ag-vpara" class="sv-in" value="${f.venda_para.replace(/"/g, '&quot;')}" placeholder="Ex.: Carlos Henrique" maxlength="50"></label>
           <label class="ag-l">Por quanto vendeu?<input id="ag-vval" class="sv-in" inputmode="decimal" value="${f.venda_valor}" placeholder="0,00"></label>
           <p class="ag-l">Já recebeu o dinheiro da venda?</p><div class="ag-ops"><button type="button" data-vrec="0" class="${!f.venda_recebido ? 'on' : ''}">Ainda não</button><button type="button" data-vrec="1" class="${f.venda_recebido ? 'on' : ''}">Sim, recebi</button></div></div>`
@@ -58,7 +58,7 @@
     const ps = window.OIKOS_PROJ ? window.OIKOS_PROJ.lista() : []; if (!ps.length) return '';
     if (!o.projeto_id || !ps.some((p) => String(p.id) === String(o.projeto_id))) o.projeto_id = ps[0].id;
     if (ps.length < 2) return '';
-    return `<p class="ag-l">Qual projeto?</p><div class="ag-ops pj-esc">${ps.map((p) => `<button type="button" data-proj="${p.id}" class="${String(o.projeto_id) === String(p.id) ? 'on' : ''}">${window.OIKOS_PROJ.logo(p, 22)} ${p.nome.replace(/</g, '&lt;')}</button>`).join('')}</div>`;
+    return `<p class="ag-l">Qual talento?</p><div class="ag-ops pj-esc">${ps.map((p) => `<button type="button" data-proj="${p.id}" class="${String(o.projeto_id) === String(p.id) ? 'on' : ''}">${window.OIKOS_PROJ.logo(p, 22)} ${p.nome.replace(/</g, '&lt;')}</button>`).join('')}</div>`;
   }
   window.OIKOS_PROJ_CHIPS = projChips;
   function lerCampos() {
