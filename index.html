@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="app.css?v=9">
-<link rel="stylesheet" href="mobile.css?v=10">
+<link rel="stylesheet" href="mobile.css?v=12">
 <link rel="stylesheet" href="casa.css?v=5">
 <link rel="stylesheet" href="notas.css?v=7">
 <link rel="stylesheet" href="objetivos.css?v=3">
@@ -812,8 +812,8 @@
   const q = document.getElementById('fv-q'), selC = document.getElementById('fv-conta'), clr = document.getElementById('fv-clear');
   let sortK = 'data', sortDir = -1, filtro = {};
   const cap = (s) => s.charAt(0) + s.slice(1).toLowerCase();
-  q.addEventListener('input', () => drawLanc());
-  selC.addEventListener('change', () => { filtro = selC.value ? (selC.value.startsWith('M:') ? { mae: selC.value.slice(2) } : { conta: selC.value.slice(2) }) : {}; drawLanc(); });
+  let qT, limite = 80; q.addEventListener('input', () => { clearTimeout(qT); qT = setTimeout(() => { limite = 80; drawLanc(); }, 220); });
+  selC.addEventListener('change', () => { limite = 80; filtro = selC.value ? (selC.value.startsWith('M:') ? { mae: selC.value.slice(2) } : { conta: selC.value.slice(2) }) : {}; drawLanc(); });
   clr.addEventListener('click', () => { filtro = {}; q.value = ''; dash.setParams({ mes: 'total' }); drawLanc(); });
   document.querySelectorAll('#tb-lanc .fv-th button').forEach((b) => b.addEventListener('click', () => { const k = b.dataset.k; sortDir = sortK === k ? -sortDir : (k === 'valor' || k === 'data' ? -1 : 1); sortK = k; drawLanc(); }));
 
@@ -843,13 +843,18 @@
     clr.hidden = !partes.length && !txt; clr.textContent = 'Limpar filtros ×';
     document.getElementById('lanc-count').textContent = rows.length.toLocaleString('pt-BR') + ' lançamentos' + (partes.length ? ' · ' + partes.join(' · ') : '');
     const frag = document.createDocumentFragment();
-    for (const r of rows) {
+    for (const r of rows.slice(0, limite)) {
       const tr = document.createElement('tr'); tr.dataset.key = r.id;
       const dt = r.data.split('-');
       const cells = [[dt[2] + '/' + dt[1] + '/' + dt[0], 'l'], [r.descricao, 'l wrap'], [r.conta, 'l cap'], [r.mae, 'l cap fv-hide-sm'], [r.origem, 'l fv-hide-sm'], [BRL.format(r.valor), r.valor < 0 ? '' : 'pos']];
       for (const [v, cls] of cells) { const td = document.createElement('td'); td.className = cls; td.textContent = v; tr.appendChild(td); }
       const tdm = document.createElement('td'); tdm.className = 'l'; tdm.appendChild(window.FV.moveSelect(r)); tr.appendChild(tdm); if (window.FV.pendOf(r.id)) tr.classList.add('moved');
       frag.appendChild(tr);
+    }
+    if (rows.length > limite) {
+      const tr = document.createElement('tr'); tr.className = 'fv-mais'; const td = document.createElement('td'); td.colSpan = 7;
+      const bt = document.createElement('button'); bt.type = 'button'; bt.className = 'fv-maisb'; bt.textContent = `Mostrar mais (${Math.min(200, rows.length - limite)} de ${(rows.length - limite).toLocaleString('pt-BR')} restantes)`;
+      bt.addEventListener('click', (e) => { e.stopPropagation(); limite += 200; drawLanc(); }); td.appendChild(bt); tr.appendChild(td); frag.appendChild(tr);
     }
     tb.replaceChildren(frag);
   }
@@ -1498,19 +1503,27 @@
     for (const r of c.data) { if (r.mes !== 'total') continue; const k = r.tipo + '|' + r.mae; if (!seen.has(k)) seen.set(k, { tipo: r.tipo, mae: r.mae, contas: new Set() }); seen.get(k).contas.add(r.conta); }
     return [...seen.values()];
   };
+  let cacheOp = null, cacheVer = null;
+  const opcoesC = () => { const c = dash.data('contas'); if (c !== cacheVer) { cacheVer = c; cacheOp = opcoes().map((g) => ({ ...g, lista: [...g.contas].sort() })); } return cacheOp; };
   window.FV.moveSelect = (l) => {
     const sel = document.createElement('select'); sel.className = 'fv-move'; sel.id = 'mv-' + l.id; sel.setAttribute('aria-label', 'Mover lançamento para outra conta');
     sel.addEventListener('click', (e) => e.stopPropagation());
     sel.appendChild(new Option(window.FV.pend.has(l.id) ? 'Desfazer' : 'Mover para…', ''));
     const extra = [['Transferência (não é gasto)', 'TRANSFERÊNCIAS'], ['Reembolsável pela Vital', 'DESPESAS DA VITAL A REEMBOLSAR']];
-    for (const g of opcoes().filter((g) => g.tipo === (l.valor < 0 ? 'Saída' : 'Entrada'))) {
-      const og = document.createElement('optgroup'); og.label = cap(g.mae);
-      for (const c of [...g.contas].sort()) if (c !== l.conta) og.appendChild(new Option(cap(c), c));
-      if (og.children.length) sel.appendChild(og);
-    }
-    const og2 = document.createElement('optgroup'); og2.label = 'Outros'; for (const [t, v] of extra) if (v !== l.conta) og2.appendChild(new Option(t, v)); sel.appendChild(og2);
+    let pronto = false;
+    const encher = () => {
+      if (pronto) return; pronto = true;
+      for (const g of opcoesC().filter((g) => g.tipo === (l.valor < 0 ? 'Saída' : 'Entrada'))) {
+        const og = document.createElement('optgroup'); og.label = cap(g.mae);
+        for (const c of g.lista) if (c !== l.conta) og.appendChild(new Option(cap(c), c));
+        if (og.children.length) sel.appendChild(og);
+      }
+      const og2 = document.createElement('optgroup'); og2.label = 'Outros'; for (const [t, v] of extra) if (v !== l.conta) og2.appendChild(new Option(t, v)); sel.appendChild(og2);
+      const pp = window.FV.pend.get(l.id); if (pp) sel.value = pp.para;
+    };
+    ['pointerdown', 'touchstart', 'focus', 'keydown'].forEach((ev) => sel.addEventListener(ev, encher, { passive: true }));
     const p = window.FV.pend.get(l.id);
-    if (p) { sel.value = p.para; sel.classList.add('set'); }
+    if (p) { encher(); sel.value = p.para; sel.classList.add('set'); }
     sel.addEventListener('change', () => {
       if (!sel.value) window.FV.pend.delete(l.id); else window.FV.pend.set(l.id, { l, para: sel.value });
       window.FV.draw();
