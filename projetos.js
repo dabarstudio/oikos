@@ -53,6 +53,64 @@
     const mult = investido > 0 && rendeu > 0 ? rendeu / investido : null;
     return { mult, investido, rendeu, m, doMes, vendido, lucro, receber, estoque: serv ? [] : gastos, gastos, gastosMes, diasSem, lucMedio, meses, meta: Number(p.meta || 0), serv, l };
   }
+
+  // ---------- jornada gamificada até a meta (dia, semana, mês) ----------
+  const NIVEIS = [[0, '1 talento', 'Começou a multiplicar'], [500, '2 talentos', 'Já dobrou o que recebeu'], [2000, '5 talentos', 'Servo bom e fiel'], [5000, '10 talentos', 'Sobre o muito te colocarei']];
+  function jornada(p, c) {
+    if (!c.meta) return `<div class="ng-card ng-jor"><h3>🎮 Jornada até a meta</h3><p class="jr-s">Defina uma meta de lucro do mês (⚙️) e o Denário transforma ela em metas do dia e da semana, com conquistas.</p></div>`;
+    const serv = c.serv; const lucroVenda = (g) => Number(g.venda_valor) - (serv ? 0 : Number(g.valor || 0));
+    const vend = c.l.filter((g) => g.venda_valor);
+    const porDia = {}; for (const g of vend) { const d = (g.venda_em || g.data); porDia[d] = (porDia[d] || 0) + lucroVenda(g); }
+    const nVend = {}; for (const g of vend) { const d = (g.venda_em || g.data); nVend[d] = (nVend[d] || 0) + 1; }
+    const hj = hoje(); const dt = new Date(hj + 'T12:00:00');
+    const diasMes = new Date(dt.getFullYear(), dt.getMonth() + 1, 0).getDate(); const dia = dt.getDate();
+    const restam = diasMes - dia + 1;
+    const lucMed = c.lucMedio > 0 ? c.lucMedio : null;
+    const falta = Math.max(0, c.meta - c.lucro);
+    const lucroHoje = porDia[hj] || 0;
+    const faltaAntesDeHoje = Math.max(0, c.meta - (c.lucro - lucroHoje));
+    const metaDia = faltaAntesDeHoje / restam;
+    // semana (segunda a domingo)
+    const seg = new Date(dt); seg.setDate(dt.getDate() - ((dt.getDay() + 6) % 7));
+    const dias = []; for (let i = 0; i < 7; i++) { const x = new Date(seg); x.setDate(seg.getDate() + i); dias.push(x.toISOString().slice(0, 10)); }
+    const lucroSem = dias.reduce((t, d) => t + (porDia[d] || 0), 0);
+    const metaSem = c.meta * 7 / diasMes;
+    // ritmo do mês
+    const esperado = c.meta * dia / diasMes; const dif = c.lucro - esperado;
+    // sequência de dias com venda
+    let seq = 0; { const x = new Date(dt); if (!nVend[hj]) x.setDate(x.getDate() - 1); while (nVend[x.toISOString().slice(0, 10)]) { seq++; x.setDate(x.getDate() - 1); } }
+    // nível pelo lucro de sempre
+    const total = vend.reduce((t, g) => t + lucroVenda(g), 0);
+    let nv = 0; NIVEIS.forEach((n, i) => { if (total >= n[0]) nv = i; });
+    const prox = NIVEIS[nv + 1]; const pNv = prox ? Math.min(100, (total - NIVEIS[nv][0]) / (prox[0] - NIVEIS[nv][0]) * 100) : 100;
+    const vendas = (v) => (lucMed ? Math.max(1, Math.ceil(v / lucMed)) : null);
+    const anel = (pct, cor, txt, sub) => `<div class="jr-anel"><svg viewBox="0 0 36 36" width="74" height="74" aria-hidden="true"><circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="4"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="${cor}" stroke-width="4" stroke-linecap="round" stroke-dasharray="${Math.max(0.5, Math.min(100, pct)) * 0.974} 100" transform="rotate(-90 18 18)"/></svg><b>${txt}</b><small>${sub}</small></div>`;
+    const okD = lucroHoje >= metaDia - 1, okS = lucroSem >= metaSem - 1;
+    const pD = metaDia ? lucroHoje / metaDia * 100 : 100, pS = metaSem ? lucroSem / metaSem * 100 : 100, pM = c.lucro / c.meta * 100;
+    const conq = [
+      ['🌱', '1ª venda', vend.length >= 1], ['🔥', '3 dias seguidos', seq >= 3], ['📅', 'Meta da semana', okS],
+      ['🎯', 'Meta do mês', c.lucro >= c.meta], ['🪙', 'Dobrou o investido', (c.mult || 0) >= 2], ['🏆', '10 vendas', vend.length >= 10],
+    ];
+    const DS = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'];
+    return `<div class="ng-card ng-jor">
+      <div class="jr-top"><h3>🎮 Jornada até a meta</h3><span class="jr-nv" title="${NIVEIS[nv][2]}">🪙 ${NIVEIS[nv][1]}</span></div>
+      <div class="jr-aneis">
+        ${anel(pD, '#f2b83a', BRL0.format(lucroHoje), 'hoje de ' + BRL0.format(metaDia))}
+        ${anel(pS, '#7fd3a6', BRL0.format(lucroSem), 'semana de ' + BRL0.format(metaSem))}
+        ${anel(pM, '#8fd3ff', Math.round(pM) + '%', 'do mês')}
+      </div>
+      <div class="jr-missoes">
+        <div class="jr-m ${okD ? 'ok' : ''}"><span>${okD ? '✅' : '☀️'}</span><p><b>Missão de hoje</b>${okD ? 'Cumprida! Amanhã tem mais.' : `${lucMed ? `${vendas(metaDia - lucroHoje) === 1 ? '1 venda' : vendas(metaDia - lucroHoje) + ' vendas'}` : 'Lucro de ' + BRL.format(metaDia - lucroHoje)} hoje (${BRL0.format(metaDia - lucroHoje)} de lucro)`}</p></div>
+        <div class="jr-m ${okS ? 'ok' : ''}"><span>${okS ? '✅' : '📅'}</span><p><b>Missão da semana</b>${okS ? 'Semana batida! 🎉' : `Faltam ${BRL0.format(metaSem - lucroSem)}${lucMed ? ' · ~' + vendas(metaSem - lucroSem) + ' venda' + (vendas(metaSem - lucroSem) > 1 ? 's' : '') : ''} até domingo`}</p></div>
+        <div class="jr-m ${falta <= 0 ? 'ok' : ''}"><span>${falta <= 0 ? '🏆' : '🎯'}</span><p><b>Missão do mês</b>${falta <= 0 ? 'Muito bem, servo bom e fiel! Meta batida.' : `Faltam ${BRL0.format(falta)} em ${restam} dia${restam > 1 ? 's' : ''}${lucMed ? ' · ~' + vendas(falta) + ' vendas' : ''}`}</p></div>
+      </div>
+      <div class="jr-semana" aria-label="Dias com venda nesta semana">${dias.map((d, i) => `<span class="${nVend[d] ? 'v' : d === hj ? 'h' : d < hj ? 'p' : ''}"><i>${nVend[d] ? '✓' : DS[i]}</i></span>`).join('')}</div>
+      <p class="jr-ritmo">${dif >= 0 ? `🚀 <b>${BRL0.format(dif)} à frente</b> do ritmo do mês` : `🐢 <b>${BRL0.format(-dif)} atrás</b> do ritmo: até hoje o ideal era ${BRL0.format(esperado)}`}${seq ? ` · 🔥 ${seq} dia${seq > 1 ? 's' : ''} seguido${seq > 1 ? 's' : ''} vendendo` : ''}</p>
+      <div class="jr-nivel"><span>${NIVEIS[nv][1]}</span><span class="jr-nb"><i style="width:${pNv}%"></i></span><span>${prox ? prox[1] : 'máximo'}</span></div>
+      <p class="jr-ns">${prox ? `Lucro total ${BRL0.format(total)} · faltam ${BRL0.format(prox[0] - total)} para "${prox[1]}"` : 'Nível máximo: sobre o muito te colocarei!'}</p>
+      <div class="jr-conq">${conq.map(([e, t, ok]) => `<span class="${ok ? 'ok' : ''}" title="${t}"><i>${e}</i>${t}</span>`).join('')}</div>
+    </div>`;
+  }
   const mesNome = () => MESES_L[new Date().getMonth()];
 
   // ---------- faixas no Início ----------
@@ -99,6 +157,7 @@
         <span class="${c.receber.length ? 'warn' : ''}"><small>Para receber</small><b>${BRL.format(c.receber.reduce((s, g) => s + Number(g.venda_valor), 0))}</b></span>
         <span><small>${c.serv ? 'Gastos no mês' : 'Em estoque'}</small><b>${BRL.format(c.serv ? c.gastosMes : c.estoque.reduce((s, g) => s + Number(g.valor || 0), 0))}</b></span>
       </div>
+      ${jornada(p, c)}
       <div class="ng-card ng-nudge">${c.diasSem == null ? '<b>🚀 Registre a primeira venda!</b>' : c.diasSem === 0 ? '<b>🔥 Teve venda hoje! Continue assim.</b>' : `<b>${c.diasSem >= 7 ? '⏰' : '📅'} Última venda há ${c.diasSem} dia${c.diasSem > 1 ? 's' : ''}</b>`}<p>${DICAS[new Date().getDate() % DICAS.length]}</p></div>
       ${c.receber.length ? `<div class="ng-card"><h3>💰 Para receber</h3>${c.receber.map((g) => linha(g, `<button type="button" class="ng-b" data-ngrec="${g.id}">Recebi</button>`)).join('')}</div>` : ''}
       ${!c.serv && c.estoque.length ? `<div class="ng-card"><h3>📦 Para vender</h3>${c.estoque.map((g) => linha(g, `<button type="button" class="ng-b" data-ngvendi="${g.id}">Vendi</button>`)).join('')}</div>` : ''}
