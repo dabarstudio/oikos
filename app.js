@@ -519,5 +519,10 @@
     });
   }
   document.addEventListener('DOMContentLoaded', iniciar);
-  if ('serviceWorker' in navigator && !local) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if ('serviceWorker' in navigator && !local) {
+    // versão nova publicada: o app se atualiza sozinho uma vez, sem precisar fechar e abrir de novo
+    const tinha = !!navigator.serviceWorker.controller; let recarregou = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (tinha && !recarregou) { recarregou = true; location.reload(); } });
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((r) => { r.update().catch(() => {}); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') r.update().catch(() => {}); }); }).catch(() => {});
+  }
 })();

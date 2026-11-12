@@ -37,6 +37,7 @@
       b.innerHTML = '<span class="fx-ic">📲</span><span>Convidar pelo WhatsApp<small>Mande o link do Denário para amigos</small></span>';
       sheet.insertBefore(b, sheet.querySelector('h3').nextSibling);
     }
+    if (sheet && !sheet.querySelector('.cv-ver')) { const v = document.createElement('p'); v.className = 'cv-ver'; v.textContent = 'Denário · versão 41'; sheet.appendChild(v); }
   }
   let t; new MutationObserver(() => { clearTimeout(t); t = setTimeout(noMais, 100); }).observe(document.documentElement, { childList: true, subtree: true });
   window.OIKOS_CONVITE = { abrir, LINK, TEXTO };

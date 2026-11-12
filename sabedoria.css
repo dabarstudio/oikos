@@ -26,3 +26,4 @@ body.cv-open .cv-sheet { pointer-events: auto; } body.cv-open .cv-sheet .vc-scri
 .ob-nav .ng-tal .ng-moeda { width: 44px; height: 44px; border-radius: 50%; background: #e2a72e; border: 3px solid var(--color-panel, #f5f6f0); box-shadow: 0 3px 10px rgba(14,77,51,.35); display: flex; align-items: center; justify-content: center; margin-top: -18px; }
 .ob-nav .ng-tal span:last-child { color: #0e4d33; }
 .ob-nav .ng-tal .ng-moeda svg, .ob-nav .ng-tal .ng-moeda svg * { stroke: #0e4d33 !important; fill: none !important; }
+.cv-ver { text-align: center; font-size: 12px; color: var(--color-fg-muted); margin: 10px 0 0; }
