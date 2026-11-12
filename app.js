@@ -324,6 +324,13 @@
         if (p.id) { const i = l.findIndex((x) => x.id === p.id); l[i] = { ...l[i], ...row }; out = l[i]; } else { out = { ...row, id: 'p' + Date.now(), ordem: l.length + 1 }; l.push(out); }
         this._sv(l); return out;
       },
+      // perfil do negócio (questionário) e checklist de ações; cai para o celular se a coluna ainda não existir
+      async guardarExtra(id, campos) {
+        if (!this._local) { const r = await sb.from('projetos').update(campos).eq('id', id); if (!r.error) return; }
+        let x = {}; try { x = JSON.parse(localStorage.getItem('oikos-proj-x') || '{}'); } catch (e) { x = {}; }
+        x[id] = { ...(x[id] || {}), ...campos }; try { localStorage.setItem('oikos-proj-x', JSON.stringify(x)); } catch (e) { /* ok */ }
+      },
+      extraLocal(id) { try { return (JSON.parse(localStorage.getItem('oikos-proj-x') || '{}'))[id] || {}; } catch (e) { return {}; } },
       async subirLogo(blob) {
         if (this._local) return await new Promise((ok) => { const r = new FileReader(); r.onload = () => ok(r.result); r.readAsDataURL(blob); });
         const nome = household.id + '/' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6) + '.jpg';

@@ -375,3 +375,7 @@ create policy "bens: apagar foto" on storage.objects for delete to authenticated
 -- Denário — compras parceladas no cartão
 alter table public.gastos_app add column if not exists parcelas int not null default 1;
 alter table public.gastos_app add column if not exists parcela1 date;
+
+-- Denário — plano de ação dos talentos
+alter table public.projetos add column if not exists perfil jsonb;
+alter table public.projetos add column if not exists checks jsonb;

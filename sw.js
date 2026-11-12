@@ -1,6 +1,6 @@
 // Guarda só a "casca" do app para abrir rápido e funcionar como app instalado.
 // Os dados financeiros NÃO são guardados em cache: vêm sempre do servidor, com login.
-const CACHE = 'denario-v42';
+const CACHE = 'denario-v43';
 const SHELL = ['./', 'index.html', 'app.css', 'app.js', 'mobile.css', 'mobile.js', 'mobile-contas.js', 'casa.js', 'casa.css', 'notas.js', 'notas.css', 'objetivos.js', 'objetivos.css', 'avatar.js', 'anotar.js', 'anotar.css', 'bancos.js', 'bancos.css', 'vales.js', 'vales.css', 'projetos.js', 'voz.js', 'voz.css', 'negocio.css', 'icons/negocio-quickbox.png', 'onboarding.js', 'onboarding.css', 'vendor/jsQR.js', 'config.js', 'manifest.webmanifest', 'vendor/d3.min.js', 'vendor/supabase.js', 'icons/icon-192.png', 'icons/icon-512.png'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k))))); self.clients.claim(); });

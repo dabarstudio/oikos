@@ -158,6 +158,7 @@
         <span><small>${c.serv ? 'Gastos no mês' : 'Em estoque'}</small><b>${BRL.format(c.serv ? c.gastosMes : c.estoque.reduce((s, g) => s + Number(g.valor || 0), 0))}</b></span>
       </div>
       ${jornada(p, c)}
+      ${window.OIKOS_PLANO ? window.OIKOS_PLANO.card(p, c) : ''}
       <div class="ng-card ng-nudge">${c.diasSem == null ? '<b>🚀 Registre a primeira venda!</b>' : c.diasSem === 0 ? '<b>🔥 Teve venda hoje! Continue assim.</b>' : `<b>${c.diasSem >= 7 ? '⏰' : '📅'} Última venda há ${c.diasSem} dia${c.diasSem > 1 ? 's' : ''}</b>`}<p>${DICAS[new Date().getDate() % DICAS.length]}</p></div>
       ${c.receber.length ? `<div class="ng-card"><h3>💰 Para receber</h3>${c.receber.map((g) => linha(g, `<button type="button" class="ng-b" data-ngrec="${g.id}">Recebi</button>`)).join('')}</div>` : ''}
       ${!c.serv && c.estoque.length ? `<div class="ng-card"><h3>📦 Para vender</h3>${c.estoque.map((g) => linha(g, `<button type="button" class="ng-b" data-ngvendi="${g.id}">Vendi</button>`)).join('')}</div>` : ''}
@@ -337,6 +338,7 @@
         const salvo = await window.APP.projetos.salvar({ id: w.id, nome: w.nome, tipo: w.tipo, logo_url: w.logo_url, icone: w.icone, cor: w.cor, meta: w.meta || null, donos: w.donos });
         atual = salvo && salvo.id; fecharWz(); await recarregar();
         if (window.OIKOS_IR) window.OIKOS_IR('negocio'); else show();
+        if (!w.id && salvo && salvo.id && window.OIKOS_PLANO) setTimeout(() => window.OIKOS_PLANO.perguntar(salvo.id), 400);
       } catch (err) { console.error(err); b.disabled = false; b.textContent = 'Não salvou. Tentar de novo'; const er = document.getElementById('wz-erro'); if (er) er.textContent = 'Confira a internet e tente de novo.'; }
     }
   }
@@ -397,7 +399,7 @@
     wz.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); const g = wz.querySelector('.ob1-go'); if (g) g.click(); } });
     document.addEventListener('click', (e) => { const b = e.target.closest('.ng-banners [data-ngabre]'); if (b) onClick(e); });
     window.OIKOS_NEG = { show, hide, nome };
-    window.OIKOS_PROJ = { lista: () => projetos, logo, criar: () => abrirWz(null) };
+    window.OIKOS_PROJ = { lista: () => projetos, logo, criar: () => abrirWz(null), render: () => render(), atual: () => (atual ? achar(atual) : null) };
     document.addEventListener('oikos:gastos', recarregar);
     new MutationObserver(() => { const c = document.getElementById('casa'); if (c && projetos.length && !c.querySelector('.ng-banners')) desenharBanner(); })
       .observe(dr, { childList: true, subtree: true });
