@@ -96,8 +96,29 @@
     let maxH = innerHeight; addEventListener('resize', () => { maxH = Math.max(maxH, innerHeight); });
     document.addEventListener('focusout', () => setTimeout(() => { if (maxH - innerHeight > 4) { const r = document.body; r.style.display = 'none'; void r.offsetHeight; r.style.display = ''; } }, 150));
   }
+  // tabelas largas no celular viram "cartõezinhos" (rótulo à esquerda, valor à direita)
+  const PILHA = matchMedia('(max-width: 760px)');
+  function empilhar() {
+    document.querySelectorAll('table.fv-tbl').forEach((t) => {
+      if (t.id === 'tb-lanc' || t.id === 'tb-pivot' || t.querySelector('input[type=checkbox]')) return;
+      const ths = [...t.querySelectorAll('thead th')];
+      const vis = ths.filter((th) => getComputedStyle(th).display !== 'none');
+      const quer = PILHA.matches && vis.length >= 4;
+      t.classList.toggle('ob-stack', quer);
+      if (!quer) return;
+      t.querySelectorAll('tbody tr').forEach((tr) => [...tr.cells].forEach((td, i) => {
+        if (td.colSpan > 1) { td.classList.add('ob-full'); return; }
+        const h = ths[i]; const lab = h ? h.textContent.trim() : '';
+        if (td.dataset.label !== lab) td.dataset.label = lab;
+        td.classList.toggle('ob-vazio', !td.textContent.trim() && !td.querySelector('input,select,button,svg'));
+      }));
+    });
+  }
+  let pilhaT; const pilhaAgendar = () => { clearTimeout(pilhaT); pilhaT = setTimeout(empilhar, 60); };
   document.addEventListener('DOMContentLoaded', () => {
     vigiarLogin(); teclado();
+    empilhar(); PILHA.addEventListener('change', empilhar); addEventListener('resize', pilhaAgendar);
+    new MutationObserver((ms) => { if (ms.some((m) => m.target.closest && m.target.closest('table.fv-tbl'))) pilhaAgendar(); }).observe(document.body, { childList: true, subtree: true });
     montar(); textos(document.body);
     new MutationObserver((ms) => ms.forEach((m) => m.addedNodes.forEach((n) => n.nodeType === 1 && textos(n)))).observe(document.body, { childList: true, subtree: true });
   });

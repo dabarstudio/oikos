@@ -162,3 +162,17 @@ body.ob-logout .ob-nav, body.ob-logout .ob-sheet, body.ob-logout .ob-scrim { dis
   .fv-tbl .fv-tag { display: none; }
 }
 @media (max-width: 760px) { body:not(.cs-on) { padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px)); } }
+@media (max-width: 760px) {
+  /* tabelas com 4+ colunas: cada linha vira um cartão */
+  table.fv-tbl.ob-stack, table.ob-stack tbody, table.ob-stack tr { display: block; width: 100% !important; }
+  table.ob-stack thead, table.ob-stack colgroup { display: none; }
+  table.ob-stack tr { border: 1px solid var(--color-border-line); border-radius: 12px; padding: 8px 12px; margin: 0 0 10px; background: var(--color-panel); }
+  table.ob-stack tr.sec, table.ob-stack tr.res { background: color-mix(in srgb, var(--color-fg) 5%, var(--color-panel)); }
+  table.fv-tbl.ob-stack td { display: flex !important; justify-content: space-between; align-items: baseline; gap: 12px; border: 0; padding: 3px 0 !important; text-align: right; white-space: normal !important; overflow-wrap: anywhere; font-size: 14px; min-width: 0 !important; }
+  table.ob-stack td::before { content: attr(data-label); flex: none; max-width: 55%; text-align: left; color: var(--color-fg-muted); font-weight: 500; white-space: normal; }
+  table.fv-tbl.ob-stack td:first-child { display: block !important; text-align: left; font-weight: 600; font-size: 15px; padding: 2px 0 6px !important; }
+  table.ob-stack td:first-child::before, table.ob-stack td.ob-full::before { display: none; }
+  table.fv-tbl.ob-stack td.ob-full { display: block !important; text-align: left; }
+  table.fv-tbl.ob-stack td.ob-vazio, table.fv-tbl.ob-stack td.fv-hide-sm { display: none !important; }
+  table.ob-stack tr.filha td:first-child { padding-left: 0 !important; }
+}
