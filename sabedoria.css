@@ -15,3 +15,14 @@ body.sb-open .sb-sheet { pointer-events: auto; } body.sb-open .sb-sheet .vc-scri
 .sb-intro { margin: 0 0 6px; font-size: 14.5px; color: var(--color-fg-muted); }
 .sb-h { font-size: 15px; margin: 18px 0 4px; }
 .bn-hero + .sb-card, #bn-topo .sb-card { margin: 0; }
+/* convite pelo WhatsApp */
+.cv-sheet { z-index: 66; }
+body.cv-open .cv-sheet { pointer-events: auto; } body.cv-open .cv-sheet .vc-scrim { opacity: 1; } body.cv-open .cv-sheet .vc-panel { transform: none; }
+.cv-s { margin: 0 0 10px; font-size: 14.5px; color: var(--color-fg-muted); }
+.cv-msg { background: #dcf8c6; border-radius: 14px 14px 14px 4px; padding: 12px 14px; font-size: 14.5px; line-height: 1.45; color: #1d2a22; overflow-wrap: anywhere; margin-bottom: 14px; }
+.cv-msg b { color: #0b6b9a; font-weight: 700; }
+.cv-wa { font: inherit; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 52px; border: 0; border-radius: 14px; background: #1fa855; color: #fff; font-weight: 800; font-size: 17px; margin-bottom: 8px; }
+/* Talentos fixo no meio da barra */
+.ob-nav .ng-tal .ng-moeda { width: 44px; height: 44px; border-radius: 50%; background: #e2a72e; border: 3px solid var(--color-panel, #f5f6f0); box-shadow: 0 3px 10px rgba(14,77,51,.35); display: flex; align-items: center; justify-content: center; margin-top: -18px; }
+.ob-nav .ng-tal span:last-child { color: #0e4d33; }
+.ob-nav .ng-tal .ng-moeda svg, .ob-nav .ng-tal .ng-moeda svg * { stroke: #0e4d33 !important; fill: none !important; }

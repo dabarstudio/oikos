@@ -62,7 +62,7 @@
   }
   async function compartilhar(i, btn) {
     const p = P[i]; if (!p) return;
-    const txt = `“${p.v}” (${p.r})\n\nNa prática: ${p.l}\n\nDenário · finanças à luz da Bíblia`;
+    const txt = `“${p.v}” (${p.r})\n\nNa prática: ${p.l}\n\nDenário · finanças à luz da Bíblia\nhttps://dabarstudio.github.io/oikos/conheca.html`;
     try {
       if (navigator.share) { await navigator.share({ text: txt }); return; }
       await navigator.clipboard.writeText(txt); btn.textContent = 'Copiado ✓'; setTimeout(() => { btn.textContent = 'Compartilhar'; }, 1800);

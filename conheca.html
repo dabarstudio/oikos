@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Denário · finanças à luz da Bíblia</title>
+<meta name="description" content="App de finanças da família: veja quanto ainda dá pra gastar, anote falando ou com foto da notinha e receba uma pílula de sabedoria por dia.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Denário · finanças à luz da Bíblia">
+<meta property="og:description" content="A casa em ordem, com sabedoria. Teste grátis com a sua família.">
+<meta property="og:image" content="https://dabarstudio.github.io/oikos/img/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:url" content="https://dabarstudio.github.io/oikos/conheca.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0e4d33">
+<link rel="icon" href="icons/logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@600;700;800&display=swap">
+<style>
+:root{--g:#0e4d33;--g2:#1b7a4e;--y:#f2b83a;--o:#e4511b;--b:#8fd3ff;--p:#ffb3c7;--m:#b8f0c9;--ink:#1d2a22;--cream:#fff6e5}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;font-family:Nunito,system-ui,sans-serif;color:var(--ink);background:var(--cream);font-size:17px;line-height:1.5;overflow-x:hidden}
+h1,h2,h3{font-family:Fredoka,Nunito,sans-serif;line-height:1.05;margin:0}
+.w{max-width:1040px;margin:0 auto;padding:0 20px}
+.hero{background:var(--g);color:#fff;position:relative;overflow:hidden;padding:28px 0 40px}
+.hero:before{content:"";position:absolute;right:-160px;top:-160px;width:440px;height:440px;border-radius:50%;background:var(--g2)}
+.hero:after{content:"";position:absolute;left:-120px;bottom:-140px;width:320px;height:320px;border-radius:50%;background:#e2a72e;opacity:.9}
+.top{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+.top b{font-family:Fredoka;font-size:28px;display:block;line-height:1}.top small{color:var(--y);font-weight:800;font-size:14px}
+.top a{margin-left:auto;color:#fff;font-weight:800;font-size:15px;text-decoration:none;border:2px solid rgba(255,255,255,.5);border-radius:999px;padding:6px 14px}
+.hg{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;align-items:center;position:relative;z-index:1;margin-top:26px}
+.hero h1{font-size:clamp(40px,7vw,68px)}.hl{background:var(--y);color:var(--ink);padding:0 12px;border-radius:16px;display:inline-block;margin-top:6px}
+.hero p{font-size:clamp(17px,2.4vw,21px);font-weight:700;margin:18px 0 24px;max-width:520px}
+.cta{display:inline-flex;align-items:center;gap:12px;background:var(--o);color:#fff;font-family:Fredoka;font-weight:700;font-size:21px;border:4px solid var(--ink);box-shadow:6px 6px 0 var(--ink);border-radius:999px;padding:14px 26px;text-decoration:none;transform:rotate(-2deg)}
+.cta:active{transform:rotate(-2deg) translate(3px,3px);box-shadow:3px 3px 0 var(--ink)}
+.note{font-size:14px;font-weight:700;opacity:.85;margin-top:14px}
+.hero img{width:100%;max-width:460px;display:block;margin:0 auto;filter:drop-shadow(0 20px 30px rgba(0,0,0,.3))}
+section{padding:56px 0}.tag{display:inline-block;background:#fff;border:3px solid var(--ink);border-radius:999px;padding:3px 14px;font-family:Fredoka;font-weight:700;font-size:14px;transform:rotate(-3deg);margin-bottom:12px}
+h2{font-size:clamp(32px,5vw,46px);margin-bottom:22px}
+.passos{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.c{background:#fff;border:4px solid var(--ink);box-shadow:7px 7px 0 var(--ink);border-radius:24px;padding:20px}
+.n{display:inline-flex;width:44px;height:44px;border-radius:50%;align-items:center;justify-content:center;font-family:Fredoka;font-weight:700;font-size:22px;border:3px solid var(--ink);margin-bottom:10px}
+.c h3{font-size:22px;margin-bottom:6px}.c p{margin:0;font-weight:700;font-size:15.5px}
+.rec{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.ic{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;border:3px solid var(--ink)}
+.pil{background:var(--g);color:#fff}
+.pc{background:#f6ecd2;color:#3d3216;border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);border-radius:28px;padding:26px;max-width:680px;transform:rotate(-1deg)}
+.pc .t{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#8a6d2b}
+.pc .v{font-family:Georgia,serif;font-style:italic;font-size:clamp(20px,3vw,26px);line-height:1.4;margin:8px 0}
+.pc .r{font-weight:800;color:#8a6d2b}
+.fin{background:var(--y);text-align:center}.fin h2{margin-bottom:12px}
+footer{background:var(--ink);color:#fff;text-align:center;padding:26px 20px;font-size:14px;font-weight:700}footer a{color:var(--y)}
+@media (max-width:760px){.hg,.passos,.rec{grid-template-columns:1fr}.hero{padding-bottom:20px}.hero img{max-width:340px;margin-top:10px}section{padding:44px 0}.top a{font-size:13px;padding:5px 10px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="w">
+  <div class="top"><svg width="48" height="48" viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="22" fill="#0e4d33" stroke="#fff" stroke-width="4"/><circle cx="50" cy="51" r="34" fill="#e2a72e"/><circle cx="50" cy="51" r="28.5" fill="none" stroke="#0e4d33" stroke-width="2.4" stroke-dasharray="1.6 4.4" stroke-linecap="round"/><g fill="none" stroke="#0e4d33" stroke-linecap="round" stroke-linejoin="round"><path d="M33 53 L50 38 L67 53" stroke-width="6"/><path d="M39 51 V67 H61 V51" stroke-width="5"/><path d="M47 67 V59 H53 V67" stroke-width="4"/></g></svg>
+    <span><b>Denário</b><small>finanças à luz da Bíblia</small></span><a href="./">Já tenho acesso</a></div>
+  <div class="hg"><div>
+    <h1>A casa em ordem,<br><span class="hl">com sabedoria.</span></h1>
+    <p>O app de finanças da família: veja quanto ainda dá pra gastar no mês, anote falando ou com foto da notinha e receba uma pílula de sabedoria bíblica por dia.</p>
+    <a class="cta js-quero" href="#">Quero testar com a minha família</a>
+    <div class="note">Tem plano grátis · funciona no celular · o casal usa junto</div>
+  </div><img src="img/celulares.png" alt="O app Denário aberto em dois celulares: a tela inicial com quanto ainda dá para gastar e o Raio-X da família" width="700" height="860"></div>
+</div></header>
+
+<section><div class="w"><span class="tag">É fácil assim</span><h2>Três passos e a casa entra nos eixos</h2>
+<div class="passos">
+<div class="c"><span class="n" style="background:var(--y)">1</span><h3>Diz o limite do mês</h3><p>Quanto a família pode gastar. Um minutinho.</p></div>
+<div class="c"><span class="n" style="background:var(--p)">2</span><h3>Fala o que gastou</h3><p>"30 reais de lanche no Pix." Ou manda a foto da notinha.</p></div>
+<div class="c"><span class="n" style="background:var(--m)">3</span><h3>Abre e vê o que sobra</h3><p>E o app avisa se o mês começar a apertar.</p></div>
+</div></div></section>
+
+<section style="background:#fff;border-top:4px solid var(--ink);border-bottom:4px solid var(--ink)"><div class="w"><span class="tag">E tem mais</span><h2>Tudo da família num lugar só</h2>
+<div class="rec">
+<div class="c"><div class="ic" style="background:var(--y)"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1d2a22" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg></div><h3>Objetivos</h3><p>Viagem, carro, reserva: cada sonho com seu progresso.</p></div>
+<div class="c"><div class="ic" style="background:var(--b)"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1d2a22" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/><path d="M15 9.5c0-1.4-1.3-2.2-3-2.2s-3 .8-3 2.2 1.3 2 3 2.4 3 1 3 2.4-1.3 2.2-3 2.2-3-.8-3-2.2"/></svg></div><h3>Talentos</h3><p>Sua renda extra ou negócio, com lucro e meta. Veja cada R$ 1 se multiplicar.</p></div>
+<div class="c"><div class="ic" style="background:var(--m)"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1d2a22" stroke-width="2.2" stroke-linecap="round"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg></div><h3>Raio-X</h3><p>Uma nota da saúde financeira da família e o que fazer primeiro.</p></div>
+<div class="c"><div class="ic" style="background:var(--p)"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1d2a22" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></div><h3>Bens com foto</h3><p>Fotografa a geladeira: o app diz quanto ela vale e quanto guardar pra trocar.</p></div>
+<div class="c"><div class="ic" style="background:var(--y)"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1d2a22" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V6h18v3a3 3 0 0 0 0 6v3H3v-3a3 3 0 0 0 0-6z"/><path d="M14 6v12"/></svg></div><h3>Cashback</h3><p>Vales e cashback com aviso antes de vencer.</p></div>
+<div class="c"><div class="ic" style="background:var(--b)"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1d2a22" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg></div><h3>Pro casal</h3><p>Cada um no seu celular, tudo junto na hora.</p></div>
+</div></div></section>
+
+<section class="pil"><div class="w"><span class="tag" style="color:var(--ink)">Finanças à luz da Bíblia</span><h2>Todo dia uma pílula de sabedoria</h2>
+<div class="pc"><div class="t">Sabedoria para hoje</div><div class="v">“Tesouro desejável e azeite há na casa do sábio, mas o homem insensato o devora.”</div><div class="r">Provérbios 21:20</div><p style="margin:10px 0 0;font-weight:700"><b>Na prática:</b> quem é sábio não gasta tudo o que ganha. Separe uma parte antes de gastar.</p></div>
+</div></section>
+
+<section class="fin"><div class="w"><h2>Bora testar com a sua família?</h2><p style="font-weight:800;font-size:19px;margin:0 0 24px">Tem plano grátis. Funciona no celular, sem baixar nada.</p><a class="cta js-quero" href="#" style="background:var(--g)">Quero testar</a></div></section>
+<footer>Denário · finanças à luz da Bíblia · por Dabar Studio · <a href="./">Entrar no app</a></footer>
+<script>
+// número de WhatsApp de quem atende os convites (só dígitos, com 55 e DDD). Vazio = leva para o app.
+const WHATS = '';
+const msg = encodeURIComponent('Olá! Vi o Denário e EU QUERO testar com a minha família.');
+document.querySelectorAll('.js-quero').forEach((a) => { a.href = WHATS ? 'https://wa.me/' + WHATS + '?text=' + msg : './'; if (WHATS) { a.target = '_blank'; a.rel = 'noopener'; } });
+</script>
+</body>
+</html>

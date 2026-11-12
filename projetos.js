@@ -71,7 +71,7 @@
   // ---------- telas ----------
   function render() {
     if (!root) return;
-    const p = atual ? achar(atual) : projetos.length === 1 ? projetos[0] : null;
+    const p = atual ? achar(atual) : null;
     root.style.removeProperty('--ng-navy');
     if (!p) return renderLista();
     root.style.setProperty('--ng-navy', escura(p.cor));
@@ -81,7 +81,7 @@
     const donos = (p.donos || []).map((k) => pessoas.find((x) => x.chave === k)).filter(Boolean);
     const linha = (g, acao) => `<div class="ng-it"><div class="ng-il"><b>${esc(g.descricao || 'Item')}</b><small>${g.venda_para ? esc(g.venda_para) + ' · ' : ''}${g.venda_valor ? (c.serv ? '' : 'custou ' + BRL.format(Number(g.valor || 0)) + ' · ') + 'vendeu ' + BRL.format(Number(g.venda_valor)) + (c.serv ? '' : ' · <b class="pos">lucro ' + BRL.format(Number(g.venda_valor) - Number(g.valor || 0)) + '</b>') : (c.serv ? 'gastou ' : 'custou ') + BRL.format(Number(g.valor || 0)) + ' · ' + g.data.split('-').reverse().slice(0, 2).join('/')}</small></div>${acao}</div>`;
     root.innerHTML = `
-      ${projetos.length > 1 ? '<button type="button" class="ng-voltar" data-nglista>‹ Meus talentos</button>' : ''}
+      ${projetos.length ? '<button type="button" class="ng-voltar" data-nglista>‹ Meus talentos</button>' : ''}
       <div class="ng-hero">
         <div class="ng-top">${logo(p, 64)}<div class="ng-tt"><h2>${esc(p.nome)}</h2><small>${c.serv ? '🛠️ Serviço' : '📦 Revenda'}${donos.length ? ' · ' + donos.map((x) => esc(x.nome)).join(' e ') : ''}</small></div>
           <button type="button" class="ng-cfg" data-ngedit="${p.id}" aria-label="Editar talento">⚙️</button></div>
@@ -209,7 +209,7 @@
     try { itens = await window.APP.gastos.revendas(); } catch (e) { console.error(e); }
     try { pessoas = await window.APP.pessoas.listar(); } catch (e) { pessoas = []; }
     if (atual && !achar(atual)) atual = null;
-    document.body.classList.toggle('tem-negocio', projetos.length > 0); montarNav(); desenharBanner(); render(); sync();
+    document.body.classList.add('tem-negocio'); montarNav(); desenharBanner(); render(); sync();
   }
   const sync = () => document.dispatchEvent(new Event('oikos:tab'));
   const atualizarTudo = () => document.dispatchEvent(new Event('oikos:recarregar-gastos'));
@@ -287,17 +287,14 @@
   function montarNav() {
     const nav = document.querySelector('.ob-nav');
     if (nav) {
+      // "Talentos" fica sempre no meio da barra; os negócios (ex.: QuickBox) ficam lá dentro
       let b = nav.querySelector('[data-ng]');
-      if (!projetos.length) { if (b) b.remove(); }
-      else {
-        if (!b) {
-          b = document.createElement('button'); b.type = 'button'; b.dataset.ng = '1'; b.dataset.go = 'negocio'; b.className = 'ng-navb';
-          nav.insertBefore(b, nav.querySelector('[data-go="lanc"]'));
-          b.addEventListener('click', () => { if (projetos.length > 1) atual = null; return window.OIKOS_IR ? window.OIKOS_IR('negocio') : show(); });
-        }
-        const um = projetos.length === 1;
-        b.innerHTML = um ? `${logo(projetos[0], 40)}<span>${esc(projetos[0].nome.split(' ')[0])}</span>` : `<span class="ng-pilha">${projetos.slice(0, 2).map((p) => logo(p, 34)).join('')}</span><span>Talentos</span>`;
+      if (!b) {
+        b = document.createElement('button'); b.type = 'button'; b.dataset.ng = '1'; b.dataset.go = 'negocio'; b.className = 'ng-navb ng-tal';
+        nav.insertBefore(b, nav.querySelector('[data-go="lanc"]'));
+        b.addEventListener('click', () => { atual = null; return window.OIKOS_IR ? window.OIKOS_IR('negocio') : show(); });
       }
+      b.innerHTML = '<span class="ng-moeda" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#0e4d33" stroke-width="2.2" stroke-linecap="round"><path d="M12 6.5v11"/><path d="M15 9c0-1.3-1.3-2-3-2s-3 .7-3 2 1.3 1.8 3 2.2 3 .9 3 2.3-1.3 2-3 2-3-.7-3-2"/></svg></span><span>Talentos</span>';
     }
     const sheet = document.querySelector('.ob-sheet');
     if (sheet && !sheet.querySelector('[data-ngmerc]')) {
@@ -312,8 +309,8 @@
     const tabs = document.querySelector('.fv-tabs');
     if (tabs) {
       let t = document.getElementById('tab-negocio');
-      if (projetos.length && !t) { t = document.createElement('button'); t.className = 'fv-tab'; t.type = 'button'; t.id = 'tab-negocio'; t.addEventListener('click', show); tabs.appendChild(t); document.querySelectorAll('.fv-tab[data-tab]').forEach((x) => x.addEventListener('click', hide)); }
-      if (t) { t.hidden = !projetos.length; t.textContent = projetos.length === 1 ? '🏷️ ' + projetos[0].nome : '🪙 Talentos'; }
+      if (!t) { t = document.createElement('button'); t.className = 'fv-tab'; t.type = 'button'; t.id = 'tab-negocio'; t.addEventListener('click', show); tabs.appendChild(t); document.querySelectorAll('.fv-tab[data-tab]').forEach((x) => x.addEventListener('click', hide)); }
+      if (t) { t.hidden = false; t.textContent = '🪙 Talentos'; }
     }
   }
   function show() {
@@ -322,7 +319,7 @@
     render(); scrollTo(0, 0); sync();
   }
   function hide() { if (document.body.classList.contains('ng-on')) { document.body.classList.remove('ng-on'); sync(); } }
-  const nome = () => { const p = atual ? achar(atual) : projetos.length === 1 ? projetos[0] : null; return p ? p.nome : 'Meus talentos'; };
+  const nome = () => { const p = atual ? achar(atual) : null; return p ? p.nome : 'Meus talentos'; };
 
   function montar() {
     const dr = document.getElementById('dash-root'); if (!dr || !window.APP || !window.APP.projetos) return;
