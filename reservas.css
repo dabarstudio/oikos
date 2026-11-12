@@ -1,0 +1,25 @@
+/* Denário — reservas dos objetivos e meta de faturamento (Gastos fixos) */
+.rs-meta { background: linear-gradient(160deg, #1d3f6e, #14305a); color: #fff; border-radius: 20px; padding: 18px; margin-bottom: 14px; min-width: 0; }
+.rs-k { margin: 0; font-size: 14px; opacity: .85; font-weight: 600; }
+.rs-big { margin: 2px 0 8px; font-family: Fraunces, Georgia, serif; font-size: 36px; font-weight: 600; line-height: 1.1; }
+.rs-mbar { height: 12px; border-radius: 6px; background: rgba(255,255,255,.18); overflow: hidden; }
+.rs-mbar i { display: block; height: 100%; background: #f2b83a; border-radius: 6px; }
+.rs-s { margin: 8px 0 10px; font-size: 14.5px; } .rs-falta { color: #ffd98a; }
+.rs-comp { list-style: none; margin: 0; padding: 10px 0 0; border-top: 1px solid rgba(255,255,255,.2); display: grid; gap: 6px; font-size: 14px; }
+.rs-comp li { display: flex; justify-content: space-between; gap: 10px; } .rs-comp span { opacity: .9; }
+.rs-dica { margin: 12px 0 0; font-size: 14px; line-height: 1.45; background: rgba(255,255,255,.1); border-radius: 12px; padding: 10px 12px; }
+.rs-card { background: #eef5fc !important; border: 1.5px solid #9cc3ea !important; }
+.rs-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.rs-h h3 { margin: 0; color: #1d3f6e; } .rs-h span { font-weight: 800; color: #1d3f6e; font-size: 16px; }
+.rs-it { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid #cfe0f2; }
+.rs-e { font-size: 22px; } .rs-n { display: grid; gap: 3px; min-width: 0; } .rs-n b { font-size: 15px; overflow-wrap: anywhere; } .rs-n small { font-size: 12.5px; color: #4b6584; }
+.rs-bar { display: block; height: 6px; border-radius: 3px; background: #d4e4f4; overflow: hidden; } .rs-bar i { display: block; height: 100%; background: #2c6fb7; }
+.rs-v { text-align: right; font-weight: 800; color: #1d3f6e; white-space: nowrap; } .rs-v small { font-weight: 600; font-size: 12px; color: #4b6584; }
+.rs-bens { opacity: .8; }
+.rs-tot { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; margin-top: 10px; padding: 12px; border-radius: 14px; background: #fff; font-size: 14px; }
+.rs-tot .rs-tt { font-weight: 800; font-size: 15.5px; color: #1d3f6e; border-top: 1px solid #cfe0f2; padding-top: 6px; }
+.rs-vazio { font-size: 14.5px; color: #4b6584; }
+.rs-btn { font: inherit; width: 100%; min-height: 44px; margin-top: 12px; border-radius: 12px; border: 1.5px dashed #2c6fb7; background: transparent; color: #1d3f6e; font-weight: 700; font-size: 15px; }
+.rs-btn2 { border: 0; background: #f2b83a; color: #1d2a22; }
+body.oikos-simples [data-go="fixos"], body.oikos-simples #tab-fixos { display: revert !important; }
+body.oikos-simples #card-fixos { display: none; }

@@ -41,6 +41,7 @@
   }
 
   function render() {
+    try { document.dispatchEvent(new CustomEvent('oikos:objetivos', { detail: lista })); } catch (e) { /* ok */ }
     if (!root) return;
     const chips = [['todos', '✨', 'Todos'], ...PES()].map(([k, e, n]) => `<button type="button" class="ob-chip${filtro === k ? ' on' : ''}" data-f="${k}"><span class="og-ci">${e}</span>${n}</button>`).join('');
     const vis = lista.filter((o) => filtro === 'todos' || o.pessoa === filtro);
