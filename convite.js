@@ -1,6 +1,6 @@
 // Denário — convidar pessoas pelo WhatsApp: abre o WhatsApp com uma mensagem pronta e o link da página do Denário.
 (function () {
-  const LINK = 'https://dabarstudio.github.io/oikos/conheca.html';
+  const LINK = 'https://dabarstudio.github.io/denario/conheca.html';
   const TEXTO = 'Oi! Estou usando o Denário, um app de finanças da família à luz da Bíblia. Ele mostra quanto ainda dá pra gastar no mês, anota gasto falando ou com foto da notinha e traz uma pílula de sabedoria por dia. Dá uma olhada: ' + LINK;
   function whats() { location.href = 'https://wa.me/?text=' + encodeURIComponent(TEXTO); }
   async function outros(btn) {
