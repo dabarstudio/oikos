@@ -1,0 +1,57 @@
+/* Denário — Patrimônio: resumo, galeria de bens e cadastro com foto */
+#bn-topo { display: grid; gap: 12px; margin-bottom: 14px; min-width: 0; }
+.bn-hero { background: linear-gradient(160deg, #0e5a3a, #0b4430); color: #fff; border-radius: 20px; padding: 18px; min-width: 0; }
+.bn-k { margin: 0; font-size: 14px; opacity: .85; }
+.bn-pl { margin: 2px 0 4px; font-family: Fraunces, Georgia, serif; font-size: 36px; font-weight: 600; line-height: 1.1; }
+.bn-s { margin: 0 0 14px; font-size: 14px; line-height: 1.4; opacity: .9; }
+.bn-pend { color: #ffd98a; }
+.bn-bar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; gap: 2px; background: rgba(255,255,255,.15); }
+.bn-bar i { display: block; min-width: 3px; }
+.bn-leg { list-style: none; margin: 10px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 12px; font-size: 13px; }
+.bn-leg li { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.bn-leg li i { flex: none; width: 10px; height: 10px; border-radius: 3px; border: 1px solid rgba(255,255,255,.5); }
+.bn-leg li b { margin-left: auto; font-weight: 700; }
+.bn-add { font: inherit; display: grid; gap: 2px; text-align: left; width: 100%; padding: 14px 16px; border-radius: 16px; border: 0; background: var(--sv-orange, #c4512a); color: #fff; font-size: 17px; font-weight: 700; box-shadow: 0 3px 10px rgba(196,81,42,.25); }
+.bn-add small { font-size: 13.5px; font-weight: 500; opacity: .92; }
+.bn-como { margin: 0 0 10px; font-size: 14px; }
+.bn-como summary { cursor: pointer; color: var(--sv-green); font-weight: 600; padding: 4px 0; }
+#bn-gal { display: grid; gap: 10px; margin: 12px 0; min-width: 0; }
+@media (min-width: 900px) { #bn-gal { grid-template-columns: repeat(2, minmax(0, 1fr)); } #bn-gal .bn-add2 { grid-column: 1 / -1; } }
+.bn-it { font: inherit; color: inherit; text-align: left; width: 100%; display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: 16px; border: 1.5px solid var(--color-border-line); background: var(--color-bg); min-width: 0; box-sizing: border-box; position: relative; }
+.bn-it.bn-logo { border-color: #e0a100; }
+.bn-it.bn-venc { border-color: #d9534f; background: #fbeeed; }
+.bn-foto { flex: none; width: 64px; height: 64px; border-radius: 12px; background: #efe9dc center/cover no-repeat; }
+.bn-emo { display: flex; align-items: center; justify-content: center; font-size: 30px; }
+.bn-tx { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.bn-tx > b { font-size: 15.5px; line-height: 1.25; overflow-wrap: anywhere; }
+.bn-tx > b small { color: var(--color-fg-muted); font-weight: 600; }
+.bn-vl { font-size: 14px; } .bn-vl small { color: var(--color-fg-muted); }
+.bn-vida { display: block; height: 6px; border-radius: 3px; background: color-mix(in srgb, var(--color-fg) 9%, transparent); overflow: hidden; }
+.bn-vida i { display: block; height: 100%; background: var(--sv-green); border-radius: 3px; }
+.bn-logo .bn-vida i { background: #e0a100; } .bn-venc .bn-vida i { background: #d9534f; }
+.bn-q { font-size: 12.5px; color: var(--color-fg-muted); line-height: 1.35; }
+.bn-venc .bn-q { color: #b3261e; font-weight: 700; }
+.bn-ed { position: absolute; top: 8px; right: 10px; font-size: 13px; opacity: .6; }
+.bn-vazio { margin: 0; font-size: 14.5px; color: var(--color-fg-muted); }
+/* a tabela detalhada fica só no computador */
+@media (max-width: 760px) { #card-bens .fv-scroll { display: none; } }
+/* família sem planilha: mostra só os bens */
+body.oikos-simples [data-go="patrimonio"], body.oikos-simples #tab-patrimonio { display: revert !important; }
+body.oikos-simples #patrimonio > .fv-kpis, body.oikos-simples #patrimonio .fv-bp, body.oikos-simples #card-ind, body.oikos-simples #card-bens .fv-kpis { display: none !important; }
+/* cadastro */
+.bn-sheet { z-index: 63; }
+body.bn-open .bn-sheet { pointer-events: auto; }
+body.bn-open .bn-sheet .vc-scrim { opacity: 1; }
+body.bn-open .bn-sheet .vc-panel { transform: none; }
+.bn-cam { display: flex; align-items: center; justify-content: center; text-align: center; min-height: 150px; border-radius: 16px; border: 2px dashed var(--sv-green); background: #f1f6f2 center/cover no-repeat; cursor: pointer; margin: 4px 0 12px; }
+.bn-cam span { display: grid; gap: 4px; font-weight: 700; font-size: 17px; color: var(--sv-green); }
+.bn-cam span small { font-weight: 500; font-size: 13.5px; color: var(--color-fg-muted); }
+.bn-cam.tem { border-style: solid; min-height: 190px; align-items: flex-end; padding: 10px; }
+.bn-cam.tem span { background: rgba(255,255,255,.92); border-radius: 999px; padding: 6px 14px; font-size: 14px; }
+.bn-2 { display: grid; grid-template-columns: minmax(0, 1fr) 90px; gap: 10px; }
+.bn-prev { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 12px 0; }
+.bn-prev span { background: #f6ecd2; border-radius: 12px; padding: 8px; font-size: 12.5px; color: #6b5a2c; display: grid; gap: 2px; min-width: 0; }
+.bn-prev b { font-size: 15px; color: #3d3216; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bn-prev0 { display: block; font-size: 13.5px; color: var(--color-fg-muted); background: none; padding: 0; }
+.bn-del.conf { background: #d9534f !important; color: #fff !important; border-color: #d9534f !important; }
+#patrimonio > .fv-kpis .fv-kpi:nth-child(-n+2) { display: none; }

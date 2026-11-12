@@ -57,8 +57,39 @@
     for (const l of limites) if (!data.some((x) => x.nivel === l.nivel && x.chave === l.chave)) data.push({ id: l.nivel + ':' + l.chave, nivel: l.nivel, chave: l.chave, valor_meta: +l.valor_meta, tipo: 'teto', mae_pai: null, nota: 'ajustado no app' });
     return rows.map((r) => (r === m ? { ...m, data } : r));
   }
+  // ---------- bens cadastrados no app: mesma conta da planilha (linear, 10% residual, reposição +4,5% a.a.) ----------
+  let bensApp = [];
+  function calcBem(b, hoje) {
+    hoje = hoje || new Date();
+    const pago = b.valor_compra != null ? Number(b.valor_compra) * (b.qtd || 1) : null;
+    const dt = b.data_aquisicao ? new Date(b.data_aquisicao + 'T12:00:00') : hoje;
+    const vida = Number(b.vida_util) || 8;
+    const idade = Math.max(0, (hoje - dt) / (365.25 * 864e5));
+    const r2 = (x) => Math.round(x * 100) / 100;
+    const atual = pago == null ? null : r2(pago - pago * 0.9 * Math.min(1, idade / vida));
+    const ren = new Date(dt); ren.setFullYear(ren.getFullYear() + vida);
+    const prov = pago == null ? null : r2(pago * Math.pow(1.045, Math.max(vida, idade)) / (vida * 12));
+    return { item: b.item, grupo: b.grupo || 'Cadastrado no app', qtd: b.qtd || 1, valor_compra: pago, data_aquisicao: b.data_aquisicao || null, vida_util: vida, valor_atual: atual,
+      renovar_em: ren.getFullYear() + '-' + String(ren.getMonth() + 1).padStart(2, '0'), provisao_mes: prov, obs: b.obs || '', app_id: b.id, foto_path: b.foto_path || null };
+  }
+  function mesclarBens(rows) {
+    if (!bensApp.length) return rows;
+    const extra = bensApp.map((b) => calcBem(b));
+    const soma = extra.reduce((a, b) => a + (b.valor_atual || 0), 0);
+    return rows.map((r) => {
+      if (r.id === 'bens') return { ...r, data: [...r.data, ...extra] };
+      if (r.id === 'balanco' && r.data.length) {
+        const sobe = (x) => /^Bens da casa|^Imobilizado$|^ATIVO NÃO CIRCULANTE$|^TOTAL DO ATIVO$|^PATRIMÔNIO LÍQUIDO$|^TOTAL PASSIVO \+ PL$/.test(x.item);
+        return { ...r, data: r.data.map((x) => (sobe(x) && x.valor != null ? { ...x, valor: Math.round((x.valor + soma) * 100) / 100 } : x)) };
+      }
+      return r;
+    });
+  }
+  async function carregarBens() {
+    try { bensApp = await window.APP.bens.listar(); } catch (e) { bensApp = []; }
+  }
   function setDados(rows) {
-    rows = aplicarLimites(rows);
+    rows = mesclarBens(aplicarLimites(rows));
     for (const id of DATASETS) store.set(id, { status: 'missing', data: [] });
     for (const r of rows) store.set(r.id, { status: 'ok', data: r.data });
     dataVer += 1; memo.clear();
@@ -99,7 +130,7 @@
         let fam = null; try { fam = JSON.parse(localStorage.getItem('oikos-fam') || 'null'); } catch (e) { /* vazio */ }
         if (!fam) { $('sv-upd').textContent = ''; if (window.OIKOS_ONBOARD) window.OIKOS_ONBOARD.abrir(); return; }
         try { limites = JSON.parse(localStorage.getItem('oikos-lim') || '[]'); } catch (e) { limites = []; }
-        document.body.classList.add('oikos-simples'); await rotuloFilhos(); setDados(inicial());
+        document.body.classList.add('oikos-simples'); await rotuloFilhos(); await carregarBens(); setDados(inicial());
         $('sv-upd').textContent = 'Demonstração (família nova)'; $('sv-who').textContent = fam.nome; titulo(fam.nome);
         return;
       }
@@ -109,7 +140,7 @@
           return { id, data: await r.json() };
         }));
         try { limites = JSON.parse(localStorage.getItem('oikos-lim') || '[]'); } catch (e) { limites = []; }
-        setDados(rows.filter(Boolean));
+        await carregarBens(); setDados(rows.filter(Boolean));
         $('sv-upd').textContent = 'Modo demonstração (dados locais)';
         $('sv-who').textContent = 'Família Sanches Vital';
         return;
@@ -126,7 +157,7 @@
       try { const lr = await sb.from('limites').select('nivel, chave, valor_meta').eq('household_id', household.id); limites = lr.data || []; } catch (e) { limites = []; }
       const simples = !data.some((d) => d.id === 'mensal');
       document.body.classList.toggle('oikos-simples', simples);
-      setDados(simples ? inicial() : data);
+      await carregarBens(); setDados(simples ? inicial() : data);
       const ult = data.map((d) => d.updated_at).sort().pop();
       $('sv-upd').textContent = simples ? '' : ult ? 'Dados atualizados em ' + new Date(ult).toLocaleDateString('pt-BR') : '';
     } catch (e) {
@@ -256,6 +287,48 @@
         if (up.error) throw up.error;
         return sb.storage.from('logos').getPublicUrl(nome).data.publicUrl;
       },
+    },
+    bens: {
+      _ls() { try { return JSON.parse(localStorage.getItem('oikos-bens') || '[]'); } catch (e) { return []; } },
+      _sv(l) { try { localStorage.setItem('oikos-bens', JSON.stringify(l)); } catch (e) { /* ignora */ } },
+      _local: demo,
+      calc: (b) => calcBem(b),
+      async listar() {
+        if (!this._local) {
+          const { data, error } = await sb.from('bens_app').select('*').eq('household_id', household.id).order('criado_em');
+          if (!error) return data; this._local = true;
+        }
+        return this._ls();
+      },
+      async salvar(b, foto) {
+        let foto_path = b.foto_path || null;
+        if (foto && !this._local) {
+          const nome = household.id + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 7) + '.jpg';
+          const up = await sb.storage.from('bens').upload(nome, foto, { contentType: 'image/jpeg', upsert: false });
+          if (!up.error) foto_path = nome;
+        } else if (foto) {
+          foto_path = await new Promise((ok) => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.readAsDataURL(foto); });
+        }
+        const row = { item: b.item, grupo: b.grupo || null, qtd: b.qtd || 1, valor_compra: b.valor_compra, data_aquisicao: b.data_aquisicao || null, vida_util: b.vida_util || 8, foto_path, obs: b.obs || null, dono: b.dono || null, atualizado_em: new Date().toISOString() };
+        if (!this._local) {
+          const r = b.id ? await sb.from('bens_app').update(row).eq('id', b.id) : await sb.from('bens_app').insert({ ...row, household_id: household.id });
+          if (r.error) throw r.error;
+        } else {
+          const l = this._ls(); if (b.id) { const i = l.findIndex((x) => x.id === b.id); if (i >= 0) l[i] = { ...l[i], ...row }; } else l.push({ ...row, id: 'b' + Date.now() }); this._sv(l);
+        }
+        await carregar();
+      },
+      async remover(id) {
+        if (!this._local) { const r = await sb.from('bens_app').delete().eq('id', id); if (r.error) throw r.error; }
+        else this._sv(this._ls().filter((x) => x.id !== id));
+        await carregar();
+      },
+      async fotoUrl(path) {
+        if (!path) return null; if (/^data:|^https?:/.test(path)) return path;
+        if (this._local) return null;
+        const { data } = await sb.storage.from('bens').createSignedUrl(path, 3600); return data && data.signedUrl;
+      },
+      lista: () => bensApp,
     },
     vales: {
       _ls() { try { return JSON.parse(localStorage.getItem('oikos-val') || '[]'); } catch (e) { return []; } },
