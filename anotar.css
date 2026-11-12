@@ -41,3 +41,4 @@ body.ag-open .ag-sheet { pointer-events: auto; } body.ag-open .ag-scrim { opacit
 .ag-acts { display: flex; gap: 4px; }
 .ag-edit { font: inherit; font-size: 18px; background: none; border: 0; padding: 6px; border-radius: 10px; }
 .ag-it { grid-template-columns: 32px minmax(0, 1fr) auto auto !important; }
+.ag-pinfo { margin: 6px 0 0; font-size: 14px; background: #fff4d6; border-radius: 10px; padding: 8px 10px; line-height: 1.4; }

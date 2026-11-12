@@ -371,3 +371,7 @@ create policy "bens: ver foto" on storage.objects for select to authenticated
 drop policy if exists "bens: apagar foto" on storage.objects;
 create policy "bens: apagar foto" on storage.objects for delete to authenticated
   using (bucket_id = 'bens' and (storage.foldername(name))[1] in (select public.minhas_familias()::text));
+
+-- Denário — compras parceladas no cartão
+alter table public.gastos_app add column if not exists parcelas int not null default 1;
+alter table public.gastos_app add column if not exists parcela1 date;

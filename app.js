@@ -85,11 +85,40 @@
       return r;
     });
   }
+  // compras parceladas no cartão (anotadas no app): o que falta pagar vira dívida de curto prazo
+  let parcelados = [];
+  async function carregarParcelas() {
+    try {
+      if (demo) { parcelados = window.APP.gastos._ls().filter((g) => g.parcelas > 1); return; }
+      const { data, error } = await sb.from('gastos_app').select('id, data, valor, descricao, parcelas, parcela1, conta').eq('household_id', household.id).gt('parcelas', 1);
+      parcelados = error ? [] : data;
+    } catch (e) { parcelados = []; }
+  }
+  function aPagar(g, hoje) {
+    hoje = hoje || new Date().toISOString().slice(0, 10);
+    const n = Number(g.parcelas) || 1; let p1 = g.parcela1;
+    if (!p1) { const x = new Date(g.data + 'T12:00:00'); x.setMonth(x.getMonth() + 1); p1 = x.toISOString().slice(0, 10); }
+    let pagas = 0; for (let k = 0; k < n; k += 1) { const d = new Date(p1 + 'T12:00:00'); d.setMonth(d.getMonth() + k); if (d.toISOString().slice(0, 10) < hoje) pagas += 1; }
+    return Math.round(Number(g.valor) * (n - pagas) / n * 100) / 100;
+  }
+  function mesclarParcelas(rows) {
+    const total = parcelados.reduce((s, g) => s + aPagar(g), 0); if (!total) return rows;
+    return rows.map((r) => {
+      if (r.id !== 'balanco' || !r.data.length) return r;
+      const pc = r.data.find((x) => x.item === 'PASSIVO CIRCULANTE'); if (!pc) return r;
+      const lista = parcelados.filter((g) => aPagar(g) > 0).map((g) => `${(g.descricao || 'compra').split(' · ')[0]} ${g.parcelas}x`).join(', ');
+      const linha = { ordem: pc.ordem + 0.5, lado: pc.lado, nivel: 1, grupo: 'PASSIVO CIRCULANTE', item: 'Compras parceladas no cartão a pagar (' + lista + ')', valor: Math.round(total * 100) / 100, a_informar: false };
+      const data = r.data.map((x) => (x.item === 'PASSIVO CIRCULANTE' ? { ...x, valor: Math.round(((x.valor || 0) + total) * 100) / 100 } : x.item === 'PATRIMÔNIO LÍQUIDO' && x.valor != null ? { ...x, valor: Math.round((x.valor - total) * 100) / 100 } : x));
+      data.splice(data.indexOf(data.find((x) => x.item === 'PASSIVO CIRCULANTE')) + 1, 0, linha);
+      return { ...r, data };
+    });
+  }
   async function carregarBens() {
+    await carregarParcelas();
     try { bensApp = await window.APP.bens.listar(); } catch (e) { bensApp = []; }
   }
   function setDados(rows) {
-    rows = mesclarBens(aplicarLimites(rows));
+    rows = mesclarParcelas(mesclarBens(aplicarLimites(rows)));
     for (const id of DATASETS) store.set(id, { status: 'missing', data: [] });
     for (const r of rows) store.set(r.id, { status: 'ok', data: r.data });
     dataVer += 1; memo.clear();
@@ -212,7 +241,10 @@
       async salvar(g) {
         if (demo) { const l = this._ls(); l.unshift({ ...g, id: 'g' + Date.now(), criado_em: new Date().toISOString() }); this._sv(l); return; }
         const { data: u } = await sb.auth.getUser();
-        const { error } = await sb.from('gastos_app').insert({ ...g, household_id: household.id, pessoa: g.pessoa || minhaPessoa || (u && u.user && u.user.email.startsWith('jheniffer') ? 'jheniffer' : u && u.user ? u.user.email.split('@')[0] : null) });
+        const semParc = (x) => { const { parcelas, parcela1, ...r } = x; if (parcelas > 1) r.descricao = (r.descricao || '') + ' · ' + parcelas + 'x, 1ª em ' + String(parcela1).split('-').reverse().join('/'); return r; };
+        const pes = g.pessoa || minhaPessoa || (u && u.user && u.user.email.startsWith('jheniffer') ? 'jheniffer' : u && u.user ? u.user.email.split('@')[0] : null);
+        let { error } = await sb.from('gastos_app').insert({ ...g, household_id: household.id, pessoa: pes });
+        if (error && /parcela/.test(error.message || '')) ({ error } = await sb.from('gastos_app').insert({ ...semParc(g), household_id: household.id, pessoa: pes }));
         if (error) throw error;
       },
       async apagar(id) {
@@ -226,7 +258,9 @@
       },
       async atualizar(id, campos) {
         if (demo) { this._sv(this._ls().map((x) => (x.id === id ? { ...x, ...campos } : x))); return; }
-        const { error } = await sb.from('gastos_app').update(campos).eq('id', id); if (error) throw error;
+        let { error } = await sb.from('gastos_app').update(campos).eq('id', id);
+        if (error && /parcela/.test(error.message || '')) { const { parcelas, parcela1, ...r } = campos; if (parcelas > 1) r.descricao = (r.descricao || '') + ' · ' + parcelas + 'x, 1ª em ' + String(parcela1).split('-').reverse().join('/'); ({ error } = await sb.from('gastos_app').update(r).eq('id', id)); }
+        if (error) throw error;
       },
     },
     familia: {

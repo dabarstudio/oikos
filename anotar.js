@@ -40,6 +40,8 @@
         <p class="ag-q">${c[1]} ${BRL.format(f.valor)} <small>${c[2]}</small></p>
         <p class="ag-l">Como pagou?</p><div class="ag-ops">${FORMAS.map(([k, e, n]) => `<button type="button" data-forma="${k}" class="${f.forma === k ? 'on' : ''}">${e} ${n}</button>`).join('')}</div>
         ${f.forma !== 'dinheiro' ? '<p class="ag-l">De qual conta saiu?</p><div id="ag-bk"></div>' : ''}
+        ${f.forma === 'credito' ? `<p class="ag-l">Em quantas vezes?</p><div class="ag-ops">${[1, 2, 3, 4, 5, 6, 10, 12].map((n) => `<button type="button" data-parc="${n}" class="${(f.parcelas || 1) === n ? 'on' : ''}">${n === 1 ? 'À vista' : n + 'x'}</button>`).join('')}</div>
+          ${(f.parcelas || 1) > 1 ? `<p class="ag-pinfo">${f.parcelas}x de <b>${BRL.format(f.valor / f.parcelas)}</b> · entra nas dívidas de curto prazo até a última parcela</p><label class="ag-l">1ª parcela vence em<input type="date" id="ag-p1" class="sv-in" value="${f.parcela1 || prox(f.data)}"></label>` : ''}` : ''}
         <p class="ag-l">Quando?</p><div class="ag-ops"><button type="button" data-dia="${hoje()}" class="${f.data === hoje() ? 'on' : ''}">Hoje</button><button type="button" data-dia="${ontem()}" class="${f.data === ontem() ? 'on' : ''}">Ontem</button><input type="date" id="ag-data" value="${f.data}" max="${hoje()}"></div>
         ${f.envelope === 'revenda' ? `<div class="ag-rv"><p class="ag-l">🪙 Gasto de talento (negócio) — não entra nos envelopes da casa.</p>${projChips(f)}
           <label class="ag-l">Vendeu para quem? <small>(se já vendeu)</small><input id="ag-vpara" class="sv-in" value="${f.venda_para.replace(/"/g, '&quot;')}" placeholder="Ex.: Carlos Henrique" maxlength="50"></label>
@@ -61,7 +63,9 @@
     return `<p class="ag-l">Qual talento?</p><div class="ag-ops pj-esc">${ps.map((p) => `<button type="button" data-proj="${p.id}" class="${String(o.projeto_id) === String(p.id) ? 'on' : ''}">${window.OIKOS_PROJ.logo(p, 22)} ${p.nome.replace(/</g, '&lt;')}</button>`).join('')}</div>`;
   }
   window.OIKOS_PROJ_CHIPS = projChips;
+  function prox(d) { const x = new Date((d || hoje()) + 'T12:00:00'); x.setMonth(x.getMonth() + 1); return x.toISOString().slice(0, 10); }
   function lerCampos() {
+    const p1 = document.getElementById('ag-p1'); if (p1 && p1.value) f.parcela1 = p1.value;
     const d = document.getElementById('ag-desc'); if (d) f.descricao = d.value;
     const q = document.getElementById('ag-quem'); if (q) f.reembolso_de = q.value;
     const dt = document.getElementById('ag-data'); if (dt && dt.value) f.data = dt.value;
@@ -76,6 +80,7 @@
     if (b.hasAttribute('data-back')) { lerCampos(); f.passo = f.preset && f.passo === 3 ? 1 : f.passo - 1; return passo(); }
     if (b.dataset.env) { f.envelope = b.dataset.env; f.reembolsar = false; f.passo = 3; return passo(); }
     if (b.dataset.forma) { lerCampos(); f.forma = b.dataset.forma; return passo(); }
+    if (b.dataset.parc) { lerCampos(); f.parcelas = +b.dataset.parc; if (f.parcelas > 1 && !f.parcela1) f.parcela1 = prox(f.data); return passo(); }
     if (b.dataset.dia) { lerCampos(); f.data = b.dataset.dia; return passo(); }
     if (b.dataset.proj) { lerCampos(); f.projeto_id = b.dataset.proj; return passo(); }
     if (b.dataset.vrec) { lerCampos(); f.venda_recebido = b.dataset.vrec === '1'; return passo(); }
@@ -83,7 +88,8 @@
     if (b.hasAttribute('data-salvar')) {
       lerCampos(); b.disabled = true; b.textContent = 'Anotando…';
       try {
-        const campos = { data: f.data, valor: f.valor, envelope: f.envelope, descricao: f.descricao || cat(f.envelope)[2], forma: f.forma, reembolsar: f.reembolsar, reembolso_de: f.reembolsar ? (f.reembolso_de || null) : null, conta: f.forma === 'dinheiro' ? null : f.conta, ...(f.envelope === 'revenda' ? { venda_para: f.venda_para || null, venda_valor: num(f.venda_valor) || null, venda_recebido: f.venda_recebido, venda_em: num(f.venda_valor) ? f.data : null, projeto_id: f.projeto_id || null } : {}) };
+        const parc = f.forma === 'credito' && (f.parcelas || 1) > 1 ? { parcelas: f.parcelas, parcela1: f.parcela1 || prox(f.data) } : { parcelas: 1, parcela1: null };
+        const campos = { ...parc, data: f.data, valor: f.valor, envelope: f.envelope, descricao: f.descricao || cat(f.envelope)[2], forma: f.forma, reembolsar: f.reembolsar, reembolso_de: f.reembolsar ? (f.reembolso_de || null) : null, conta: f.forma === 'dinheiro' ? null : f.conta, ...(f.envelope === 'revenda' ? { venda_para: f.venda_para || null, venda_valor: num(f.venda_valor) || null, venda_recebido: f.venda_recebido, venda_em: num(f.venda_valor) ? f.data : null, projeto_id: f.projeto_id || null } : {}) };
         if (f.editId) await window.APP.gastos.atualizar(f.editId, campos); else await window.APP.gastos.salvar(campos);
         sh.querySelector('.ag-body').innerHTML = `<div class="ag-big">✅</div><p class="ag-q" style="text-align:center">${f.editId ? 'Alterado!' : 'Anotado!'}</p>
           <p class="ag-s">${cat(f.envelope)[1]} ${BRL.format(f.valor)} em ${cat(f.envelope)[2]}${f.reembolsar ? ' · <b>a receber de ' + (f.reembolso_de || 'alguém') + '</b> (não conta nos envelopes)' : ''}${f.envelope === 'revenda' && num(f.venda_valor) ? ' · lucro de <b>' + BRL.format(num(f.venda_valor) - f.valor) + '</b>' : ''}.</p>
@@ -104,7 +110,7 @@
     if (!lista.length) { box.innerHTML = ''; return; }
     box.innerHTML = '<h3>Anotados no app <small>ainda não chegaram pelo extrato</small></h3>' + lista.slice(0, 20).map((g) => {
       const c = cat(g.envelope); const d = g.data.split('-').reverse().slice(0, 2).join('/');
-      return `<div class="ag-it"><span class="ag-ie">${c[1]}</span><span class="ag-in"><b>${g.descricao || c[2]}</b><small>${d} · ${(FORMAS.find((x) => x[0] === g.forma) || ['', '', g.forma])[2]}${g.conta ? ' · ' + g.conta : ''}${g.reembolsar ? ' · <em>a receber de ' + (g.reembolso_de || '?') + '</em>' : ''}</small></span><span class="ag-iv">${BRL.format(g.valor)}</span><span class="ag-acts"><button type="button" class="ag-edit" data-edit="${g.id}" aria-label="Editar">✏️</button><button type="button" class="ag-del" data-del="${g.id}" aria-label="Apagar">🗑️</button></span></div>`;
+      return `<div class="ag-it"><span class="ag-ie">${c[1]}</span><span class="ag-in"><b>${g.descricao || c[2]}</b><small>${d} · ${(FORMAS.find((x) => x[0] === g.forma) || ['', '', g.forma])[2]}${g.conta ? ' · ' + g.conta : ''}${g.parcelas > 1 ? ' · <em>' + g.parcelas + 'x de ' + BRL.format(g.valor / g.parcelas) + '</em>' : ''}${g.reembolsar ? ' · <em>a receber de ' + (g.reembolso_de || '?') + '</em>' : ''}</small></span><span class="ag-iv">${BRL.format(g.valor)}</span><span class="ag-acts"><button type="button" class="ag-edit" data-edit="${g.id}" aria-label="Editar">✏️</button><button type="button" class="ag-del" data-del="${g.id}" aria-label="Apagar">🗑️</button></span></div>`;
     }).join('');
   }
 
@@ -120,7 +126,7 @@
     document.addEventListener('click', (e) => {
       const ed = e.target.closest('.ag-edit'); if (!ed) return;
       const g = lista.find((x) => String(x.id) === ed.dataset.edit); if (!g) return;
-      abrir({ editId: g.id, prefill: { valor: Number(g.valor), envelope: g.envelope, forma: g.forma || 'pix', data: g.data, descricao: g.descricao || '', conta: g.conta || null, reembolsar: !!g.reembolsar, reembolso_de: g.reembolso_de || 'Vital', venda_para: g.venda_para || '', venda_valor: g.venda_valor || '', venda_recebido: !!g.venda_recebido, projeto_id: g.projeto_id || null } });
+      abrir({ editId: g.id, prefill: { valor: Number(g.valor), envelope: g.envelope, forma: g.forma || 'pix', data: g.data, descricao: g.descricao || '', conta: g.conta || null, reembolsar: !!g.reembolsar, reembolso_de: g.reembolso_de || 'Vital', venda_para: g.venda_para || '', venda_valor: g.venda_valor || '', venda_recebido: !!g.venda_recebido, projeto_id: g.projeto_id || null, parcelas: g.parcelas || 1, parcela1: g.parcela1 || null } });
     });
     document.addEventListener('click', async (e) => {
       const d = e.target.closest('.ag-del'); if (!d) return;
