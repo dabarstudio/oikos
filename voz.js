@@ -38,6 +38,7 @@
 
   // ---------- categorias, forma, conta ----------
   const CAT = [
+    ['dizimo', /dizimo|oferta|igreja|missoes|contribuicao/],
     ['revenda', /revend|quickbox|para o projeto|do projeto/],
     ['acougue', /acougue|carne|frango|linguica|picanha/],
     ['combustivel', /gasolina|combustivel|etanol|alcool no carro|abasteci|posto|diesel/],
@@ -105,7 +106,7 @@
   }
 
   // ---------- tela ----------
-  const NOMES = { mercado: '🛒 Mercado', acougue: '🥩 Açougue', comerfora: '🍔 Comer fora', combustivel: '⛽ Combustível', transporte: '🚌 Ônibus / Uber', saude: '💊 Saúde', abner: '👶 Filhos', casa: '🏠 Casa', lazer: '🎁 Lazer', revenda: '🚀 Projeto', outros: '📦 Outros' };
+  const NOMES = { mercado: '🛒 Mercado', acougue: '🥩 Açougue', comerfora: '🍔 Comer fora', combustivel: '⛽ Combustível', transporte: '🚌 Ônibus / Uber', saude: '💊 Saúde', abner: '👶 Filhos', casa: '🏠 Casa', lazer: '🎁 Lazer', dizimo: '🙏 Dízimo / Ofertas', revenda: '🚀 Projeto', outros: '📦 Outros' };
   const FORMAS = { pix: '⚡ PIX', debito: '🏦 Débito', credito: '💳 Crédito', dinheiro: '💵 Dinheiro' };
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   let sh, rec = null, ouvindo = false, srFalhou = false;

@@ -4,7 +4,7 @@
   const CATS = [
     ['mercado', '🛒', 'Mercado'], ['acougue', '🥩', 'Açougue'], ['comerfora', '🍔', 'Comer fora'], ['combustivel', '⛽', 'Combustível'],
     ['transporte', '🚌', 'Ônibus / Uber'], ['saude', '💊', 'Saúde / Farmácia'], ['abner', '👶', 'Abner'], ['casa', '🏠', 'Casa'],
-    ['lazer', '🎁', 'Lazer / Presentes'], ['revenda', '🪙', 'Talento / revenda'], ['outros', '📦', 'Outros'],
+    ['lazer', '🎁', 'Lazer / Presentes'], ['dizimo', '🙏', 'Dízimo / Ofertas'], ['revenda', '🪙', 'Talento / revenda'], ['outros', '📦', 'Outros'],
   ];
   // envelope do app → (nível, chave) da planilha, para somar nos envelopes do Início
   const MAPA = { mercado: ['conta', 'MERCADO'], acougue: ['conta', 'AÇOUGUE'], comerfora: ['conta', 'ALIMENTAÇÃO FORA'], combustivel: ['mae', 'VEÍCULO E TRANSPORTE'],
