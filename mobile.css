@@ -176,3 +176,21 @@ body.ob-logout .ob-nav, body.ob-logout .ob-sheet, body.ob-logout .ob-scrim { dis
   table.fv-tbl.ob-stack td.ob-vazio, table.fv-tbl.ob-stack td.fv-hide-sm { display: none !important; }
   table.ob-stack tr.filha td:first-child { padding-left: 0 !important; }
 }
+@media (max-width: 760px) {
+  /* extrato: a conta (2ª coluna) não pode empurrar a descrição */
+  #tb-lanc tr { grid-template-columns: minmax(0, 1fr) auto; }
+  #tb-lanc td:nth-child(3) { max-width: 42vw; white-space: normal !important; overflow-wrap: anywhere; }
+  /* lista de compras: cada item vira uma linha de 2 andares — ✓ | item ……… subtotal / qtd */
+  .fv-tbl:has(input[type=checkbox]) { display: block; width: 100% !important; }
+  .fv-tbl:has(input[type=checkbox]) thead { display: none; }
+  .fv-tbl:has(input[type=checkbox]) tbody { display: block; }
+  .fv-tbl:has(input[type=checkbox]) tbody tr { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; grid-template-areas: "ck it st" "ck qt qt"; gap: 4px 10px; align-items: center; padding: 10px 2px; border-bottom: 1px solid var(--color-border-line); }
+  .fv-tbl:has(input[type=checkbox]) tbody tr td { border: 0; padding: 0 !important; font-size: 14.5px !important; }
+  .fv-tbl:has(input[type=checkbox]) td:nth-child(1) { grid-area: ck; }
+  .fv-tbl:has(input[type=checkbox]) td:nth-child(1) input { width: 24px; height: 24px; }
+  .fv-tbl:has(input[type=checkbox]) td:nth-child(2) { grid-area: it; text-align: left; white-space: normal !important; }
+  .fv-tbl:has(input[type=checkbox]) td:nth-child(3) { grid-area: qt; text-align: left; color: var(--color-fg-muted); }
+  .fv-tbl:has(input[type=checkbox]) td:nth-child(5) { grid-area: st; font-weight: 600; }
+  .fv-tbl:has(input[type=checkbox]) tbody tr.res { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: none; }
+  .fv-tbl:has(input[type=checkbox]) tr.res td { grid-area: auto !important; white-space: normal !important; }
+}
