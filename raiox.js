@@ -111,6 +111,11 @@
     return { itens, nota, proj, n };
   }
 
+  const TEMA = { sobra: 'sobra', cheque: 'cheque', reserva: 'reserva', dividas: 'dividas', imob: 'patrimonio', ident: 'ident', plano: 'plano', dizimo: 'dizimo', bens: 'bens' };
+  function verso(k) {
+    const S = window.OIKOS_SAB; if (!S) return '';
+    const p = S.escolher(TEMA[k]); return `<p class="rx-ver">“${esc(p.v)}” <b>${esc(p.r)}</b></p>`;
+  }
   function html() {
     const a = analisar();
     if (!a) return '<p class="rx-vazio">O Raio-X aparece quando a família tiver pelo menos um mês de entradas e saídas registradas. Comece anotando os gastos e o salário. 🙂</p>';
@@ -119,8 +124,9 @@
     const ordem = { mal: 0, atn: 1, ok: 2 };
     return `<div class="rx-top rx-${cor}"><span class="rx-nota">${a.nota}<small>/100</small></span><span><b>Saúde financeira da família</b><small>${frase}</small><small class="rx-base">Com base em ${a.n} meses de extrato.</small></span></div>
       ${[...a.itens].sort((x, y) => ordem[x.nv] - ordem[y.nv]).map((i) => `<details class="rx-it rx-${i.nv}"${i.nv === 'mal' ? ' open' : ''}><summary><span class="rx-ic">${i.ic}</span><span class="rx-tx"><b>${i.t}</b><small>${i.v}</small></span><span class="rx-sem" aria-label="${i.nv === 'ok' ? 'bom' : i.nv === 'atn' ? 'atenção' : 'cuidado'}"></span></summary>
-        <p>${i.s}</p><p class="rx-f"><b>O que fazer:</b> ${i.f}</p></details>`).join('')}
+        <p>${i.s}</p><p class="rx-f"><b>O que fazer:</b> ${i.f}</p>${verso(i.k)}</details>`).join('')}
       ${a.proj}
+      ${window.OIKOS_SAB ? window.OIKOS_SAB.card('planejamento', { titulo: 'Para refletir em família' }) : ''}
       <p class="rx-disc">Análise automática para organizar as finanças da família. Não é recomendação de investimento.</p>`;
   }
 

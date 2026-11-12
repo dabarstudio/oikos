@@ -81,6 +81,7 @@
         <span class="cs-sub">Gastou ${BRL.format(saiu)} de ${BRL.format(teto)} · faltam ${faltamDias} dias</span>
         <p class="cs-msg"><span aria-hidden="true">${st === 'ok' ? '😊' : st === 'warn' ? '⚠️' : '🛑'}</span> ${frase}</p>
       </div>`}
+${window.OIKOS_SAB ? window.OIKOS_SAB.card(hero ? 'planejamento' : st === 'bad' ? 'contentamento' : st === 'warn' ? 'planejamento' : null, { titulo: hero ? 'Sabedoria para começar' : st === 'bad' ? 'Sabedoria para este momento' : 'Sabedoria para hoje' }) : ''}
 <div class="cs-anot">
       <button type="button" class="cs-cta2" data-anotar><span aria-hidden="true">✍️</span><span><b>Anotar gasto</b><small>Gastou em dinheiro, PIX ou cartão? Anote aqui</small></span></button>
       <button type="button" class="cs-voz" data-falar aria-label="Anotar gasto falando"><span aria-hidden="true">🎤</span><small>Falar</small></button></div>

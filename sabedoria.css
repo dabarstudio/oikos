@@ -1,0 +1,17 @@
+/* Denário — pílulas de sabedoria (finanças à luz da Bíblia) */
+.sb-card { background: #f6ecd2; border: 1.5px solid #e6d3a3; border-radius: 18px; padding: 14px 16px; margin: 12px 0; min-width: 0; color: #3d3216; }
+.sb-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.sb-ic { font-size: 18px; }
+.sb-lb { flex: 1; font-size: 12.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #8a6d2b; }
+.sb-sh { font: inherit; font-size: 13px; font-weight: 700; color: #6b5420; background: rgba(255,255,255,.6); border: 1px solid #e0cc98; border-radius: 999px; padding: 5px 12px; }
+.sb-v { margin: 0; font-family: Fraunces, Georgia, serif; font-style: italic; font-size: 18px; line-height: 1.4; overflow-wrap: anywhere; }
+.sb-r { margin: 4px 0 8px; font-size: 13px; font-weight: 700; color: #8a6d2b; }
+.sb-l { margin: 0; font-size: 14.5px; line-height: 1.45; color: #4a3d1c; }
+.sb-mini .sb-v { font-size: 16px; } .sb-mini { padding: 12px 14px; }
+.rx-ver { font-family: Fraunces, Georgia, serif; font-style: italic; font-size: 14.5px; color: #6b5420; border-left: 3px solid #e2a72e; padding: 2px 0 2px 10px; }
+.rx-ver b { font-family: Inter, system-ui, sans-serif; font-style: normal; font-size: 12.5px; display: block; margin-top: 2px; }
+.sb-sheet { z-index: 65; }
+body.sb-open .sb-sheet { pointer-events: auto; } body.sb-open .sb-sheet .vc-scrim { opacity: 1; } body.sb-open .sb-sheet .vc-panel { transform: none; }
+.sb-intro { margin: 0 0 6px; font-size: 14.5px; color: var(--color-fg-muted); }
+.sb-h { font-size: 15px; margin: 18px 0 4px; }
+.bn-hero + .sb-card, #bn-topo .sb-card { margin: 0; }
