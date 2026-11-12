@@ -78,11 +78,21 @@
         <label class="og-f">Quanto precisa? (R$)<input id="og-alvo" class="sv-in" inputmode="decimal" placeholder="Ex.: 10.000" value="${form.valor_alvo || ''}"></label>
         <label class="og-f">Já tem guardado? (R$)<input id="og-gu" class="sv-in" inputmode="decimal" placeholder="0" value="${form.valor_guardado || ''}"></label>
         <p class="og-f">Para quando?</p>
-        <div class="og-prazos">${PRAZOS.map(([m, n]) => `<button type="button" data-m="${m}" class="${prazoSel == m ? 'on' : ''}">${n}</button>`).join('')}${form.prazo && !form.meses ? `<button type="button" class="on" data-m="">${MES[+form.prazo.slice(5, 7) - 1]}/${form.prazo.slice(0, 4)}</button>` : ''}</div>
+        <div class="og-prazos">${PRAZOS.map(([m, n]) => `<button type="button" data-m="${m}" class="${prazoSel == m ? 'on' : ''}">${n}</button>`).join('')}<button type="button" data-m="" data-outro class="${form.prazo && !form.meses ? 'on' : ''}">📅 Outra data</button></div>
+        <label class="og-f og-outro" ${form.prazo && !form.meses ? '' : 'hidden'}>Mês e ano do objetivo<input id="og-mes" class="sv-in" type="month" min="${new Date().toISOString().slice(0, 7)}" value="${form.prazo && !form.meses ? form.prazo.slice(0, 7) : ''}"></label>
+        <p class="og-pm" id="og-pm"></p>
         <button type="button" class="og-save" data-save>Salvar objetivo</button>
         ${form.id ? '<button type="button" class="og-del" data-del>Apagar objetivo</button>' : ''}`;
     }
   }
+  function porMes() {
+    const el = document.getElementById('og-pm'); if (!el) return;
+    const alvo = num((document.getElementById('og-alvo') || {}).value || ''), gu = num((document.getElementById('og-gu') || {}).value || '');
+    let m = form.meses; const om = document.getElementById('og-mes');
+    if (!m && om && om.value) m = mesesAte(om.value + '-01');
+    el.innerHTML = alvo > gu && m ? `Para chegar lá: guardar <b>${BRL.format(Math.ceil((alvo - gu) / Math.max(1, m)))} por mês</b> durante ${m} ${m > 1 ? 'meses' : 'mês'}.` : '';
+  }
+  document.addEventListener('input', (e) => { if (e.target && /^og-(alvo|gu|mes)$/.test(e.target.id)) porMes(); });
   function guardar(o) {
     const b = sheet().querySelector('.og-body'); const c = cat(o.categoria);
     form = { ...o, passo: 'add' };
@@ -151,13 +161,20 @@
     if (bt.dataset.pessoa) { form.pessoa = bt.dataset.pessoa; form.passo = 2; return passo(); }
     if (bt.dataset.cat) { form.categoria = bt.dataset.cat; form.titulo = ''; form.passo = 3; return passo(); }
     if (bt.hasAttribute('data-back')) { form.passo = form.passo === 3 ? 2 : 1; return passo(); }
-    if (bt.dataset.m !== undefined && form.passo === 3) { sheet().querySelectorAll('[data-m]').forEach((x) => x.classList.toggle('on', x === bt)); if (bt.dataset.m) { form.meses = +bt.dataset.m; } return; }
+    if (bt.dataset.m !== undefined && form.passo === 3) {
+      sheet().querySelectorAll('[data-m]').forEach((x) => x.classList.toggle('on', x === bt));
+      const box = sheet().querySelector('.og-outro');
+      if (bt.hasAttribute('data-outro')) { form.meses = null; box.hidden = false; const i = document.getElementById('og-mes'); i.focus(); if (i.showPicker) try { i.showPicker(); } catch (e) { /* ok */ } }
+      else { box.hidden = true; form.meses = +bt.dataset.m; form.prazo = null; }
+      porMes(); return;
+    }
     if (bt.dataset.v) { const i = document.getElementById('og-val'); i.value = String(num(i.value) + +bt.dataset.v); return; }
     if (bt.hasAttribute('data-save')) {
       const tit = document.getElementById('og-tit').value.trim() || cat(form.categoria)[2];
       const alvo = num(document.getElementById('og-alvo').value), gu = num(document.getElementById('og-gu').value);
       if (!alvo) { document.getElementById('og-alvo').focus(); document.getElementById('og-alvo').classList.add('err'); return; }
       let prazo = form.prazo || null;
+      const om = document.getElementById('og-mes'); if (!form.meses && om && om.value) prazo = om.value + '-01';
       if (form.meses) { const d = new Date(); d.setMonth(d.getMonth() + form.meses, 1); prazo = d.toISOString().slice(0, 10); }
       bt.disabled = true; bt.textContent = 'Salvando…';
       try { await window.APP.objetivos.salvar({ id: form.id, pessoa: form.pessoa || 'familia', categoria: form.categoria || 'outro', titulo: tit, valor_alvo: alvo, valor_guardado: gu, prazo }); fechar(); carregar(); }
