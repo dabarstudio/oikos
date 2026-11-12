@@ -34,7 +34,7 @@
 <script src="vendor/d3.min.js"></script>
 <script src="vendor/supabase.js"></script>
 <script src="config.js"></script>
-<script src="app.js?v=17"></script>
+<script src="app.js?v=19"></script>
 <script src="mobile.js?v=7"></script>
 <script src="mobile-contas.js?v=1"></script>
 <script src="sabedoria.js?v=4"></script>
@@ -46,7 +46,7 @@
 <script src="bancos.js?v=1"></script>
 <script src="vales.js?v=2"></script>
 <script src="bens.js?v=1"></script>
-<script src="raiox.js?v=2"></script>
+<script src="raiox.js?v=3"></script>
 <script src="projetos.js?v=4"></script>
 <script src="voz.js?v=1"></script>
 <script src="onboarding.js?v=1"></script>
@@ -225,9 +225,10 @@
   <header class="fv-head" id="topo">
     <h1 class="fv-title">Finanças da Família Sanches Vital</h1>
     <p class="fv-take" id="takeaway">
-      <span class="lx-take-lbl">No ano</span>, entraram <span class="n dash-skeleton" id="tk-in" data-source="mensal" data-field="entradas" data-where="mes=total">—</span>
-      e saíram <span class="n dash-skeleton" id="tk-out" data-source="mensal" data-field="saidas" data-where="mes=total">—</span>:
-      resultado de <span class="n dash-skeleton" id="tk-res" data-source="mensal" data-field="resultado" data-where="mes=total">—</span>.
+      <span class="lx-take-lbl">No ano</span>, a família recebeu <span class="n dash-skeleton" id="tk-in" data-source="mensal" data-field="entradas" data-where="mes=total">—</span>,
+      gastou <span class="n dash-skeleton" id="tk-out" data-source="mensal" data-field="saidas" data-where="mes=total">—</span>
+      e investiu <span class="n dash-skeleton" id="tk-inv" data-source="mensal" data-field="investido" data-where="mes=total">—</span>:
+      sobra de caixa de <span class="n dash-skeleton" id="tk-res" data-source="mensal" data-field="resultado" data-where="mes=total">—</span>.
       Ainda há <span class="n dash-skeleton" id="tk-id" data-source="mensal" data-field="a_identificar" data-where="mes=total">—</span> em gastos sem categoria.
     </p>
   </header>
@@ -252,9 +253,10 @@
   <!-- VISÃO GERAL -->
   <section class="fv-page" id="visao" role="tabpanel">
     <div class="fv-kpis">
-      <div class="fv-kpi" id="kpi-in"><div class="k">Entradas</div><div class="v dash-skeleton" id="k-in" data-source="mensal" data-field="entradas" data-where="mes=total">—</div><div class="s lx-per">jan–nov/26</div></div>
-      <div class="fv-kpi" id="kpi-out"><div class="k">Saídas</div><div class="v dash-skeleton" id="k-out" data-source="mensal" data-field="saidas" data-where="mes=total">—</div><div class="s">sem contar transferências do casal</div></div>
-      <div class="fv-kpi" id="kpi-res"><div class="k">Resultado</div><div class="v dash-skeleton" id="k-res" data-source="mensal" data-field="resultado" data-where="mes=total">—</div><div class="s">entradas menos saídas</div></div>
+      <div class="fv-kpi" id="kpi-in"><div class="k">Total recebido</div><div class="v dash-skeleton" id="k-in" data-source="mensal" data-field="entradas" data-where="mes=total">—</div><div class="s lx-per">jan–nov/26</div></div>
+      <div class="fv-kpi" id="kpi-out"><div class="k">Total gasto</div><div class="v dash-skeleton" id="k-out" data-source="mensal" data-field="saidas" data-where="mes=total">—</div><div class="s">sem transferências do casal e sem investimentos</div></div>
+      <div class="fv-kpi" id="kpi-inv"><div class="k">Total investido</div><div class="v dash-skeleton" id="k-inv" data-source="mensal" data-field="investido" data-where="mes=total">—</div><div class="s">guardado em aplicações e reserva: não é gasto</div></div>
+      <div class="fv-kpi" id="kpi-res"><div class="k">Sobrou no caixa</div><div class="v dash-skeleton" id="k-res" data-source="mensal" data-field="resultado" data-where="mes=total">—</div><div class="s">recebido − gasto − investido</div></div>
       <div class="fv-kpi" id="kpi-saldo"><div class="k">Saldo no fim do período</div><div class="v dash-skeleton" id="k-saldo" data-source="mensal" data-field="saldo_final" data-where="mes=total">—</div><div class="s">Bradesco + dinheiro em espécie</div></div>
       <div class="fv-kpi" id="kpi-juros"><div class="k">Juros, IOF e tarifas</div><div class="v dash-skeleton" id="k-juros" data-source="mensal" data-field="juros" data-where="mes=total">—</div><div class="s"><span id="k-dias" data-source="mensal" data-field="dias_negativo" data-where="mes=total">—</span> dias no cheque especial</div></div>
     </div>
@@ -612,15 +614,16 @@
       document.querySelector('.lx-per').textContent = row ? row.rotulo : '';
     }
     const w = 'mes=' + enc(mes);
-    setVal('tk-in', BRL0.format, 'entradas', w); setVal('tk-out', BRL0.format, 'saidas', w);
+    setVal('tk-in', BRL0.format, 'entradas', w); setVal('tk-out', BRL0.format, 'saidas', w); setVal('tk-inv', BRL0.format, 'investido', w);
     setVal('tk-res', (v) => (v >= 0 ? '+' : '') + BRL0.format(v), 'resultado', w); setVal('tk-id', BRL0.format, 'a_identificar', w);
   }
 
   function drawVisao() {
     const mes = window.FV.mes(), w = 'mes=' + enc(mes);
-    setVal('k-in', BRL.format, 'entradas', w); setVal('k-out', BRL.format, 'saidas', w);
+    setVal('k-in', BRL.format, 'entradas', w); setVal('k-out', BRL.format, 'saidas', w); setVal('k-inv', BRL.format, 'investido', w);
     const r = setVal('k-res', (v) => (v >= 0 ? '+' : '') + BRL.format(v), 'resultado', w);
     const kr = document.getElementById('k-res'); if (r) kr.style.color = r.resultado < 0 ? 'var(--color-bad)' : 'var(--color-ok)';
+    if (r) { const sub = document.querySelector('#kpi-res .s'); if (sub) sub.textContent = 'recebido − gasto − investido' + (Math.abs(r.transf || 0) >= 1 ? (r.transf > 0 ? ' − ' : ' + ') + BRL.format(Math.abs(r.transf)) + ' de transferências' : ''); }
     const s = setVal('k-saldo', BRL.format, 'saldo_final', w);
     const ks = document.getElementById('k-saldo'); if (s) ks.style.color = s.saldo_final < 0 ? 'var(--color-bad)' : '';
     setVal('k-juros', BRL.format, 'juros', w); setVal('k-dias', (v) => String(v), 'dias_negativo', w);

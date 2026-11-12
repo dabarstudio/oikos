@@ -117,7 +117,17 @@
     await carregarParcelas();
     try { bensApp = await window.APP.bens.listar(); } catch (e) { bensApp = []; }
   }
+  // investimento (aplicações/reserva) não é gasto: sai das "saídas" e vira "investido"
+  const ehInvest = (r) => r.tipo === 'Saída' && /INVEST/.test(r.mae || '') && !/IMOBILIZ/.test(r.conta || '');
+  function separarInvest(rows) {
+    const ct = rows.find((r) => r && r.id === 'contas'); const me = rows.find((r) => r && r.id === 'mensal');
+    if (!ct || !me) return rows;
+    const inv = {}; for (const r of ct.data) if (ehInvest(r)) inv[r.mes] = (inv[r.mes] || 0) + Number(r.valor || 0);
+    const data = me.data.map((m) => { const i = Math.round((inv[m.mes] || 0) * 100) / 100; return { ...m, investido: i, saidas: Math.round(((m.saidas || 0) - i) * 100) / 100, gastos_brutos: m.saidas, transf: Math.round(((m.entradas || 0) - (m.saidas || 0) - (m.resultado || 0)) * 100) / 100 }; });
+    return rows.map((r) => (r === me ? { ...me, data } : r));
+  }
   function setDados(rows) {
+    rows = separarInvest(rows);
     rows = mesclarParcelas(mesclarBens(aplicarLimites(rows)));
     for (const id of DATASETS) store.set(id, { status: 'missing', data: [] });
     for (const r of rows) store.set(r.id, { status: 'ok', data: r.data });

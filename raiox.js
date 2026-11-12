@@ -17,7 +17,7 @@
     const base = meses.length ? meses : mensal;
     const n = base.length;
     const soma = (k, l) => (l || base).reduce((s, m) => s + Number(m[k] || 0), 0);
-    const ent = soma('entradas') / n, sai = soma('saidas') / n, res = soma('resultado') / n;
+    const ent = soma('entradas') / n, sai = soma('saidas') / n, res = (soma('resultado') + soma('investido')) / n;
     const ult3 = base.slice(-3);
     const itens = [];
 
@@ -25,7 +25,7 @@
     const taxa = ent > 0 ? res / ent : 0;
     itens.push({ k: 'sobra', ic: '💰', t: 'Quanto sobra no fim do mês',
       nv: taxa >= 0.1 ? 'ok' : taxa > 0 ? 'atn' : 'mal',
-      v: `${BRL0.format(res)}/mês`, s: `Em média sobram ${pct(Math.max(0, taxa))} do que entra. O ideal é guardar pelo menos 10%.`,
+      v: `${BRL0.format(res)}/mês`, s: `Em média ${pct(Math.max(0, taxa))} do que entra sobra ou é investido. O ideal é guardar pelo menos 10%.`,
       f: taxa >= 0.1 ? 'Continue assim e mande a sobra direto para a reserva no dia em que o dinheiro cai.' : `Para chegar a 10%, precisaria sobrar ${BRL0.format(ent * 0.1)} por mês, ${BRL0.format(Math.max(0, ent * 0.1 - res))} a mais que hoje. Os tetos das Metas já mostram de onde tirar.` });
 
     // 2. cheque especial
