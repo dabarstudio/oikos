@@ -479,6 +479,48 @@
         const { error } = await sb.from('objetivos').delete().eq('id', id); if (error) throw error;
       },
     },
+    // lista de compras (checklist da família) — nuvem; se a tabela ainda não existir, guarda no aparelho
+    compras: {
+      _local: false,
+      _ls() { try { return JSON.parse(localStorage.getItem('oikos-compras') || '[]'); } catch (e) { return []; } },
+      _sv(l) { try { localStorage.setItem('oikos-compras', JSON.stringify(l)); } catch (e) { /* ignora */ } },
+      _nuvem() { return !demo && !this._local && sb && household; },
+      async listar() {
+        if (this._nuvem()) {
+          const { data, error } = await sb.from('compras_app').select('*').eq('household_id', household.id).order('ordem').order('criado_em').limit(600);
+          if (!error && data) return data; this._local = true;
+        }
+        return this._ls();
+      },
+      async inserir(itens) {
+        const rows = itens.map((x) => ({ item: x.item, qtd: x.qtd || 1, unidade: x.unidade || null, preco_ref: x.preco_ref ?? null, onde: x.onde || null, origem: x.origem || 'minha', sugerida_id: x.sugerida_id || null, comprado: !!x.comprado, valor_pago: x.valor_pago ?? null, comprado_em: x.comprado ? new Date().toISOString() : null, ordem: x.ordem || 0 }));
+        if (this._nuvem()) {
+          const { data, error } = await sb.from('compras_app').insert(rows.map((r) => ({ ...r, household_id: household.id }))).select('*');
+          if (!error) return data; this._local = true;
+        }
+        const l = this._ls(); const novos = rows.map((r, i) => ({ ...r, id: 'c' + Date.now().toString(36) + i, criado_em: new Date().toISOString(), fechada_em: null })); this._sv(l.concat(novos)); return novos;
+      },
+      async alterar(id, campos) {
+        if (this._nuvem() && !String(id).startsWith('c')) { const { error } = await sb.from('compras_app').update(campos).eq('id', id); if (!error) return; }
+        const l = this._ls(); const i = l.findIndex((x) => x.id === id); if (i >= 0) { l[i] = { ...l[i], ...campos }; this._sv(l); }
+      },
+      async apagar(id) {
+        if (this._nuvem() && !String(id).startsWith('c')) { const { error } = await sb.from('compras_app').delete().eq('id', id); if (!error) return; }
+        this._sv(this._ls().filter((x) => x.id !== id));
+      },
+      async fechar(ids) {
+        const quando = new Date().toISOString();
+        if (this._nuvem()) { const nuv = ids.filter((id) => !String(id).startsWith('c')); if (nuv.length) await sb.from('compras_app').update({ fechada_em: quando }).in('id', nuv); }
+        const l = this._ls(); l.forEach((x) => { if (ids.includes(x.id)) x.fechada_em = quando; }); this._sv(l);
+      },
+      // notinhas já lidas dos últimos dias, com os itens, para conferir com a lista
+      async notasLidas() {
+        if (demo) return [{ id: 'dn1', loja: 'Supermercado Exemplo', data_compra: new Date().toISOString().slice(0, 10), total: 87.4, itens: [{ descricao: 'ARROZ TIPO 1 5KG', total: 27.9 }, { descricao: 'FEIJAO CARIOCA 1KG', total: 8.49 }, { descricao: 'CHOCOLATE AO LEITE 90G', total: 6.99 }, { descricao: 'DETERGENTE LIQ 500ML', total: 2.59 }] }];
+        const desde = new Date(Date.now() - 10 * 864e5).toISOString();
+        const { data, error } = await sb.from('notas').select('id, loja, data_compra, total, itens, criado_em').eq('household_id', household.id).eq('status', 'lida').gte('criado_em', desde).order('criado_em', { ascending: false }).limit(8);
+        if (error) return []; return (data || []).filter((n) => (n.itens || []).length);
+      },
+    },
     async listarNotas() {
       if (demo) return [];
       const { data, error } = await sb.from('notas').select('*').eq('household_id', household.id).order('criado_em', { ascending: false }).limit(10);
