@@ -12,11 +12,12 @@
     fixos: '<rect x="4" y="4" width="16" height="17" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/>',
     patrimonio: '<path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6"/>',
     plano: '<path d="M4 19l5-6 4 3 7-9"/><path d="M15 7h5v5"/>',
+    veiculos: '<path d="M5 17h14M5 17v-5l2-5h10l2 5v5M5 17v2M19 17v2"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/>',
     sair: '<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>',
   };
   const svg = (k) => '<svg viewBox="0 0 24 24" aria-hidden="true">' + I[k] + '</svg>';
-  const NOMES = { casa: 'Início', objetivos: 'Objetivos', visao: 'Resumo do ano', metas: 'Metas', mercado: 'Mercado', lanc: 'Gastos', contas: 'Contas', fixos: 'Gastos fixos', patrimonio: 'Patrimônio', plano: 'Plano de aportes' };
-  const MAIS = [['metas', 'Limites de gasto de cada categoria'], ['visao', 'Números do ano e gráficos'], ['contas', 'Entradas e saídas por conta, mês a mês'], ['fixos', 'Contas que se repetem todo mês'], ['patrimonio', 'O que a família tem e deve'], ['plano', 'Para onde vai a sobra do mês']];
+  const NOMES = { casa: 'Início', objetivos: 'Objetivos', visao: 'Resumo do ano', metas: 'Metas', mercado: 'Mercado', lanc: 'Gastos', contas: 'Contas', fixos: 'Gastos fixos', patrimonio: 'Patrimônio', plano: 'Plano de aportes', veiculos: 'Carros' };
+  const MAIS = [['veiculos', 'Combustível, manutenção e despesas'], ['metas', 'Limites de gasto de cada categoria'], ['visao', 'Números do ano e gráficos'], ['contas', 'Entradas e saídas por conta, mês a mês'], ['fixos', 'Contas que se repetem todo mês'], ['patrimonio', 'O que a família tem e deve'], ['plano', 'Para onde vai a sobra do mês']];
 
   function montar() {
     if (document.querySelector('.ob-nav') || !document.getElementById('tab-visao')) return;
@@ -30,7 +31,7 @@
     document.body.append(nav, scrim, sheet);
 
     const fechar = () => document.body.classList.remove('ob-open');
-    const ir = (k) => { fechar(); if (k === 'negocio') { window.OIKOS_NEG && window.OIKOS_NEG.show(); sync(); return; } window.OIKOS_NEG && window.OIKOS_NEG.hide(); if (k === 'casa') { window.OIKOS_OBJ && window.OIKOS_OBJ.hide(); window.OIKOS_CASA && window.OIKOS_CASA.show(); sync(); return; } if (k === 'objetivos') { window.OIKOS_OBJ && window.OIKOS_OBJ.show(); sync(); return; } window.OIKOS_CASA && window.OIKOS_CASA.hide(); window.OIKOS_OBJ && window.OIKOS_OBJ.hide(); const b = document.getElementById('tab-' + k); if (b) b.click(); window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' }); };
+    const ir = (k) => { fechar(); if (k === 'veiculos') { window.OIKOS_NEG && window.OIKOS_NEG.hide(); window.OIKOS_OBJ && window.OIKOS_OBJ.hide(); window.OIKOS_CASA && window.OIKOS_CASA.hide(); window.OIKOS_VEI && window.OIKOS_VEI.show(); sync(); return; } window.OIKOS_VEI && window.OIKOS_VEI.hide(); if (k === 'negocio') { window.OIKOS_NEG && window.OIKOS_NEG.show(); sync(); return; } window.OIKOS_NEG && window.OIKOS_NEG.hide(); if (k === 'casa') { window.OIKOS_OBJ && window.OIKOS_OBJ.hide(); window.OIKOS_CASA && window.OIKOS_CASA.show(); sync(); return; } if (k === 'objetivos') { window.OIKOS_OBJ && window.OIKOS_OBJ.show(); sync(); return; } window.OIKOS_CASA && window.OIKOS_CASA.hide(); window.OIKOS_OBJ && window.OIKOS_OBJ.hide(); const b = document.getElementById('tab-' + k); if (b) b.click(); window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' }); };
     document.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => ir(b.dataset.go)));
     window.OIKOS_IR = ir;
     nav.querySelector('[data-mais]').addEventListener('click', () => document.body.classList.toggle('ob-open'));
@@ -45,7 +46,7 @@
 
     const sync = () => {
       const ativa = document.querySelector('.fv-tab[aria-selected="true"]');
-      const k = document.body.classList.contains('ng-on') ? 'negocio' : document.body.classList.contains('og-on') ? 'objetivos' : document.body.classList.contains('cs-on') ? 'casa' : (ativa ? ativa.dataset.tab : 'visao');
+      const k = document.body.classList.contains('vh-on') ? 'veiculos' : document.body.classList.contains('ng-on') ? 'negocio' : document.body.classList.contains('og-on') ? 'objetivos' : document.body.classList.contains('cs-on') ? 'casa' : (ativa ? ativa.dataset.tab : 'visao');
       document.body.dataset.tab = k;
       t.textContent = k === 'negocio' ? (window.OIKOS_NEG ? window.OIKOS_NEG.nome() : '') : (NOMES[k] || '');
       nav.querySelectorAll('button').forEach((b) => b.removeAttribute('aria-current'));

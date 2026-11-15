@@ -8,9 +8,11 @@
   ];
   // envelope do app → (nível, chave) da planilha, para somar nos envelopes do Início
   const MAPA = { mercado: ['conta', 'MERCADO'], acougue: ['conta', 'AÇOUGUE'], comerfora: ['conta', 'ALIMENTAÇÃO FORA'], combustivel: ['mae', 'VEÍCULO E TRANSPORTE'],
-    transporte: ['mae', 'VEÍCULO E TRANSPORTE'], saude: ['mae', 'SAÚDE E BEM-ESTAR'], abner: ['mae', 'ABNER'], casa: ['mae', 'CASA'], lazer: ['mae', 'LAZER, PRESENTES E ASSINATURAS'] };
+    transporte: ['mae', 'VEÍCULO E TRANSPORTE'], veiculo: ['mae', 'VEÍCULO E TRANSPORTE'], saude: ['mae', 'SAÚDE E BEM-ESTAR'], abner: ['mae', 'ABNER'], casa: ['mae', 'CASA'], lazer: ['mae', 'LAZER, PRESENTES E ASSINATURAS'] };
   const FORMAS = [['dinheiro', '💵', 'Dinheiro'], ['pix', '⚡', 'PIX'], ['credito', '💳', 'Cartão de crédito'], ['debito', '🏦', 'Débito']];
-  const cat = (k) => CATS.find((c) => c[0] === k) || CATS[CATS.length - 1];
+  // categorias que só aparecem em lançamentos vindos de outras telas (ex.: módulo Veículos)
+  const EXTRA = [['veiculo', '🔧', 'Carro (manutenção e despesas)']];
+  const cat = (k) => CATS.find((c) => c[0] === k) || EXTRA.find((c) => c[0] === k) || CATS[CATS.length - 1];
   const num = (v) => { const n = parseFloat(String(v).replace(/[^\d,.-]/g, '').replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.')); return isFinite(n) ? n : 0; };
   const hoje = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
   const ontem = () => { const d = new Date(Date.now() - 864e5); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };

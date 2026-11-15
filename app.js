@@ -402,6 +402,70 @@
         const l = this._ls(); if (v.id) { const i = l.findIndex((x) => x.id === v.id); if (i >= 0) l[i] = { ...l[i], ...row }; } else l.push({ ...row, id: 'v' + Date.now() }); this._sv(l);
       },
     },
+    // módulo Veículos: carros e registros (abastecimento, serviço, despesa, compra)
+    veiculos: {
+      _local: demo,
+      _ls(k) { try { return JSON.parse(localStorage.getItem('oikos-vei-' + k) || '[]'); } catch (e) { return []; } },
+      _sv(k, l) { try { localStorage.setItem('oikos-vei-' + k, JSON.stringify(l)); } catch (e) { /* ignora */ } },
+      _nuvem() { return !this._local && sb && household; },
+      async listar() {
+        if (this._nuvem()) {
+          const { data, error } = await sb.from('veiculos').select('*').eq('household_id', household.id).order('ordem').order('criado_em');
+          if (!error && data) return data; if (!demo) throw error || new Error('sem acesso'); this._local = true;
+        }
+        return this._ls('carros');
+      },
+      async salvarVeiculo(v) {
+        const row = { nome: v.nome, modelo: v.modelo || null, ano: v.ano || null, placa: v.placa || null, combustivel: v.combustivel || 'Flex', emoji: v.emoji || '🚗', ativo: v.ativo !== false };
+        if (this._nuvem()) {
+          const r = v.id ? await sb.from('veiculos').update(row).eq('id', v.id).select('*').single() : await sb.from('veiculos').insert({ ...row, household_id: household.id }).select('*').single();
+          if (r.error) throw r.error; return r.data;
+        }
+        const l = this._ls('carros'); let out;
+        if (v.id) { const i = l.findIndex((x) => x.id === v.id); out = l[i] = { ...l[i], ...row }; } else { out = { ...row, id: 'v' + Date.now().toString(36) }; l.push(out); }
+        this._sv('carros', l); return out;
+      },
+      async apagarVeiculo(id) {
+        if (this._nuvem()) { const { error } = await sb.from('veiculos').delete().eq('id', id); if (error) throw error; return; }
+        this._sv('carros', this._ls('carros').filter((x) => x.id !== id)); this._sv('reg', this._ls('reg').filter((x) => x.veiculo_id !== id));
+      },
+      async registros(vid) {
+        if (this._nuvem()) {
+          const { data, error } = await sb.from('veiculo_reg').select('*').eq('veiculo_id', vid).order('data', { ascending: false }).order('km', { ascending: false, nullsFirst: false }).limit(2000);
+          if (error) throw error; return data;
+        }
+        return this._ls('reg').filter((x) => x.veiculo_id === vid);
+      },
+      // gasto: { envelope, descricao, forma } → também anota no orçamento (gastos_app)
+      async salvarReg(r, gasto) {
+        const row = { veiculo_id: r.veiculo_id, tipo: r.tipo, data: r.data, km: r.km ?? null, valor: r.valor ?? null, dados: r.dados || {} };
+        if (this._nuvem()) {
+          if (r.id) { const { error } = await sb.from('veiculo_reg').update(row).eq('id', r.id); if (error) throw error; return; }
+          let gasto_id = null;
+          if (gasto && row.valor) {
+            const { data: u } = await sb.auth.getUser();
+            const pes = minhaPessoa || (u && u.user && u.user.email.startsWith('jheniffer') ? 'jheniffer' : u && u.user ? u.user.email.split('@')[0] : null);
+            const g = await sb.from('gastos_app').insert({ household_id: household.id, data: row.data, valor: row.valor, envelope: gasto.envelope, descricao: gasto.descricao, forma: gasto.forma || 'pix', pessoa: pes }).select('id').single();
+            if (g.error) throw g.error; gasto_id = g.data.id;
+          }
+          const { error } = await sb.from('veiculo_reg').insert({ ...row, household_id: household.id, gasto_id });
+          if (error) { if (gasto_id) await sb.from('gastos_app').delete().eq('id', gasto_id); throw error; }
+          if (gasto_id) document.dispatchEvent(new Event('oikos:recarregar-gastos'));
+          return;
+        }
+        const l = this._ls('reg');
+        if (r.id) { const i = l.findIndex((x) => x.id === r.id); if (i >= 0) l[i] = { ...l[i], ...row }; } else l.push({ ...row, id: 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5) });
+        this._sv('reg', l);
+      },
+      async apagarReg(r) {
+        if (this._nuvem()) {
+          const { error } = await sb.from('veiculo_reg').delete().eq('id', r.id); if (error) throw error;
+          if (r.gasto_id) { await sb.from('gastos_app').delete().eq('id', r.gasto_id).eq('conciliado', false); document.dispatchEvent(new Event('oikos:recarregar-gastos')); }
+          return;
+        }
+        this._sv('reg', this._ls('reg').filter((x) => x.id !== r.id));
+      },
+    },
     bancos: {
       PADRAO: [
         { nome: 'Bradesco', dono: 'george', cor: '#cc092f', ordem: 1 }, { nome: 'Bradesco', dono: 'jheniffer', cor: '#cc092f', ordem: 2 },
